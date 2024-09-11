@@ -1,8 +1,7 @@
-import { GitHubLogoIcon, PersonIcon } from '@radix-ui/react-icons';
+import { GitHubLogoIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 import React from 'react';
 import { Button } from '../components/ui/button';
-import { ModeToggle } from '@/components/mode-toggle';
 
 export default function Header() {
   return (

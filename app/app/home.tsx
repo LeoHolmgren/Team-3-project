@@ -6,7 +6,7 @@ import { Chart } from '@/components/chart';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
-  const { isPending, error, data, isFetching } = useQuery({
+  const { isPending, error, data } = useQuery({
     queryKey: ['repoData'],
     queryFn: async () => {
       const response = await fetch('https://api.github.com/repos/TanStack/query');
