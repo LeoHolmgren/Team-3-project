@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { RegionSelect } from '@/components/region-select';
 import CurrentPrice from '@/components/current-price';
+import { resolve } from 'path';
 
 export default function Home() {
   // TODO: connect to external API
@@ -10,11 +11,22 @@ export default function Home() {
   const { isPending, error, data } = useQuery({
     queryKey: ['repoData'],
     queryFn: async () => {
-      const response = await fetch('https://api.github.com/repos/TanStack/query');
+
+      const currTime = new Date();
+      const year = currTime.getFullYear();
+      const month = currTime.getMonth() + 1;
+      const day = currTime.getDate();
+      const hour = currTime.getHours(); 
+
+      const zone = "SE3"
+      const URL = "https://www.elprisetjustnu.se/api/v1/prices/" + year + "/0" + month + "-" + day + "_" + zone + ".json";
+
+      const response = await fetch(URL);
 
       const data = await response.json();
 
-      return data.stargazers_count as number;
+      return data[hour]["SEK_per_kWh"] as number;
+
     },
   });
 
