@@ -1,14 +1,18 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { RegionSelect } from '@/components/region-select';
+import { RegionSelect, Status, statuses } from '@/components/region-select';
 import CurrentPrice from '@/components/current-price';
 import { resolve } from 'path';
 import { useState } from 'react';
 
 export default function Home() {
+  const [selectedZone, setSelectedZone] = useState<Status>(statuses[0]);
+
+  console.log(selectedZone);
+
   const { isPending, error, data } = useQuery({
-    queryKey: ['repoData'],
+    queryKey: ['currentPrice'],
     queryFn: async () => {
       const currTime = new Date();
       const year = currTime.getFullYear();
@@ -16,9 +20,16 @@ export default function Home() {
       const day = currTime.getDate();
       const hour = currTime.getHours();
 
-      const zone = 'SE3';
       const URL =
-        'https://www.elprisetjustnu.se/api/v1/prices/' + year + '/0' + month + '-' + day + '_' + zone + '.json';
+        'https://www.elprisetjustnu.se/api/v1/prices/' +
+        year +
+        '/0' +
+        month +
+        '-' +
+        day +
+        '_' +
+        selectedZone.value +
+        '.json';
 
       const response = await fetch(URL);
 
@@ -35,7 +46,7 @@ export default function Home() {
       <div className="flex flex-col items-center justify-center gap-6">
         <CurrentPrice isPending={isPending} value={data ?? 0} />
 
-        <RegionSelect />
+        <RegionSelect selectedZone={selectedZone} setSelectedZone={setSelectedZone} />
 
         {/* <Chart /> */}
       </div>
