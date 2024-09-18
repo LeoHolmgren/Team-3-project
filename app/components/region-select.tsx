@@ -15,16 +15,20 @@ type Status = {
 
 const statuses: Status[] = [
   {
-    value: 'gothenburg',
-    label: 'Göteborg',
+    value: 'SE1',
+    label: 'SE1: Luleå / Norra Sverige',
   },
   {
-    value: 'stockholm',
-    label: 'Stockholm',
+    value: 'SE2',
+    label: 'SE2: Sundsvall / Norra Mellansverige',
   },
   {
-    value: 'malme',
-    label: 'Malmö',
+    value: 'SE3',
+    label: 'SE3: Stockholm / Södra Mellansverige',
+  },
+  {
+    value: 'SE4',
+    label: 'SE4: Malmö / Södra Sverige ',
   },
 ];
 
@@ -37,11 +41,11 @@ export function RegionSelect() {
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="w-[150px] justify-start">
-            {selectedRegion ? <>{selectedRegion.label}</> : <>+ Set region</>}
+          <Button variant="outline" className="w-full justify-center">
+            {selectedRegion ? <>{selectedRegion.label}</> : <>Select Zone</>}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0" align="start">
+        <PopoverContent className="p-0" align="center">
           <RegionList setOpen={setOpen} setSelectedRegion={setSelectedRegion} />
         </PopoverContent>
       </Popover>
@@ -51,8 +55,8 @@ export function RegionSelect() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline" className="w-[150px] justify-start">
-          {selectedRegion ? <>{selectedRegion.label}</> : <>+ Set region</>}
+        <Button variant="outline" className="w-full justify-center">
+          {selectedRegion ? <>{selectedRegion.label}</> : <>Select Zone</>}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
@@ -73,7 +77,7 @@ function RegionList({
 }) {
   return (
     <Command>
-      <CommandInput placeholder="Filter region..." />
+      <CommandInput placeholder="Filter zone..." />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup>

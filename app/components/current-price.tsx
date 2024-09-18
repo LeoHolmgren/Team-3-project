@@ -6,7 +6,7 @@ export default function CurrentPrice({ isPending, value }: { isPending: boolean;
       {isPending ? (
         <Skeleton className="h-[120px] w-[320px]" />
       ) : (
-        <h1 className="inline-block h-[120px] bg-gradient-to-r from-indigo-500 via-sky-500 to-emerald-500 bg-clip-text text-center text-9xl font-bold text-transparent">
+        <h1 className="inline-block h-[120px] bg-gradient-to-r from-indigo-500 via-sky-500 to-emerald-500 bg-clip-text text-center text-7xl font-bold text-transparent sm:text-8xl md:text-9xl">
           {new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 3,
             maximumFractionDigits: 3,
