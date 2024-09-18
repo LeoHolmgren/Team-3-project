@@ -2,7 +2,7 @@ import { Skeleton } from './ui/skeleton';
 
 export default function CurrentPrice({ isPending, value }: { isPending: boolean; value: number }) {
   return (
-    <div className="flex items-center gap-6">
+    <div className="flex items-center gap-0">
       {isPending ? (
         <Skeleton className="h-[120px] w-[320px]" />
       ) : (
@@ -13,7 +13,7 @@ export default function CurrentPrice({ isPending, value }: { isPending: boolean;
           }).format(value)}
         </h1>
       )}
-      <div className="text-2xl">kWh</div>
+      <p className="text-2xl" style={{alignSelf: "flex-end"}}>kWh</p>
     </div>
   );
 }
