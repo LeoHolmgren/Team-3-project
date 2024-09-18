@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useQueryClient } from '@tanstack/react-query';
 
 export type Status = {
   value: string;
@@ -81,7 +80,6 @@ function RegionList({
   setOpen: (open: boolean) => void;
   setSelectedZone: (status: Status) => void;
 }) {
-  const queryClient = useQueryClient();
 
   return (
     <Command>
@@ -95,7 +93,6 @@ function RegionList({
               value={status.value}
               onSelect={(value) => {
                 setSelectedZone(statuses.find((priority) => priority.value === value) || statuses[0]);
-                queryClient.invalidateQueries({ queryKey: ['currentPrice'] });
                 setOpen(false);
               }}
             >

@@ -3,15 +3,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { RegionSelect, Status, statuses } from '@/components/region-select';
 import CurrentPrice from '@/components/current-price';
-import { resolve } from 'path';
-import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
+
   const [selectedZone, setSelectedZone] = useState<Status>(statuses[0]);
 
-  console.log(selectedZone);
-
-  const { isPending, error, data } = useQuery({
+  const { isPending, error, data, refetch } = useQuery({
     queryKey: ['currentPrice'],
     queryFn: async () => {
       const currTime = new Date();
@@ -37,6 +36,10 @@ export default function Home() {
 
       return data[hour]['SEK_per_kWh'] as number;
     },
+  });
+
+  useEffect(() => {
+    refetch();
   });
 
   if (error) return 'An error has occurred: ' + error.message;
