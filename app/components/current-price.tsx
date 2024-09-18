@@ -13,7 +13,7 @@ export default function CurrentPrice({ isPending, value }: { isPending: boolean;
           }).format(value)}
         </h1>
       )}
-      <p className="text-2xl">kWh</p>
+      <p className="text-2xl">SEK / kWh</p>
     </div>
   );
 }
