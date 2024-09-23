@@ -42,6 +42,8 @@ export function RegionSelect({ selectedZone, setSelectedZone, locationSetRef, re
   const [locationIsSet, locationSet] = useState(false);
   const [regionIsSet, regionSet] = useState(false);
 
+  console.log(regionIsSet);
+
   locationSetRef.current = locationSet;
   regionSetRef.current = regionSet;
 
@@ -50,7 +52,7 @@ export function RegionSelect({ selectedZone, setSelectedZone, locationSetRef, re
   const dropdown_btn = <div className="h-[3.5em] w-full">
     <div className={
       "w-full h-full p-[0.5em] text-[1em] leading-[1] cursor-pointer flex justify-between items-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground text-[#a3a3a3]" 
-      + (regionIsSet ? " border-[#5164cd]" : "")
+      + (regionIsSet ? " !border-[#5164cd]" : "")
     }>
       <div className="text-[#555] font-[600]">
         {selectedZone.value}
@@ -63,7 +65,7 @@ export function RegionSelect({ selectedZone, setSelectedZone, locationSetRef, re
   </div>;
 
   const location = <div className="h-[3.5em] aspect-square">
-    <Button variant="outline" className={"justify-center w-full h-full p-[0.5em] text-[1.1em] leading-[1] text-[#555]" + (locationIsSet ? " border-[#5164cd] text-[#5164cd] hover:text-[#5164cd]" : "")} >
+    <Button variant="outline" className={"justify-center w-full h-full p-[0.5em] text-[1.1em] leading-[1] text-[#555]" + (locationIsSet ? " !border-[#5164cd] !text-[#5164cd] !hover:text-[#5164cd]" : "")} >
       <FaLocationDot />
     </Button>
   </div>;

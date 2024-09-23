@@ -15,6 +15,9 @@ export default function Home() {
   
   const [selectedZone, setZone] = useState<BiddingZone>(ZONES[0]);
 
+  const location_set_ref: MutableRefObject<((set: boolean) => void) | null> = useRef(null);
+  const region_set_ref: MutableRefObject<((set: boolean) => void) | null> = useRef(null);
+
   const { isFetching, error, data, refetch } = useQuery({
     queryKey: ['currentPrice'],
     queryFn: async () => {
@@ -62,9 +65,6 @@ export default function Home() {
     setZone(zone);
     refetch();
   }
-
-  const location_set_ref: MutableRefObject<((set: boolean) => void) | null> = useRef(null);
-  const region_set_ref: MutableRefObject<((set: boolean) => void) | null> = useRef(null);
 
   if (error) return 'An error has occurred: ' + error.message;
 
