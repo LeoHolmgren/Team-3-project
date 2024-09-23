@@ -3,11 +3,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { RegionSelect, Status, statuses } from '@/components/region-select';
 import CurrentPrice from '@/components/current-price';
-import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
 export default function Home() {
-
   const [selectedZone, setSelectedZone] = useState<Status>(statuses[0]);
 
   const { isPending, error, data, refetch } = useQuery({
