@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { RegionSelect, Status, statuses } from '@/components/region-select';
 import CurrentPrice from '@/components/current-price';
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
 
 const PRICE_LABEL = {
   HIGH: <h2 style={{ opacity: "0.85", fontSize: "5em", lineHeight: 1.1, fontWeight: 800 }} className={"inline-block bg-gradient-to-r from-[#cd7a51] to-[#cd5181] bg-clip-text text-transparent"}>HIGH</h2>,
@@ -13,6 +12,7 @@ const PRICE_LABEL = {
 }
 
 export default function Home() {
+  
   const [selectedZone, setSelectedZone] = useState<Status>(statuses[0]);
 
   const { isPending, error, data, refetch } = useQuery({
@@ -50,7 +50,7 @@ export default function Home() {
   if (error) return 'An error has occurred: ' + error.message;
 
   return (
-    <div className="flex flex-col items-center justify-center gap-6 mt-[100px]">
+    <div className="flex flex-col items-center justify-center gap-6 mt-[40px]">
       
       <CurrentPrice isPending={isPending} value={data ?? 0} property='Price' label={PRICE_LABEL.LOW} />
       <br />

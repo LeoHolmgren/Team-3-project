@@ -18,19 +18,19 @@ export type Status = {
 export const statuses: Status[] = [
   {
     value: 'SE1',
-    label: 'SE1: Luleå / Norra Sverige',
+    label: 'North Sweden',
   },
   {
     value: 'SE2',
-    label: 'SE2: Sundsvall / Norra Mellansverige',
+    label: 'North Central Sweden',
   },
   {
     value: 'SE3',
-    label: 'SE3: Stockholm / Södra Mellansverige',
+    label: 'South Central Sweden',
   },
   {
     value: 'SE4',
-    label: 'SE4: Malmö / Södra Sverige ',
+    label: 'South Sweden',
   },
 ];
 
@@ -42,13 +42,19 @@ export function RegionSelect({ selectedZone, setSelectedZone }: { selectedZone: 
   let dropdown;
 
   const dropdown_btn = <div className="h-[3.5em] w-full">
-    <Button variant="outline" className="w-full h-full justify-center p-[0] text-[1em] leading-[1]">
+    <div className="w-full h-full p-[0.5em] text-[1em] leading-[1] cursor-pointer flex justify-between items-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground text-[#a3a3a3]">
+      <div className="text-[#555] font-[600]">
+        {selectedZone.value}
+      </div>
       {selectedZone ? <>{selectedZone.label}</> : <>Select Zone</>}
-    </Button>
+      <div className="text-[#555] font-[600]">
+        20:00
+      </div>
+    </div>
   </div>;
 
   const location = <div className="h-[3.5em] aspect-square">
-    <Button variant="outline" className="justify-center w-full h-full p-[0] text-[1.1em] leading-[1]">
+    <Button variant="outline" className="justify-center w-full h-full p-[0.5em] text-[1.1em] leading-[1]">
       <FaLocationDot />
     </Button>
   </div>;
@@ -67,7 +73,13 @@ export function RegionSelect({ selectedZone, setSelectedZone }: { selectedZone: 
               setOpen(false);
             }}
           >
-            {status.label}
+            <div>
+              <span className="text-[#555] font-[600]">
+                {status.value}
+              </span>
+              &nbsp;
+              {status.label}
+            </div>
           </CommandItem>
         ))}
       </CommandGroup>

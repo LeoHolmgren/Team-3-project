@@ -8,9 +8,9 @@ export default function CurrentPrice({ isPending, value, property, label, ...obj
       <Skeleton className="h-[10em] w-[18em]" />
     ) : (
       <>
-        <h1 className="inline-block opacity-85 text-[1.7em] leading-[1.1] font-[100]">{property}</h1>
+          <h1 className="inline-block text-[1.7em] leading-[1.1] font-[100] text-[#737373]">{property}</h1>
         {label}
-        <h3 className="inline-block opacity-65 text-center text-[2em] leading-[1.1] font-[600] tracking-[-.4px]">
+          <h3 className="inline-block text-center text-[2em] leading-[1.1] font-[600] tracking-[-.4px] text-[#a3a3a3]">
           {new Intl.NumberFormat('en-US', {maximumSignificantDigits: 3}).format(value)}
           &nbsp;
           <span className="text-[0.5em] font-[100]">SEK / kWh</span>
