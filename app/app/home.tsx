@@ -1,9 +1,9 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { RegionSelect, Status, statuses } from '@/components/region-select';
+import { RegionSelect, BiddingZone, ZONES } from '@/components/region-select';
 import CurrentPrice from '@/components/current-price';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, MutableRefObject } from 'react';
 
 const PRICE_LABEL = {
   HIGH: <h2 style={{ opacity: "0.85", fontSize: "5em", lineHeight: 1.1, fontWeight: 800 }} className={"inline-block bg-gradient-to-r from-[#cd7a51] to-[#cd5181] bg-clip-text text-transparent"}>HIGH</h2>,
@@ -13,11 +13,22 @@ const PRICE_LABEL = {
 
 export default function Home() {
   
-  const [selectedZone, setSelectedZone] = useState<Status>(statuses[0]);
+  const [selectedZone, setZone] = useState<BiddingZone>(ZONES[0]);
 
-  const { isPending, error, data, refetch } = useQuery({
+  const { isFetching, error, data, refetch } = useQuery({
     queryKey: ['currentPrice'],
     queryFn: async () => {
+
+      if (region_set_ref.current) {
+        region_set_ref.current(false);
+      }
+
+      function delay(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+
+      await delay(500);
+
       const currTime = new Date();
       const year = currTime.getFullYear();
       const month = currTime.getMonth() + 1;
@@ -39,22 +50,30 @@ export default function Home() {
 
       const data = await response.json();
 
+      if (region_set_ref.current) {
+        region_set_ref.current(true);
+      }
+
       return data[hour]['SEK_per_kWh'] as number;
     },
   });
 
-  useEffect(() => {
+  const setSelectedZoneAndRefetch = (zone: BiddingZone) => {
+    setZone(zone);
     refetch();
-  });
+  }
+
+  const location_set_ref: MutableRefObject<((set: boolean) => void) | null> = useRef(null);
+  const region_set_ref: MutableRefObject<((set: boolean) => void) | null> = useRef(null);
 
   if (error) return 'An error has occurred: ' + error.message;
 
   return (
-    <div className="flex flex-col items-center justify-center gap-6 mt-[40px]">
+    <div className="flex flex-col items-center justify-center gap-6 mt-[70px]">
       
-      <CurrentPrice isPending={isPending} value={data ?? 0} property='Price' label={PRICE_LABEL.LOW} />
+      <CurrentPrice isPending={isFetching} value={data ?? 0} property='Price' label={PRICE_LABEL.LOW} />
       <br />
-      <RegionSelect selectedZone={selectedZone} setSelectedZone={setSelectedZone} />
+      <RegionSelect locationSetRef={location_set_ref} regionSetRef={region_set_ref} selectedZone={selectedZone} setSelectedZone={setSelectedZoneAndRefetch} />
       {/* <Chart /> */}
 
     </div>

@@ -5,7 +5,7 @@ import { Skeleton } from './ui/skeleton';
 export default function CurrentPrice({ isPending, value, property, label, ...objs }: { isPending: boolean; value: number, property: string, label: ReactElement }) {
   return <div className="flex flex-col items-center gap-0" {...objs} >
     {isPending ? (
-      <Skeleton className="h-[10em] w-[18em]" />
+      <Skeleton className="h-[9.57em] w-[18em]" />
     ) : (
       <>
           <h1 className="inline-block text-[1.7em] leading-[1.1] font-[100] text-[#737373]">{property}</h1>
