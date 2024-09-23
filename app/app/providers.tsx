@@ -12,7 +12,7 @@ export default function Providers({
 }>) {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
+      <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" disableTransitionOnChange>
         {children}
       </ThemeProvider>
     </QueryClientProvider>
