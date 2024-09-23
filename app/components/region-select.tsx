@@ -42,8 +42,6 @@ export function RegionSelect({ selectedZone, setSelectedZone, locationSetRef, re
   const [locationIsSet, locationSet] = useState(false);
   const [regionIsSet, regionSet] = useState(false);
 
-  console.log(regionIsSet);
-
   locationSetRef.current = locationSet;
   regionSetRef.current = regionSet;
 
@@ -80,7 +78,7 @@ export function RegionSelect({ selectedZone, setSelectedZone, locationSetRef, re
             key={zone.value}
             value={zone.label}
             onSelect={(value) => {
-              setSelectedZone(ZONES.find((priority) => priority.value === value) || ZONES[0]);
+              setSelectedZone(ZONES.find((priority) => priority.label === value) || ZONES[0]);
               setOpen(false);
             }}
           >
