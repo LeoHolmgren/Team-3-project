@@ -8,6 +8,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
+import { FaLocationDot } from "react-icons/fa6";
+
 export type Status = {
   value: string;
   label: string;
@@ -32,75 +34,74 @@ export const statuses: Status[] = [
   },
 ];
 
-export function RegionSelect({
-  selectedZone,
-  setSelectedZone,
-}: {
-  selectedZone: Status;
-  setSelectedZone: (status: Status) => void;
-}) {
+export function RegionSelect({ selectedZone, setSelectedZone }: { selectedZone: Status, setSelectedZone: (status: Status) => void }) {
+  
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
+  let dropdown;
+
+  const dropdown_btn = <div className="h-[3.5em] w-full">
+    <Button variant="outline" className="w-full h-full justify-center p-[0] text-[1em] leading-[1]">
+      {selectedZone ? <>{selectedZone.label}</> : <>Select Zone</>}
+    </Button>
+  </div>;
+
+  const location = <div className="h-[3.5em] aspect-square">
+    <Button variant="outline" className="justify-center w-full h-full p-[0] text-[1.1em] leading-[1]">
+      <FaLocationDot />
+    </Button>
+  </div>;
+
+  const region_list = <Command>
+    <CommandInput placeholder="Filter zone..." />
+    <CommandList>
+      <CommandEmpty>No results found.</CommandEmpty>
+      <CommandGroup>
+        {statuses.map((status) => (
+          <CommandItem
+            key={status.value}
+            value={status.value}
+            onSelect={(value) => {
+              setSelectedZone(statuses.find((priority) => priority.value === value) || statuses[0]);
+              setOpen(false);
+            }}
+          >
+            {status.label}
+          </CommandItem>
+        ))}
+      </CommandGroup>
+    </CommandList>
+  </Command>;
+
   if (isDesktop) {
-    return (
+    dropdown = (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="w-full justify-center">
-            {selectedZone ? <>{selectedZone.label}</> : <>Select Zone</>}
-          </Button>
+          {dropdown_btn}
         </PopoverTrigger>
         <PopoverContent className="p-0" align="center">
-          <RegionList setOpen={setOpen} setSelectedZone={setSelectedZone} />
+          {region_list}
         </PopoverContent>
       </Popover>
     );
-  }
-
-  return (
-    <Drawer open={open} onOpenChange={setOpen}>
+  } else {
+    dropdown = <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline" className="w-full justify-center">
-          {selectedZone ? <>{selectedZone.label}</> : <>Select Zone</>}
-        </Button>
+        {dropdown_btn}
       </DrawerTrigger>
       <DrawerContent>
         <div className="mt-4 border-t">
-          <RegionList setOpen={setOpen} setSelectedZone={setSelectedZone} />
+          {region_list}
         </div>
       </DrawerContent>
     </Drawer>
-  );
-}
-
-function RegionList({
-  setOpen,
-  setSelectedZone,
-}: {
-  setOpen: (open: boolean) => void;
-  setSelectedZone: (status: Status) => void;
-}) {
+  }
 
   return (
-    <Command>
-      <CommandInput placeholder="Filter zone..." />
-      <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup>
-          {statuses.map((status) => (
-            <CommandItem
-              key={status.value}
-              value={status.value}
-              onSelect={(value) => {
-                setSelectedZone(statuses.find((priority) => priority.value === value) || statuses[0]);
-                setOpen(false);
-              }}
-            >
-              {status.label}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </CommandList>
-    </Command>
+    <div className='flex gap-[5px] w-[100%] max-w-[26em] text-[14px]'>
+      {location}
+      {dropdown}
+    </div>
   );
 }
