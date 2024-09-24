@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { RegionSelect, BiddingZone, ZONES } from '@/components/region-select';
+import { RegionSelect, BiddingZone, ZONES, RegionSelectController } from '@/components/region-select';
 import CurrentPrice from '@/components/current-price';
 import { useEffect, useState, useRef, MutableRefObject } from 'react';
 
@@ -15,16 +15,13 @@ export default function Home() {
   
   const [selectedZone, setZone] = useState<BiddingZone>(ZONES[0]);
 
-  const location_set_ref: MutableRefObject<((set: boolean) => void) | null> = useRef(null);
-  const region_set_ref: MutableRefObject<((set: boolean) => void) | null> = useRef(null);
+  const regionSelectControllerRef = useRef<RegionSelectController>(null);
 
   const { isFetching, error, data, refetch } = useQuery({
     queryKey: ['currentPrice'],
     queryFn: async () => {
 
-      if (region_set_ref.current) {
-        region_set_ref.current(false);
-      }
+      regionSelectControllerRef.current?.setRegionLoaded(false);
 
       function delay(ms: number) {
         return new Promise(resolve => setTimeout(resolve, ms));
@@ -53,9 +50,7 @@ export default function Home() {
 
       const data = await response.json();
 
-      if (region_set_ref.current) {
-        region_set_ref.current(true);
-      }
+      regionSelectControllerRef.current?.setRegionLoaded(true);
 
       return data[hour]['SEK_per_kWh'] as number;
     },
@@ -73,7 +68,7 @@ export default function Home() {
       
       <CurrentPrice isPending={isFetching} value={data ?? 0} property='Price' label={PRICE_LABEL.LOW} />
       <br />
-      <RegionSelect locationSetRef={location_set_ref} regionSetRef={region_set_ref} selectedZone={selectedZone} setSelectedZone={setSelectedZoneAndRefetch} />
+      <RegionSelect selectedZone={selectedZone} setSelectedZone={setSelectedZoneAndRefetch} controllerRef={regionSelectControllerRef} />
       {/* <Chart /> */}
 
     </div>
