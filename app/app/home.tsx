@@ -2,7 +2,8 @@
 
 import { RegionSelect, BiddingZone, RegionSelectController } from '@/components/region-select';
 import CurrentPrice from '@/components/current-price';
-import { useState, useRef } from 'react';
+import { useState, useRef, ReactElement } from 'react';
+import { Skeleton } from '../components/ui/skeleton';
 
 const PRICE_LABEL = {
   HIGH: (
@@ -112,14 +113,27 @@ export default function Home() {
 
   if (homeState.error) return 'An error has occurred: ' + homeState.error.message;
 
+  const mock_price_level: { high: number; low: number } = {
+    high: 0.225,
+    low: 0.15,
+  };
+
+  let used_label: ReactElement;
+  if (homeState.price) {
+    if (homeState.price >= mock_price_level.high) {
+      used_label = PRICE_LABEL.HIGH;
+    } else if (homeState.price <= mock_price_level.low) {
+      used_label = PRICE_LABEL.LOW;
+    } else {
+      used_label = PRICE_LABEL.NORM;
+    }
+  } else {
+    used_label = <Skeleton className="h-[5.30em] w-[18em]" />;
+  }
+
   return (
     <div className="mt-[70px] flex flex-col items-center justify-center gap-6">
-      <CurrentPrice
-        property="Price"
-        label={PRICE_LABEL.LOW}
-        value={homeState.price}
-        isPending={homeState.is_fetching_price}
-      />
+      <CurrentPrice property="Price" label={used_label} value={homeState.price} />
       <br />
       <RegionSelect
         selectedZone={homeState.zone}
