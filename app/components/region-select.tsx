@@ -49,10 +49,12 @@ export const ZONES: BiddingZone[] = [
   },
 ];
 
-export function RegionSelect({ selectedZone, setSelectedZone, controllerRef }: { selectedZone: BiddingZone, setSelectedZone: (zone: BiddingZone) => void, controllerRef: MutableRefObject<RegionSelectController | null>}) {
+export function RegionSelect({ selectedZone, loadZone, controllerRef }: { selectedZone: BiddingZone | null, loadZone: (zone: BiddingZone) => void, controllerRef: MutableRefObject<RegionSelectController | null>}) {
   
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery('(min-width: 768px)');
+
+  console.log(selectedZone);
 
   const [controllerState, setControllerState] = useState<RegionSelectState>({location_loading: false, location_loaded: false, zone_loaded: false })
 
@@ -81,9 +83,9 @@ export function RegionSelect({ selectedZone, setSelectedZone, controllerRef }: {
       + (controllerState.zone_loaded ? " !border-[#5164cd]" : "")
     }>
       <div className="text-[#555] font-[600]">
-        {selectedZone.value}
+        {selectedZone ? selectedZone.value : "ZONE"}
       </div>
-      {selectedZone ? <>{selectedZone.label}</> : <>Select Zone</>}
+      {selectedZone ? selectedZone.label : "Select Zone"}
       <div className="text-[#555] font-[600]">
         20:00
       </div>
@@ -109,7 +111,7 @@ export function RegionSelect({ selectedZone, setSelectedZone, controllerRef }: {
             key={zone.value}
             value={zone.label}
             onSelect={(value) => {
-              setSelectedZone(ZONES.find((priority) => priority.label === value) || ZONES[0]);
+              loadZone(ZONES.find((priority) => priority.label === value) || ZONES[0]);
               setOpen(false);
             }}
           >
