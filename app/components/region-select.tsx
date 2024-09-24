@@ -1,6 +1,6 @@
 'use client';
 
-import { MutableRefObject, useState } from 'react';
+import { MutableRefObject, useState, useRef } from 'react';
 
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 
 import { FaLocationDot } from "react-icons/fa6";
 
+// Bidding zone type
 export type BiddingZone = {
   value: string;
   label: string;
@@ -25,9 +26,10 @@ type RegionSelectState = {
 // Interface for controlling the Region Controller Visuals
 export interface RegionSelectController {
   state: RegionSelectState;
-  setLocationLoading: (is_loading: boolean) => void
-  setLocationLoaded: (is_loaded: boolean) => void
-  setRegionLoaded: (is_loaded: boolean) => void
+  setLocationLoading: (is_loading: boolean) => void;
+  setLocationLoaded: (is_loaded: boolean) => void;
+  setRegionLoaded: (is_loaded: boolean) => void;
+  setBiddingZoneNoLocation: (zone: BiddingZone) => void; 
 };
 
 export const ZONES: BiddingZone[] = [
@@ -54,26 +56,32 @@ export function RegionSelect({ selectedZone, loadZone, controllerRef }: { select
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
-  console.log(selectedZone);
-
   const [controllerState, setControllerState] = useState<RegionSelectState>({location_loading: false, location_loaded: false, zone_loaded: false })
-
+  
   // Define controller methods that alter controller state for this region select
-  const controller: RegionSelectController = {
+  const controller = useRef<RegionSelectController>({
     state: controllerState,
     setLocationLoading: (is_loading: boolean) => {
-      setControllerState({ ...controllerState, location_loading: is_loading });
+      controller.current.state = { ...controller.current.state, location_loading: is_loading, location_loaded: false };
+      setControllerState(controller.current.state);
     },
-    setLocationLoaded(is_loaded: boolean) {
-      setControllerState({ ...controllerState, location_loaded: is_loaded });
+    setLocationLoaded: (is_loaded: boolean) => {
+      controller.current.state = { ...controller.current.state, location_loaded: is_loaded };
+      setControllerState(controller.current.state);
     },
-    setRegionLoaded(is_loaded: boolean) {
-      setControllerState({ ...controllerState, zone_loaded: is_loaded });
+    setRegionLoaded: (is_loaded: boolean) => {
+      controller.current.state = { ...controller.current.state, zone_loaded: is_loaded };
+      setControllerState(controller.current.state);
     },
-  }
+    setBiddingZoneNoLocation: (zone: BiddingZone) => {
+      controller.current.state = { ...controller.current.state, location_loading: false, location_loaded: false };
+      setControllerState(controller.current.state);
+      loadZone(zone);
+    }
+  });
 
   // Pass controller reference
-  controllerRef.current = controller;
+  controllerRef.current = controller.current;
 
   let dropdown;
 
@@ -92,11 +100,33 @@ export function RegionSelect({ selectedZone, loadZone, controllerRef }: { select
     </div>
   </div>;
 
+  async function location_enable() {
+
+    controller.current.setLocationLoading(true);
+
+    function delay(ms: number) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    await delay(500);
+
+    controller.current.setLocationLoaded(true);
+    loadZone(ZONES[0]);
+
+  } 
+
+  console.log(controllerState);
+
   const location = <div className="h-[3.5em] aspect-square">
-    <Button variant="outline" className={
-      "justify-center w-full h-full p-[0.5em] text-[1.1em] leading-[1] text-[#555]" 
-      + (controllerState.location_loaded ? " !border-[#5164cd] !text-[#5164cd] !hover:text-[#5164cd]" : "")
-    } >
+    <Button 
+      variant="outline" 
+      onClick={location_enable}
+      className={
+        "justify-center w-full h-full p-[0.5em] text-[1.1em] leading-[1] text-[#555]" 
+        + (controllerState.location_loading ? " !text-[#5164cd] !hover:text-[#5164cd]" : "")
+        + (controllerState.location_loaded ? " !border-[#5164cd]" : "")
+      } 
+    >
       <FaLocationDot />
     </Button>
   </div>;
@@ -111,7 +141,7 @@ export function RegionSelect({ selectedZone, loadZone, controllerRef }: { select
             key={zone.value}
             value={zone.label}
             onSelect={(value) => {
-              loadZone(ZONES.find((priority) => priority.label === value) || ZONES[0]);
+              controller.current.setBiddingZoneNoLocation(ZONES.find((priority) => priority.label === value) || ZONES[0]);
               setOpen(false);
             }}
           >
