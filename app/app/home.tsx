@@ -14,6 +14,8 @@ const PRICE_LABEL = {
 export default function Home() {
   const [selectedZone, setSelectedZone] = useState<Status>(statuses[0]);
 
+  // test
+
   const { isPending, error, data, refetch } = useQuery({
     queryKey: ['currentPrice'],
     queryFn: async () => {
