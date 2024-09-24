@@ -62,7 +62,7 @@ export function RegionSelect({ selectedZone, loadZone, controllerRef }: { select
   const controller = useRef<RegionSelectController>({
     state: controllerState,
     setLocationLoading: (is_loading: boolean) => {
-      controller.current.state = { ...controller.current.state, location_loading: is_loading, location_loaded: false };
+      controller.current.state = { ...controller.current.state, location_loading: is_loading, location_loaded: false, zone_loaded: false };
       setControllerState(controller.current.state);
     },
     setLocationLoaded: (is_loaded: boolean) => {
@@ -108,14 +108,25 @@ export function RegionSelect({ selectedZone, loadZone, controllerRef }: { select
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    await delay(500);
-
-    controller.current.setLocationLoaded(true);
-    loadZone(ZONES[0]);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async pos => {
+          console.log("pos", pos.coords.latitude, pos.coords.longitude);
+          await delay(500);
+          const zone: BiddingZone = ZONES[0];   // TODO: Call our api to get zone from pos.lat, pos.lon
+          controller.current.setLocationLoaded(true);
+          loadZone(zone);
+        },
+        err => {
+          console.log("get location error", err);
+          controller.current.setLocationLoading(false);
+        } 
+      );
+    } else {
+      controller.current.setLocationLoading(false);
+    }
 
   } 
-
-  console.log(controllerState);
 
   const location = <div className="h-[3.5em] aspect-square">
     <Button 
