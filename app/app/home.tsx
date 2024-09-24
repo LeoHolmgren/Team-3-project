@@ -5,34 +5,58 @@ import CurrentPrice from '@/components/current-price';
 import { useState, useRef } from 'react';
 
 const PRICE_LABEL = {
-  HIGH: <h2 style={{ opacity: "0.85", fontSize: "5em", lineHeight: 1.1, fontWeight: 800 }} className={"inline-block bg-gradient-to-r from-[#cd7a51] to-[#cd5181] bg-clip-text text-transparent"}>HIGH</h2>,
-  NORM: <h2 style={{ opacity: "0.85", fontSize: "5em", lineHeight: 1.1, fontWeight: 800 }} className={"inline-block bg-gradient-to-r from-[#5157cd] to-[#51cdc7] bg-clip-text text-transparent"}>NORM</h2>,
-  LOW: <h2 style={{ opacity: "0.85", fontSize: "5em", lineHeight: 1.1, fontWeight: 800 }} className={"inline-block bg-gradient-to-r from-[#51cd87] to-[#83cd51] bg-clip-text text-transparent"}>LOW</h2>
-}
+  HIGH: (
+    <h2
+      style={{ opacity: '0.85', fontSize: '5em', lineHeight: 1.1, fontWeight: 800 }}
+      className={'inline-block bg-gradient-to-r from-[#cd7a51] to-[#cd5181] bg-clip-text text-transparent'}
+    >
+      HIGH
+    </h2>
+  ),
+  NORM: (
+    <h2
+      style={{ opacity: '0.85', fontSize: '5em', lineHeight: 1.1, fontWeight: 800 }}
+      className={'inline-block bg-gradient-to-r from-[#5157cd] to-[#51cdc7] bg-clip-text text-transparent'}
+    >
+      NORM
+    </h2>
+  ),
+  LOW: (
+    <h2
+      style={{ opacity: '0.85', fontSize: '5em', lineHeight: 1.1, fontWeight: 800 }}
+      className={'inline-block bg-gradient-to-r from-[#51cd87] to-[#83cd51] bg-clip-text text-transparent'}
+    >
+      LOW
+    </h2>
+  ),
+};
 
 type HomeState = {
-  zone: BiddingZone | null,
-  is_fetching_price: boolean,
-  price: number | null,
-  error: Error | null,
-}
+  zone: BiddingZone | null;
+  is_fetching_price: boolean;
+  price: number | null;
+  error: Error | null;
+};
 
 export interface HomeController {
   state: HomeState;
-  loadBiddingZone: (zone: BiddingZone) => void
-};
+  loadBiddingZone: (zone: BiddingZone) => void;
+}
 
 export default function Home() {
-  
-  const [homeState, setHomeState] = useState<HomeState>({zone: null, is_fetching_price: false, price: null, error: null});
+  const [homeState, setHomeState] = useState<HomeState>({
+    zone: null,
+    is_fetching_price: false,
+    price: null,
+    error: null,
+  });
 
   const regionSelectControllerRef = useRef<RegionSelectController>(null);
 
   // Call external api to get price for zone
   const price_api_call = async (zone: BiddingZone) => {
-
     function delay(ms: number) {
-      return new Promise(resolve => setTimeout(resolve, ms));
+      return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
     await delay(500);
@@ -43,57 +67,66 @@ export default function Home() {
     const day = currTime.getDate();
 
     const URL =
-      'https://www.elprisetjustnu.se/api/v1/prices/' +
-      year +
-      '/0' +
-      month +
-      '-' +
-      day +
-      '_' +
-      zone.value +
-      '.json';
+      'https://www.elprisetjustnu.se/api/v1/prices/' + year + '/0' + month + '-' + day + '_' + zone.value + '.json';
 
     return fetch(URL);
-    
-  }
+  };
 
   const home_controller = useRef<HomeController>({
     state: homeState,
-    loadBiddingZone: async zone => {
-      
-      home_controller.current.state = { ...home_controller.current.state, zone: zone, price: null, is_fetching_price: true, error: null };
+    loadBiddingZone: async (zone) => {
+      home_controller.current.state = {
+        ...home_controller.current.state,
+        zone: zone,
+        price: null,
+        is_fetching_price: true,
+        error: null,
+      };
 
       // Price starts loading, update state
       regionSelectControllerRef.current?.setRegionLoaded(false);
       setHomeState(home_controller.current.state);
-      
+
       const response = await price_api_call(zone);
 
       // Error in request occurred, set error state
       if (!response.ok) {
-        home_controller.current.state = { ...home_controller.current.state, error: new Error("Could not load current price for bidding zone " + zone.value) };
+        home_controller.current.state = {
+          ...home_controller.current.state,
+          error: new Error('Could not load current price for bidding zone ' + zone.value),
+        };
         setHomeState(home_controller.current.state);
         return;
       }
 
       // Price is loaded, update state
-      home_controller.current.state = { ...home_controller.current.state, is_fetching_price: false, price: (await response.json())[(new Date()).getHours()]['SEK_per_kWh'] };
+      home_controller.current.state = {
+        ...home_controller.current.state,
+        is_fetching_price: false,
+        price: (await response.json())[new Date().getHours()]['SEK_per_kWh'],
+      };
       setHomeState(home_controller.current.state);
       regionSelectControllerRef.current?.setRegionLoaded(true);
-
-    }
+    },
   });
 
   if (homeState.error) return 'An error has occurred: ' + homeState.error.message;
 
   return (
-    <div className="flex flex-col items-center justify-center gap-6 mt-[70px]">
-      
-      <CurrentPrice property='Price' label={PRICE_LABEL.LOW} value={homeState.price} isPending={homeState.is_fetching_price} />
+    <div className="mt-[70px] flex flex-col items-center justify-center gap-6">
+      <CurrentPrice
+        property="Price"
+        label={PRICE_LABEL.LOW}
+        value={homeState.price}
+        isPending={homeState.is_fetching_price}
+      />
       <br />
-      <RegionSelect selectedZone={homeState.zone} loadZone={home_controller.current.loadBiddingZone} controllerRef={regionSelectControllerRef} />
+      <RegionSelect
+        selectedZone={homeState.zone}
+        loadZone={home_controller.current.loadBiddingZone}
+        controllerRef={regionSelectControllerRef}
+      />
       {/* <Chart /> */}
-
     </div>
   );
 }
