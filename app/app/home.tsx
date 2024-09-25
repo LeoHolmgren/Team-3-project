@@ -1,6 +1,6 @@
 'use client';
 
-import { RegionSelect, BiddingZone, RegionSelectController, ZONES } from '@/components/region-select';
+import { RegionSelect, BiddingZone, RegionSelectController } from '@/components/region-select';
 import CurrentPrice from '@/components/current-price';
 import { useState, useRef, ReactElement } from 'react';
 import { Chart } from '@/components/chart';
@@ -34,7 +34,7 @@ const PRICE_LABEL = {
 };
 
 type HomeState = {
-  zone: BiddingZone;
+  zone: BiddingZone | null;
   is_fetching_price: boolean;
   time_of_fetch: Date | null;
   fetch_data: Array<{ SEK_per_kWh: number }> | null;
@@ -49,7 +49,7 @@ export interface HomeController {
 
 export default function Home() {
   const [homeState, setHomeState] = useState<HomeState>({
-    zone: ZONES[0],
+    zone: null,
     is_fetching_price: false,
     time_of_fetch: null,
     fetch_data: null,
@@ -153,14 +153,28 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center gap-6">
-      <CurrentPrice property="Price" label={used_label} value={homeState.price} />
-      <Chart data={homeState.fetch_data} timestamp={homeState.time_of_fetch} />
+      {homeState.zone ? (
+        <>
+          <CurrentPrice property="Price" label={used_label} value={homeState.price} />
+          <Chart data={homeState.fetch_data} timestamp={homeState.time_of_fetch} />
+        </>
+      ) : (
+        <div className="relative h-[23.5em] w-[100%] max-w-[406px]">
+          <img
+            src="https://i.pinimg.com/originals/9a/f9/0f/9af90f155c5d30af21494b2afb3e9431.png"
+            className="h-full w-full opacity-35"
+          ></img>
+          <h2 className="translate-y[-50%] absolute left-[50%] top-[50%] translate-x-[-50%] text-[1.5em] font-[600] text-[#a3a3a3]">
+            Select Zone
+          </h2>
+        </div>
+      )}
       <RegionSelect
         selectedZone={homeState.zone}
         loadZone={home_controller.current.loadBiddingZone}
         controllerRef={regionSelectControllerRef}
       />
-      <Footer selectedZone={homeState.zone} />
+      <Footer timestamp={homeState.time_of_fetch} />
     </div>
   );
 }

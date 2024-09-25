@@ -25,7 +25,7 @@ export function Chart({ data, timestamp }: { data: Array<{ SEK_per_kWh: number }
         }}
       >
         <XAxis></XAxis>
-        <ReferenceLine x={timestamp ? timestamp.getHours() + 5 : 0} stroke="red" strokeWidth={1} />
+        <ReferenceLine x={timestamp ? timestamp.getHours() : 0} stroke="#a3a3a3" strokeWidth={1} />
         <CartesianGrid vertical={false} />
         <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
         <Line
