@@ -33,23 +33,27 @@ export function Chart({
         }}
       >
         <XAxis></XAxis>
-        <ReferenceLine x={timestamp ? timestamp.getHours() : 0} stroke="#a3a3a3" strokeWidth={1} />
+        <ReferenceLine
+          x={timestamp ? timestamp.getHours() : 0}
+          stroke="#a3a3a3"
+          strokeDasharray="1 3"
+          strokeWidth={1}
+        />
         <ReferenceLine
           y={price_levels?.low ?? 0}
           stroke="#51cd87"
-          strokeDasharray="3 3"
+          strokeDasharray="1 3"
           opacity={0.8}
           strokeWidth={1}
         />
         <ReferenceLine
           y={price_levels?.high ?? 0}
           stroke="#cd5181"
-          strokeDasharray="3 3"
+          strokeDasharray="1 3"
           opacity={0.8}
           strokeWidth={1}
         />
 
-        <CartesianGrid vertical={false} />
         <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
         <Line
           dataKey="SEK_per_kWh"
