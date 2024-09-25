@@ -151,10 +151,7 @@ export default function Home() {
         loadZone={home_controller.current.loadBiddingZone}
         controllerRef={regionSelectControllerRef}
       />
-<<<<<<< HEAD
       <Footer selectedZone={homeState.zone} />
-=======
->>>>>>> main
     </div>
   );
 }
