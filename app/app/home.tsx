@@ -3,7 +3,8 @@
 import { RegionSelect, BiddingZone, RegionSelectController } from '@/components/region-select';
 import CurrentPrice from '@/components/current-price';
 import { useState, useRef, ReactElement } from 'react';
-import { Skeleton } from '../components/ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Chart } from '@/components/chart';
 
 const PRICE_LABEL = {
   HIGH: (
@@ -132,15 +133,15 @@ export default function Home() {
   }
 
   return (
-    <div className="mt-[70px] flex flex-col items-center justify-center gap-6">
+    <div className="flex flex-col items-center justify-center gap-6">
       <CurrentPrice property="Price" label={used_label} value={homeState.price} />
+      <Chart zone={homeState.zone?.value ?? ''} />
       <br />
       <RegionSelect
         selectedZone={homeState.zone}
         loadZone={home_controller.current.loadBiddingZone}
         controllerRef={regionSelectControllerRef}
       />
-      {/* <Chart /> */}
     </div>
   );
 }

@@ -208,7 +208,7 @@ export function RegionSelect({
   }
 
   return (
-    <div className="flex w-[100%] max-w-[26em] gap-[5px] text-[14px]">
+    <div className="flex w-[100%] max-w-[406px] gap-[5px] text-[14px]">
       {location}
       {dropdown}
     </div>
