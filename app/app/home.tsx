@@ -5,7 +5,7 @@ import { RegionSelect, Status, statuses } from '@/components/region-select';
 import CurrentPrice from '@/components/current-price';
 import { useEffect, useState } from 'react';
 import { Chart } from '@/components/chart';
-import Footer from '@/components/footer';
+import Footer from '@/app/footer';
 
 const PRICE_LABEL = {
   HIGH: (
