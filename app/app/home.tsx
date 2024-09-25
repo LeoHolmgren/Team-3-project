@@ -5,6 +5,7 @@ import { RegionSelect, Status, statuses } from '@/components/region-select';
 import CurrentPrice from '@/components/current-price';
 import { useEffect, useState } from 'react';
 import { Chart } from '@/components/chart';
+import { Footer } from '@/components/footer';
 
 const PRICE_LABEL = {
   HIGH: (
@@ -37,7 +38,7 @@ export default function Home() {
   const [selectedZone, setSelectedZone] = useState<Status>(statuses[0]);
 
   const { isPending, error, data, refetch } = useQuery({
-    queryKey: ['currentPrice'],
+    queryKey: ['currentPrice', selectedZone],
     queryFn: async () => {
       const currTime = new Date();
       const year = currTime.getFullYear();
@@ -66,7 +67,7 @@ export default function Home() {
 
   useEffect(() => {
     refetch();
-  });
+  }, [selectedZone]);
 
   if (error) return 'An error has occurred: ' + error.message;
 
@@ -76,6 +77,7 @@ export default function Home() {
         <CurrentPrice isPending={isPending} value={data ?? 0} property="Price" label={PRICE_LABEL.NORM} />
         <RegionSelect selectedZone={selectedZone} setSelectedZone={setSelectedZone} />
         <Chart zone={selectedZone.value} />
+        <Footer selectedZone={selectedZone} />
       </div>
     </div>
   );
