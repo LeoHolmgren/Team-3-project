@@ -11,7 +11,7 @@ export default function Footer() {
 
   return (
     <div className="py-8 text-center text-sm text-muted-foreground">
-      <p>Made with ❤️ by Team #3</p>
+      <p>Made with ##### ❤️ by Team #3</p>
       <p>Page loaded on: {timestamp}</p>
     </div>
   );
