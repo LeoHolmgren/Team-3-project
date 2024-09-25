@@ -1,9 +1,9 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
-import { Status } from '@/components/region-select';
+import { BiddingZone } from '@/components/region-select';
 
-export default function Footer({ selectedZone }: { selectedZone: Status }) {
+export default function Footer({ selectedZone }: { selectedZone: BiddingZone }) {
   const [timestamp, setTimestamp] = useState<string>('');
 
   useEffect(() => {
