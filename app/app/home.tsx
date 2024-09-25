@@ -69,7 +69,7 @@ export default function Home() {
     const day = currTime.getDate();
 
     const URL =
-      'https://www.elprisetjustnu.se/api/v1/prices/' + year + '/0' + month + '-' + day + '_' + zone.value + '.json';
+      'https://www.elprisetjustnu.se/api/v1/pricess/' + year + '/0' + month + '-' + day + '_' + zone.value + '.json';
 
     return fetch(URL);
   };
@@ -89,16 +89,26 @@ export default function Home() {
       regionSelectControllerRef.current?.setRegionLoaded(false);
       setHomeState(home_controller.current.state);
 
-      const response = await price_api_call(zone);
+      let response;
 
       // Error in request occurred, set error state
-      if (!response.ok) {
+      function set_error_state() {
         home_controller.current.state = {
           ...home_controller.current.state,
           error: new Error('Could not load current price for bidding zone ' + zone.value),
         };
         setHomeState(home_controller.current.state);
+      }
+
+      try {
+        response = await price_api_call(zone);
+      } catch (exception) {
+        set_error_state();
         return;
+      }
+
+      if (!response.ok) {
+        set_error_state();
       }
 
       // Price is loaded, update state
