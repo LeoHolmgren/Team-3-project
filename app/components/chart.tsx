@@ -12,7 +12,15 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function Chart({ data, timestamp }: { data: Array<{ SEK_per_kWh: number }> | null; timestamp: Date | null }) {
+export function Chart({
+  data,
+  timestamp,
+  price_levels,
+}: {
+  data: Array<{ SEK_per_kWh: number }> | null;
+  timestamp: Date | null;
+  price_levels: { high: number; low: number } | null;
+}) {
   const chart = (
     <ChartContainer config={chartConfig} className="min-h-[200px] p-0">
       <LineChart
@@ -26,6 +34,21 @@ export function Chart({ data, timestamp }: { data: Array<{ SEK_per_kWh: number }
       >
         <XAxis></XAxis>
         <ReferenceLine x={timestamp ? timestamp.getHours() : 0} stroke="#a3a3a3" strokeWidth={1} />
+        <ReferenceLine
+          y={price_levels?.low ?? 0}
+          stroke="#51cd87"
+          strokeDasharray="3 3"
+          opacity={0.8}
+          strokeWidth={1}
+        />
+        <ReferenceLine
+          y={price_levels?.high ?? 0}
+          stroke="#cd5181"
+          strokeDasharray="3 3"
+          opacity={0.8}
+          strokeWidth={1}
+        />
+
         <CartesianGrid vertical={false} />
         <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
         <Line

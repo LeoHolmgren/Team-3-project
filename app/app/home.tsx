@@ -135,8 +135,8 @@ export default function Home() {
   if (homeState.error) return 'An error has occurred: ' + homeState.error.message;
 
   const mock_price_level: { high: number; low: number } = {
-    high: 0.225,
-    low: 0.15,
+    high: 0.17,
+    low: 0.05,
   };
 
   let used_label: ReactElement;
@@ -157,7 +157,7 @@ export default function Home() {
       {homeState.zone ? (
         <>
           <CurrentPrice property="Price" label={used_label} value={homeState.price} />
-          <Chart data={homeState.fetch_data} timestamp={homeState.time_of_fetch} />
+          <Chart data={homeState.fetch_data} timestamp={homeState.time_of_fetch} price_levels={mock_price_level} />
         </>
       ) : (
         <div className="relative h-[23.5em] w-[100%] max-w-[406px]">
