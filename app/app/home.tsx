@@ -5,6 +5,7 @@ import CurrentPrice from '@/components/current-price';
 import { useState, useRef, ReactElement } from 'react';
 import { Chart } from '@/components/chart';
 import Footer from './footer';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const PRICE_LABEL = {
   HIGH: (
@@ -148,7 +149,7 @@ export default function Home() {
       used_label = PRICE_LABEL.NORM;
     }
   } else {
-    used_label = PRICE_LABEL.NORM;
+    used_label = <Skeleton className="h-[5.5em] w-[15em]" />;
   }
 
   return (
@@ -165,7 +166,7 @@ export default function Home() {
             className="h-full w-full opacity-35"
           ></img>
           <h2 className="translate-y[-50%] absolute left-[50%] top-[50%] translate-x-[-50%] text-[1.5em] font-[600] text-[#a3a3a3]">
-            Select Zone
+            No Zone Selected
           </h2>
         </div>
       )}
