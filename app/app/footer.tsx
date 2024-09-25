@@ -19,7 +19,7 @@ export default function Footer({ selectedZone }: { selectedZone: Status }) {
   return (
     <div className="py-8 text-center text-sm text-muted-foreground">
       <p>Made with ❤️ by Team #3</p>
-      <p>Page loaded on: {timestamp}</p>
+      <p>Refreshed: {timestamp}</p>
     </div>
   );
 }
