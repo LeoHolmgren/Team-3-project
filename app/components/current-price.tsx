@@ -1,5 +1,4 @@
 import { ReactElement } from 'react';
-import { Skeleton } from './ui/skeleton';
 
 // Container with a property, label & value
 export default function CurrentPrice({
