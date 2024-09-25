@@ -4,6 +4,7 @@ import { RegionSelect, BiddingZone, RegionSelectController, ZONES } from '@/comp
 import CurrentPrice from '@/components/current-price';
 import { useState, useRef, ReactElement } from 'react';
 import { Chart } from '@/components/chart';
+import Footer from './footer';
 
 const PRICE_LABEL = {
   HIGH: (
@@ -33,7 +34,7 @@ const PRICE_LABEL = {
 };
 
 type HomeState = {
-  zone: BiddingZone | null;
+  zone: BiddingZone;
   is_fetching_price: boolean;
   price: number | null;
   error: Error | null;
@@ -150,6 +151,7 @@ export default function Home() {
         loadZone={home_controller.current.loadBiddingZone}
         controllerRef={regionSelectControllerRef}
       />
+      <Footer selectedZone={homeState.zone} />
     </div>
   );
 }
