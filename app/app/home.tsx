@@ -1,9 +1,8 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { RegionSelect, Status, statuses } from '@/components/region-select';
+import { RegionSelect, BiddingZone, RegionSelectController, ZONES } from '@/components/region-select';
 import CurrentPrice from '@/components/current-price';
-import { useEffect, useState } from 'react';
+import { useState, useRef, ReactElement } from 'react';
 import { Chart } from '@/components/chart';
 import Footer from './footer';
 
@@ -34,51 +33,125 @@ const PRICE_LABEL = {
   ),
 };
 
+type HomeState = {
+  zone: BiddingZone | null;
+  is_fetching_price: boolean;
+  price: number | null;
+  error: Error | null;
+};
+
+export interface HomeController {
+  state: HomeState;
+  loadBiddingZone: (zone: BiddingZone) => void;
+}
+
 export default function Home() {
-  const [selectedZone, setSelectedZone] = useState<Status>(statuses[0]);
+  const [homeState, setHomeState] = useState<HomeState>({
+    zone: ZONES[0],
+    is_fetching_price: false,
+    price: null,
+    error: null,
+  });
 
-  const { isPending, error, data, refetch } = useQuery({
-    queryKey: ['currentPrice', selectedZone],
-    queryFn: async () => {
-      const currTime = new Date();
-      const year = currTime.getFullYear();
-      const month = currTime.getMonth() + 1;
-      const day = currTime.getDate();
-      const hour = currTime.getHours();
+  const regionSelectControllerRef = useRef<RegionSelectController>(null);
 
-      const URL =
-        'https://www.elprisetjustnu.se/api/v1/prices/' +
-        year +
-        '/0' +
-        month +
-        '-' +
-        day +
-        '_' +
-        selectedZone.value +
-        '.json';
+  // Call external api to get price for zone
+  const price_api_call = async (zone: BiddingZone) => {
+    function delay(ms: number) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
 
-      const response = await fetch(URL);
+    await delay(500);
 
-      const data = await response.json();
+    const currTime = new Date();
+    const year = currTime.getFullYear();
+    const month = currTime.getMonth() + 1;
+    const day = currTime.getDate();
 
-      return data[hour]['SEK_per_kWh'] as number;
+    const URL =
+      'https://www.elprisetjustnu.se/api/v1/prices/' + year + '/0' + month + '-' + day + '_' + zone.value + '.json';
+
+    return fetch(URL);
+  };
+
+  const home_controller = useRef<HomeController>({
+    state: homeState,
+    loadBiddingZone: async (zone) => {
+      home_controller.current.state = {
+        ...home_controller.current.state,
+        zone: zone,
+        price: null,
+        is_fetching_price: true,
+        error: null,
+      };
+
+      // Price starts loading, update state
+      regionSelectControllerRef.current?.setRegionLoaded(false);
+      setHomeState(home_controller.current.state);
+
+      let response;
+
+      // Error in request occurred, set error state
+      function set_error_state() {
+        home_controller.current.state = {
+          ...home_controller.current.state,
+          error: new Error('Could not load current price for bidding zone ' + zone.value),
+        };
+        setHomeState(home_controller.current.state);
+      }
+
+      try {
+        response = await price_api_call(zone);
+      } catch (exception) {
+        set_error_state();
+        return;
+      }
+
+      if (!response.ok) {
+        set_error_state();
+      }
+
+      // Price is loaded, update state
+      home_controller.current.state = {
+        ...home_controller.current.state,
+        is_fetching_price: false,
+        price: (await response.json())[new Date().getHours()]['SEK_per_kWh'],
+      };
+      setHomeState(home_controller.current.state);
+      regionSelectControllerRef.current?.setRegionLoaded(true);
     },
   });
 
-  useEffect(() => {
-    refetch();
-  }, [selectedZone]);
+  if (homeState.error) return 'An error has occurred: ' + homeState.error.message;
 
-  if (error) return 'An error has occurred: ' + error.message;
+  const mock_price_level: { high: number; low: number } = {
+    high: 0.225,
+    low: 0.15,
+  };
+
+  let used_label: ReactElement;
+  if (homeState.price) {
+    if (homeState.price >= mock_price_level.high) {
+      used_label = PRICE_LABEL.HIGH;
+    } else if (homeState.price <= mock_price_level.low) {
+      used_label = PRICE_LABEL.LOW;
+    } else {
+      used_label = PRICE_LABEL.NORM;
+    }
+  } else {
+    used_label = PRICE_LABEL.NORM;
+  }
 
   return (
-    <div className="flex items-center justify-center">
-      <div className="flex flex-col items-center justify-center gap-6">
-        <CurrentPrice isPending={isPending} value={data ?? 0} property="Price" label={PRICE_LABEL.NORM} />
-        <RegionSelect selectedZone={selectedZone} setSelectedZone={setSelectedZone} />
-        <Chart zone={selectedZone.value} />
-        <Footer selectedZone={selectedZone} />
-      </div>
+    <div className="flex flex-col items-center justify-center gap-6">
+      <CurrentPrice property="Price" label={used_label} value={homeState.price} />
+      <Chart zone={homeState.zone?.value ?? ''} />
+      <RegionSelect
+        selectedZone={homeState.zone}
+        loadZone={home_controller.current.loadBiddingZone}
+        controllerRef={regionSelectControllerRef}
+      />
+      <Footer selectedZone={homeState.zone} />
     </div>
   );
 }

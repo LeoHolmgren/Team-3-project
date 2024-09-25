@@ -7,7 +7,7 @@ export default function Header() {
   return (
     <div className="relative z-50 flex items-center justify-between py-8">
       <div className="flex items-center space-x-4">
-        <Link href="/" className="text-3xl font-bold">
+        <Link href="/" className="text-3xl font-bold text-[#a3a3a3]">
           OnOff
         </Link>
       </div>
