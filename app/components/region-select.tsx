@@ -126,7 +126,7 @@ export function RegionSelect({
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
-          console.log('pos', pos.coords.latitude, pos.coords.longitude);
+          pos;
           await delay(500);
           const zone: BiddingZone = ZONES[0]; // TODO: Call our api to get zone from pos.lat, pos.lon
           controller.current.setLocationLoaded(true);

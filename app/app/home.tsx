@@ -36,6 +36,8 @@ const PRICE_LABEL = {
 type HomeState = {
   zone: BiddingZone;
   is_fetching_price: boolean;
+  time_of_fetch: Date | null;
+  fetch_data: Array<{ SEK_per_kWh: number }> | null;
   price: number | null;
   error: Error | null;
 };
@@ -49,6 +51,8 @@ export default function Home() {
   const [homeState, setHomeState] = useState<HomeState>({
     zone: ZONES[0],
     is_fetching_price: false,
+    time_of_fetch: null,
+    fetch_data: null,
     price: null,
     error: null,
   });
@@ -111,11 +115,16 @@ export default function Home() {
         set_error_state();
       }
 
+      const data = await response.json();
+      const time_of_data = new Date();
+
       // Price is loaded, update state
       home_controller.current.state = {
         ...home_controller.current.state,
         is_fetching_price: false,
-        price: (await response.json())[new Date().getHours()]['SEK_per_kWh'],
+        time_of_fetch: time_of_data,
+        fetch_data: data,
+        price: data[time_of_data.getHours()]['SEK_per_kWh'],
       };
       setHomeState(home_controller.current.state);
       regionSelectControllerRef.current?.setRegionLoaded(true);
@@ -145,7 +154,7 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center gap-6">
       <CurrentPrice property="Price" label={used_label} value={homeState.price} />
-      <Chart zone={homeState.zone?.value ?? ''} />
+      <Chart data={homeState.fetch_data} timestamp={homeState.time_of_fetch} />
       <RegionSelect
         selectedZone={homeState.zone}
         loadZone={home_controller.current.loadBiddingZone}

@@ -1,19 +1,9 @@
 'use client';
 
-import { CartesianGrid, XAxis, LabelList, Line, LineChart } from 'recharts';
+import { CartesianGrid, XAxis, Line, LineChart, ReferenceLine } from 'recharts';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-
-const chartData = [
-  { day: 'Monday', price: 0.188 },
-  { day: 'Tuesday', price: 0.198 },
-  { day: 'Wednesday', price: 0.251 },
-  { day: 'Thursday', price: 0.291 },
-  { day: 'Friday', price: 0.189 },
-  { day: 'Saturday', price: 0.245 },
-  { day: 'Sunday', price: 0.205 },
-];
+import { Card, CardContent } from '@/components/ui/card';
 
 const chartConfig = {
   price: {
@@ -22,50 +12,39 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function Chart({ zone }: { zone: string }) {
+export function Chart({ data, timestamp }: { data: Array<{ SEK_per_kWh: number }> | null; timestamp: Date | null }) {
+  const chart = (
+    <ChartContainer config={chartConfig} className="min-h-[200px] p-0">
+      <LineChart
+        accessibilityLayer
+        data={data ? [...data, { SEK_per_kWh: data[23]['SEK_per_kWh'] }] : []}
+        margin={{
+          top: 20,
+          left: 20,
+          right: 20,
+        }}
+      >
+        <XAxis></XAxis>
+        <ReferenceLine x={timestamp ? timestamp.getHours() + 5 : 0} stroke="red" strokeWidth={1} />
+        <CartesianGrid vertical={false} />
+        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
+        <Line
+          dataKey="SEK_per_kWh"
+          type="stepAfter"
+          stroke="var(--color-price)"
+          strokeWidth={1}
+          dot={false}
+          activeDot={{
+            r: 3,
+          }}
+        ></Line>
+      </LineChart>
+    </ChartContainer>
+  );
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Price chart - {zone}</CardTitle>
-        <CardDescription>16.09.2024 - 23.09.2024</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="min-h-[200px]">
-          <LineChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              top: 20,
-              left: 20,
-              right: 20,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="day"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
-            <Line
-              dataKey="price"
-              type="natural"
-              stroke="var(--color-price)"
-              strokeWidth={2}
-              dot={{
-                fill: 'var(--color-price)',
-              }}
-              activeDot={{
-                r: 6,
-              }}
-            >
-              <LabelList position="top" offset={12} className="fill-foreground" fontSize={12} />
-            </Line>
-          </LineChart>
-        </ChartContainer>
-      </CardContent>
+    <Card className="border-0">
+      <CardContent className="p-0">{chart}</CardContent>
     </Card>
   );
 }
