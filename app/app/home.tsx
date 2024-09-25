@@ -1,9 +1,8 @@
 'use client';
 
-import { RegionSelect, BiddingZone, RegionSelectController } from '@/components/region-select';
+import { RegionSelect, BiddingZone, RegionSelectController, ZONES } from '@/components/region-select';
 import CurrentPrice from '@/components/current-price';
 import { useState, useRef, ReactElement } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Chart } from '@/components/chart';
 
 const PRICE_LABEL = {
@@ -47,7 +46,7 @@ export interface HomeController {
 
 export default function Home() {
   const [homeState, setHomeState] = useState<HomeState>({
-    zone: null,
+    zone: ZONES[0],
     is_fetching_price: false,
     price: null,
     error: null,
@@ -139,14 +138,13 @@ export default function Home() {
       used_label = PRICE_LABEL.NORM;
     }
   } else {
-    used_label = <Skeleton className="h-[5.30em] w-[18em]" />;
+    used_label = PRICE_LABEL.NORM;
   }
 
   return (
     <div className="flex flex-col items-center justify-center gap-6">
       <CurrentPrice property="Price" label={used_label} value={homeState.price} />
       <Chart zone={homeState.zone?.value ?? ''} />
-      <br />
       <RegionSelect
         selectedZone={homeState.zone}
         loadZone={home_controller.current.loadBiddingZone}
