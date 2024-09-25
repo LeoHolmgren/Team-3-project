@@ -34,7 +34,7 @@ const PRICE_LABEL = {
 };
 
 type HomeState = {
-  zone: BiddingZone | null;
+  zone: BiddingZone;
   is_fetching_price: boolean;
   price: number | null;
   error: Error | null;
