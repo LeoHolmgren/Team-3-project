@@ -69,7 +69,7 @@ export default function Home() {
     const day = currTime.getDate();
 
     const URL =
-      'https://www.elprisetjustnu.se/api/v1/pricess/' + year + '/0' + month + '-' + day + '_' + zone.value + '.json';
+      'https://www.elprisetjustnu.se/api/v1/prices/' + year + '/0' + month + '-' + day + '_' + zone.value + '.json';
 
     return fetch(URL);
   };
