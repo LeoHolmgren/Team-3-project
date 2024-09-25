@@ -33,7 +33,7 @@ export default function RootLayout({
           <Providers>
             <Header />
             <main className="flex-1">{children}</main>
-            <Footer />
+            <Footer selectedZone={selectedZone} />
           </Providers>
         </div>
       </body>
