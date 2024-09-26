@@ -1,7 +1,10 @@
 'use client';
 
+import * as React from 'react';
+import * as RechartsPrimitive from 'recharts';
+
 import { XAxis, YAxis, Line, LineChart, ReferenceLine } from 'recharts';
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { ChartConfig, ChartContainer, ChartTooltip } from '@/components/ui/chart';
 
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -11,6 +14,40 @@ const chartConfig = {
     color: 'hsl(var(--chart-1))',
   },
 } satisfies ChartConfig;
+
+const ChartTooltipContent = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
+    React.ComponentProps<'div'> & {
+      hideLabel?: boolean;
+      hideIndicator?: boolean;
+      indicator?: 'line' | 'dot' | 'dashed';
+      nameKey?: string;
+      labelKey?: string;
+    }
+>(({ active, payload }, ref) => {
+  const time_format: Intl.NumberFormat = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
+  const price_format: Intl.NumberFormat = new Intl.NumberFormat('en-US', {
+    maximumSignificantDigits: 3,
+  });
+  const item = payload ? payload[0] : null;
+
+  if (!active || !item) {
+    return null;
+  }
+
+  return (
+    <div ref={ref} className={'background-[#000000] text-[#a3a3a3]'}>
+      <h3 className="text-[1.2em] font-[800]">
+        {item.payload.idx == 24 ? '23:59' : time_format.format(item.payload.idx) + ':00'}
+      </h3>
+      <p className="text-[1em] font-[600]">
+        {price_format.format(item.payload.SEK_per_kWh)} <span className="text-[0.8em] font-[100]">SEK / kWh</span>
+      </p>
+    </div>
+  );
+});
+ChartTooltipContent.displayName = 'ChartTooltip';
 
 export function Chart({
   data,
@@ -59,7 +96,7 @@ export function Chart({
           y={price_levels?.low ?? 0}
           stroke="#51cd87"
           strokeDasharray="1 3"
-          opacity={0.8}
+          opacity={0.6}
           strokeWidth={1}
         />
         <ReferenceLine
@@ -70,7 +107,8 @@ export function Chart({
           strokeWidth={1}
         />
 
-        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
+        <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+
         <Line
           dataKey="SEK_per_kWh"
           type="stepAfter"

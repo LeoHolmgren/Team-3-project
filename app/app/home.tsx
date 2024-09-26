@@ -68,7 +68,7 @@ export default function Home() {
 
     await delay(500);
 
-    const currTime = new Date(Date.now() - 0 * 1000 * 60 * 60 * 24 * 2);
+    const currTime = new Date(Date.now() - 0 * 1000 * 60 * 60 * 24 * 1);
     const year = currTime.getFullYear();
     const month = currTime.getMonth() + 1;
     const day = currTime.getDate();
@@ -135,8 +135,8 @@ export default function Home() {
   if (homeState.error) return 'An error has occurred: ' + homeState.error.message;
 
   const mock_price_level: { high: number; low: number } = {
-    high: 0.25,
-    low: 0.15,
+    high: 0.2,
+    low: 0.1,
   };
 
   let used_label: ReactElement;
