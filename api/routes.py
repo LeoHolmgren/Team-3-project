@@ -69,11 +69,11 @@ async def read_price_data(price_data_id: int, db: Session = Depends(get_db)):
 
 # GET endpoint: Fetch data by Zone
 @router.get("/price-data/{price_data_zone}")
-async def read_price_data_zone(price_data_zone: int, db: Session = Depends(get_db)):
+async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_db)):
 
-# Fetches a specific price data entry by zone from the electricity_prices table (SQL)
+# Fetches a specific price data entry by zone from the price_data table (SQL)
 
-    query = text("SELECT * FROM electricity_prices WHERE zone = :zone")
+    query = text("SELECT * FROM price_data WHERE zone = :zone")
     result = db.execute(query, {"zone": price_data_zone})
     price_data = result.fetchone()
 
@@ -83,7 +83,7 @@ async def read_price_data_zone(price_data_zone: int, db: Session = Depends(get_d
     return {
         "id": price_data.id,
         "zone": price_data.zone,
-        "price_SEK": price_data.price_SEK,
+        "price_sek": price_data.price_sek,
         "time_start": price_data.time_start,
         "time_end": price_data.time_end
     }
