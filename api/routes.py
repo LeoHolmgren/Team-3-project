@@ -66,3 +66,22 @@ async def read_price_data(price_data_id: int, db: Session = Depends(get_db)):
         "time_start": price_data.time_start,
         "time_end": price_data.time_end
     }
+
+# Mocked data
+price_levels_by_zone = {
+    'zone1': {'high': 500, 'low': 300},
+    'zone2': {'high': 700, 'low': 400},
+    'zone3': {'high': 600, 'low': 350},
+    'default': {'high': 1000, 'low': 500}
+}
+
+# GET endpoint: Get price levels by zone
+@router.get("/getPriceLevels/{zone}")
+async def get_price_levels(zone: str):
+    levels = price_levels_by_zone.get(zone, price_levels_by_zone['default'])
+
+    return {
+        "zone": zone,
+        "priceLevels": levels
+    }
+
