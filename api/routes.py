@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime
-from .database import SessionLocal  # Absolute import for SessionLocal
-
+import requests
+import json
 
 router = APIRouter()
 
@@ -74,3 +74,9 @@ async def read_price_data(price_data_id: int, db: Session = Depends(get_db)):
     "time_end": price_data.time_end,
     "created_at": price_data.created_at  # Include created_at for completeness
     }
+
+# GET endpoint: Fetch data by ID
+@router.get("/get-zone-by-location/")
+def read_price_data(lat: float, lon: float):
+    request = requests.get(f"https://api.electricitymap.org/v3/carbon-intensity/latest?lat={lat}&lon={lon}", headers={"auth-token": "j7oL00XD47aMF"})
+    return json.loads(request.content).get("zone")
