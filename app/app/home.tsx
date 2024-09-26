@@ -135,8 +135,8 @@ export default function Home() {
   if (homeState.error) return 'An error has occurred: ' + homeState.error.message;
 
   const mock_price_level: { high: number; low: number } = {
-    high: 0.17,
-    low: 0.05,
+    high: 0.25,
+    low: 0.15,
   };
 
   let used_label: ReactElement;
@@ -172,6 +172,7 @@ export default function Home() {
       )}
       <RegionSelect
         selectedZone={homeState.zone}
+        time_of_fetch={homeState.time_of_fetch}
         loadZone={home_controller.current.loadBiddingZone}
         controllerRef={regionSelectControllerRef}
       />

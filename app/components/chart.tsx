@@ -1,6 +1,6 @@
 'use client';
 
-import { CartesianGrid, XAxis, Line, LineChart, ReferenceLine } from 'recharts';
+import { XAxis, Line, LineChart, ReferenceLine } from 'recharts';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -21,6 +21,8 @@ export function Chart({
   timestamp: Date | null;
   price_levels: { high: number; low: number } | null;
 }) {
+  const current_price: number = data && timestamp ? data[timestamp?.getHours()].SEK_per_kWh : 0;
+
   const chart = (
     <ChartContainer config={chartConfig} className="min-h-[200px] p-0">
       <LineChart
@@ -37,8 +39,11 @@ export function Chart({
           x={timestamp ? timestamp.getHours() : 0}
           stroke="#a3a3a3"
           strokeDasharray="1 3"
+          opacity={0.8}
           strokeWidth={1}
         />
+        <ReferenceLine y={current_price} stroke="#a3a3a3" strokeDasharray="1 3" opacity={0.8} strokeWidth={1} />
+
         <ReferenceLine
           y={price_levels?.low ?? 0}
           stroke="#51cd87"
@@ -49,7 +54,7 @@ export function Chart({
         <ReferenceLine
           y={price_levels?.high ?? 0}
           stroke="#cd5181"
-          strokeDasharray="1 3"
+          strokeDasharray="1 4"
           opacity={0.8}
           strokeWidth={1}
         />
