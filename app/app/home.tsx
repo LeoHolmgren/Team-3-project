@@ -68,7 +68,7 @@ export default function Home() {
 
     await delay(500);
 
-    const currTime = new Date();
+    const currTime = new Date(Date.now() - 0 * 1000 * 60 * 60 * 24 * 2);
     const year = currTime.getFullYear();
     const month = currTime.getMonth() + 1;
     const day = currTime.getDate();

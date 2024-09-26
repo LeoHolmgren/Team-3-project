@@ -1,6 +1,6 @@
 'use client';
 
-import { XAxis, Line, LineChart, ReferenceLine } from 'recharts';
+import { XAxis, YAxis, Line, LineChart, ReferenceLine } from 'recharts';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -21,29 +21,40 @@ export function Chart({
   timestamp: Date | null;
   price_levels: { high: number; low: number } | null;
 }) {
-  const current_price: number = data && timestamp ? data[timestamp?.getHours()].SEK_per_kWh : 0;
+  const data_formatted = data?.map((obj, i) => {
+    return { ...obj, idx: i };
+  });
 
   const chart = (
     <ChartContainer config={chartConfig} className="min-h-[200px] p-0">
       <LineChart
-        accessibilityLayer
-        data={data ? [...data, { SEK_per_kWh: data[23]['SEK_per_kWh'] }] : []}
-        margin={{
-          top: 20,
-          left: 20,
-          right: 20,
-        }}
+        data={data_formatted ? [...data_formatted, { SEK_per_kWh: data_formatted[23]['SEK_per_kWh'], idx: 24 }] : []}
       >
-        <XAxis></XAxis>
+        <XAxis
+          height={15}
+          type="number"
+          dataKey="idx"
+          domain={[0, 24]}
+          interval="preserveStartEnd"
+          scale="linear"
+          ticks={[0, 6, 12, 18, 24]}
+          tickFormatter={(num) => (num == 24 ? '23:59' : num + ':00')}
+        ></XAxis>
+        <YAxis
+          scale="linear"
+          hide={true}
+          domain={[
+            (dataMin: number) => Math.floor(dataMin * 100) / 100,
+            (dataMax: number) => Math.floor(dataMax * 100 + 1) / 100,
+          ]}
+        ></YAxis>
+
         <ReferenceLine
-          x={timestamp ? timestamp.getHours() : 0}
+          x={timestamp ? timestamp.getHours() + timestamp.getMinutes() / 60 : 0}
           stroke="#a3a3a3"
           strokeDasharray="1 3"
-          opacity={0.8}
           strokeWidth={1}
         />
-        <ReferenceLine y={current_price} stroke="#a3a3a3" strokeDasharray="1 3" opacity={0.8} strokeWidth={1} />
-
         <ReferenceLine
           y={price_levels?.low ?? 0}
           stroke="#51cd87"
