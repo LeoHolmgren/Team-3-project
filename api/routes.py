@@ -69,10 +69,10 @@ async def read_price_data(price_data_id: int, db: Session = Depends(get_db)):
 
 # Mocked data
 price_levels_by_zone = {
-    'zone1': {'high': 500, 'low': 300},
-    'zone2': {'high': 700, 'low': 400},
-    'zone3': {'high': 600, 'low': 350},
-    'default': {'high': 1000, 'low': 500}
+    'SE1': {'high': 0.500, 'low': 0.300},
+    'SE2': {'high': 0.700, 'low': 0.400},
+    'SE3': {'high': 0.600, 'low': 0.350},
+    'default': {'high': 0.1000, 'low': 0.500}
 }
 
 # GET endpoint: Get price levels by zone
