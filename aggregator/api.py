@@ -4,6 +4,8 @@ from datetime import datetime
 import json
 import psycopg2
 import os
+import sys
+import traceback
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -26,10 +28,10 @@ def fetch_external_price_by_zone(zone, time):
     day = str(date.day).zfill(2)
     url = "https://www.elprisetjustnu.se/api/v1/prices/" + year + "/" + month + "-" + day + "_" + zone + ".json"
     request = requests.get(url)
+
     if request.status_code != HTTP_STATUS_OK:
         raise ValueError('External API did not return data')
 
-    # TODO: Error handling?
     data = json.loads(request.content)
 
     list_of_new = []
@@ -55,14 +57,21 @@ def add_item(cursor, zone, price_SEK, time_start, time_end):
                     datetime.utcfromtimestamp(time_end)))
     return
 
+def log(trace):
+    # TODO: Better system for logging errors
+    print(trace)
 
 if __name__ == '__main__':
     conn = database_create_connection()
     cursor = conn.cursor()
     for z in zones:
-        external_data = fetch_external_price_by_zone(
-            z,
-            datetime.now().timestamp())
+        try:
+            external_data = fetch_external_price_by_zone(
+                z,
+                datetime.now().timestamp())
+        except Exception as e:
+            log(traceback.format_exception(*sys.exc_info()))
+            continue
         for e in external_data:
             add_item(cursor, z, e["price_SEK"], e["time_start"], e["time_end"])
     conn.commit()
