@@ -1,3 +1,3 @@
-#!/bin/sh
-export FLASK_APP=api
-flask run
+#!/bin/bash
+source .env
+python3 ./api.py
