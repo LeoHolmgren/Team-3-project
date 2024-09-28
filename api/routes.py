@@ -4,8 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime
+
 import requests
 import json
+
+from .database import SessionLocal  # Absolute import for SessionLocal
+
 
 router = APIRouter()
 
@@ -65,7 +69,6 @@ async def read_price_data(price_data_id: int, db: Session = Depends(get_db)):
     if price_data is None:
         raise HTTPException(status_code=404, detail="PriceData not found")
 
-
     return {
     "id": price_data.id,
     "zone": price_data.zone,
@@ -73,6 +76,28 @@ async def read_price_data(price_data_id: int, db: Session = Depends(get_db)):
     "time_start": price_data.time_start,
     "time_end": price_data.time_end,
     "created_at": price_data.created_at  # Include created_at for completeness
+    }
+
+# GET endpoint: Fetch data by Zone
+@router.get("/price-data/{price_data_zone}")
+async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_db)):
+
+# Fetches a specific price data entry by zone from the price_data table (SQL)
+
+    query = text("SELECT * FROM price_data WHERE zone = :zone")
+    result = db.execute(query, {"zone": price_data_zone})
+    price_data = result.fetchone()
+
+    if price_data is None:
+        raise HTTPException(status_code=404, detail="PriceData by zone not found")
+
+    return {
+        "id": price_data.id,
+        "zone": price_data.zone,
+        "price_sek": price_data.price_sek,
+        "time_start": price_data.time_start,
+        "time_end": price_data.time_end
+
     }
 
 # GET endpoint: Fetch data by ID
