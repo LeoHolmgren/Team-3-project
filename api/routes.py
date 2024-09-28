@@ -7,9 +7,11 @@ from datetime import datetime
 
 import requests
 import json
+import os
 
 from .database import SessionLocal  # Absolute import for SessionLocal
 
+API_AUTH_TOKEN = os.getenv("API_AUTH_TOKEN")
 
 router = APIRouter()
 
@@ -100,8 +102,8 @@ async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_d
 
     }
 
-# GET endpoint: Fetch data by ID
+# GET endpoint: Get the BiddingZone given coordinates
 @router.get("/get-zone-by-location/")
-def read_price_data(lat: float, lon: float):
-    request = requests.get(f"https://api.electricitymap.org/v3/carbon-intensity/latest?lat={lat}&lon={lon}", headers={"auth-token": "j7oL00XD47aMF"})
+def get_zone_from_location(lat: float, lon: float):
+    request = requests.get(f"https://api.electricitymap.org/v3/carbon-intensity/latest?lat={lat}&lon={lon}")
     return json.loads(request.content).get("zone")
