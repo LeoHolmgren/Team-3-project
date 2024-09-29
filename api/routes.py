@@ -4,8 +4,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime
+
+import requests
+import json
+import os
+
 from .database import SessionLocal  # Absolute import for SessionLocal
 
+API_AUTH_TOKEN = os.getenv("API_AUTH_TOKEN")
 
 router = APIRouter()
 
@@ -65,7 +71,6 @@ async def read_price_data(price_data_id: int, db: Session = Depends(get_db)):
     if price_data is None:
         raise HTTPException(status_code=404, detail="PriceData not found")
 
-
     return {
     "id": price_data.id,
     "zone": price_data.zone,
@@ -94,4 +99,11 @@ async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_d
         "price_sek": price_data.price_sek,
         "time_start": price_data.time_start,
         "time_end": price_data.time_end
+
     }
+
+# GET endpoint: Get the BiddingZone given coordinates
+@router.get("/get-zone-by-location/")
+def get_zone_from_location(lat: float, lon: float):
+    request = requests.get(f"https://api.electricitymap.org/v3/carbon-intensity/latest?lat={lat}&lon={lon}")
+    return json.loads(request.content).get("zone")
