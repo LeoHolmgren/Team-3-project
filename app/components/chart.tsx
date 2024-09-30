@@ -1,12 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import * as RechartsPrimitive from 'recharts';
 
 import { XAxis, YAxis, Line, LineChart, ReferenceLine } from 'recharts';
 import { ChartConfig, ChartContainer, ChartTooltip } from '@/components/ui/chart';
-
 import { Card, CardContent } from '@/components/ui/card';
+import CustomChartTooltipContent from '@/components/ui/customChartTooltip';
+
+import { PriceData, PriceLevels } from '@/app/home';
 
 const chartConfig = {
   price: {
@@ -15,62 +16,25 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const ChartTooltipContent = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
-    React.ComponentProps<'div'> & {
-      hideLabel?: boolean;
-      hideIndicator?: boolean;
-      indicator?: 'line' | 'dot' | 'dashed';
-      nameKey?: string;
-      labelKey?: string;
-    }
->(({ active, payload }, ref) => {
-  const time_format: Intl.NumberFormat = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
-  const price_format: Intl.NumberFormat = new Intl.NumberFormat('en-US', {
-    maximumSignificantDigits: 3,
-  });
-  const item = payload ? payload[0] : null;
-
-  if (!active || !item) {
-    return null;
-  }
-
-  return (
-    <div ref={ref} className={'background-[#000000] text-[#a3a3a3]'}>
-      <h3 className="text-[1.2em] font-[800]">
-        {item.payload.idx == 24 ? '23:59' : time_format.format(item.payload.idx) + ':00'}
-      </h3>
-      <p className="text-[1em] font-[600]">
-        {price_format.format(item.payload.SEK_per_kWh)} <span className="text-[0.8em] font-[100]">SEK / kWh</span>
-      </p>
-    </div>
-  );
-});
-ChartTooltipContent.displayName = 'ChartTooltip';
-
 export function Chart({
   data,
   timestamp,
-  price_levels,
+  priceLevels,
 }: {
-  data: Array<{ SEK_per_kWh: number }> | null;
+  data: PriceData | null;
   timestamp: Date | null;
-  price_levels: { high: number; low: number } | null;
+  priceLevels: PriceLevels | null;
 }) {
-  const data_formatted = data?.map((obj, i) => {
-    return { ...obj, idx: i };
-  });
-
   const chart = (
     <ChartContainer config={chartConfig} className="min-h-[200px] p-0">
       <LineChart
-        data={data_formatted ? [...data_formatted, { SEK_per_kWh: data_formatted[23]['SEK_per_kWh'], idx: 24 }] : []}
+        // Format data so that the ending is extended one stair step (price is valid that whole hour) (array ++ array[last])
+        data={data ? [...data, { price: data[data.length - 1].price, time: data[data.length - 1].time + 1 }] : []}
       >
         <XAxis
           height={15}
           type="number"
-          dataKey="idx"
+          dataKey="time"
           domain={[0, 24]}
           interval="preserveStartEnd"
           scale="linear"
@@ -92,25 +56,32 @@ export function Chart({
           strokeDasharray="1 3"
           strokeWidth={1}
         />
-        <ReferenceLine
-          y={price_levels?.low ?? 0}
-          stroke="#51cd87"
-          strokeDasharray="1 3"
-          opacity={0.6}
-          strokeWidth={1}
-        />
-        <ReferenceLine
-          y={price_levels?.high ?? 0}
-          stroke="#cd5181"
-          strokeDasharray="1 4"
-          opacity={0.8}
-          strokeWidth={1}
-        />
 
-        <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+        {priceLevels ? (
+          <>
+            <ReferenceLine
+              y={priceLevels?.low ?? 0}
+              stroke="#51cd87"
+              strokeDasharray="1 3"
+              opacity={0.6}
+              strokeWidth={1}
+            />
+            <ReferenceLine
+              y={priceLevels?.high ?? 0}
+              stroke="#cd5181"
+              strokeDasharray="1 4"
+              opacity={0.8}
+              strokeWidth={1}
+            />
+          </>
+        ) : (
+          ''
+        )}
+
+        <ChartTooltip cursor={false} content={<CustomChartTooltipContent />} />
 
         <Line
-          dataKey="SEK_per_kWh"
+          dataKey="price"
           type="stepAfter"
           stroke="var(--color-price)"
           strokeWidth={1}

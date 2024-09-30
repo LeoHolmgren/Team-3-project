@@ -53,12 +53,12 @@ export const ZONES: BiddingZone[] = [
 
 export function RegionSelect({
   selectedZone,
-  time_of_fetch,
+  timeOfFetch,
   loadZone,
   controllerRef,
 }: {
   selectedZone: BiddingZone | null;
-  time_of_fetch: Date | null;
+  timeOfFetch: Date | null;
   loadZone: (zone: BiddingZone) => void;
   controllerRef: MutableRefObject<RegionSelectController | null>;
 }) {
@@ -103,7 +103,7 @@ export function RegionSelect({
 
   let dropdown;
 
-  const time_format: Intl.NumberFormat = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
+  const timeFormat: Intl.NumberFormat = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
 
   const dropdown_btn = (
     <div className="h-[3.5em] w-full">
@@ -116,8 +116,8 @@ export function RegionSelect({
         <div className="font-[600] text-[#555]">{selectedZone ? selectedZone.value : 'ZONE'}</div>
         {selectedZone ? selectedZone.label : 'Select Zone'}
         <div className="font-[600] text-[#555]">
-          {time_of_fetch
-            ? time_format.format(time_of_fetch.getHours()) + ':' + time_format.format(time_of_fetch.getMinutes())
+          {timeOfFetch
+            ? timeFormat.format(timeOfFetch.getHours()) + ':' + timeFormat.format(timeOfFetch.getMinutes())
             : '--:--'}
         </div>
       </div>
