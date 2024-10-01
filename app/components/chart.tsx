@@ -2,12 +2,12 @@
 
 import * as React from 'react';
 
+import { PriceData, PriceLevels } from '@/app/types';
+
 import { XAxis, YAxis, Line, LineChart, ReferenceLine } from 'recharts';
 import { ChartConfig, ChartContainer, ChartTooltip } from '@/components/ui/chart';
 import { Card, CardContent } from '@/components/ui/card';
 import CustomChartTooltipContent from '@/components/ui/customChartTooltip';
-
-import { PriceData, PriceLevels } from '@/app/home';
 
 const chartConfig = {
   price: {
@@ -57,26 +57,14 @@ export function Chart({
           strokeWidth={1}
         />
 
-        {priceLevels ? (
-          <>
-            <ReferenceLine
-              y={priceLevels?.low ?? 0}
-              stroke="#51cd87"
-              strokeDasharray="1 3"
-              opacity={0.6}
-              strokeWidth={1}
-            />
-            <ReferenceLine
-              y={priceLevels?.high ?? 0}
-              stroke="#cd5181"
-              strokeDasharray="1 4"
-              opacity={0.8}
-              strokeWidth={1}
-            />
-          </>
-        ) : (
-          ''
-        )}
+        <ReferenceLine y={priceLevels?.low ?? 0} stroke="#51cd87" strokeDasharray="1 3" opacity={0.6} strokeWidth={1} />
+        <ReferenceLine
+          y={priceLevels?.high ?? 0}
+          stroke="#cd5181"
+          strokeDasharray="1 4"
+          opacity={0.8}
+          strokeWidth={1}
+        />
 
         <ChartTooltip cursor={false} content={<CustomChartTooltipContent />} />
 

@@ -2,6 +2,8 @@
 
 import { MutableRefObject, useState, useRef } from 'react';
 
+import { BiddingZone } from '@/app/types';
+
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
@@ -10,25 +12,21 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 
 import { FaLocationDot } from 'react-icons/fa6';
 
-// Bidding zone type
-export type BiddingZone = {
-  value: string;
-  label: string;
-};
+import { HomeState, HomeController } from '@/app/home';
 
 // State for the region select interface
 type RegionSelectState = {
-  location_loading: boolean;
-  location_loaded: boolean;
-  zone_loaded: boolean;
+  locationLoading: boolean;
+  locationLoaded: boolean;
+  zoneLoaded: boolean;
 };
 
 // Interface for controlling the Region Controller Visuals
 export interface RegionSelectController {
   state: RegionSelectState;
   setLocationLoading: (is_loading: boolean) => void;
-  setLocationLoaded: (is_loaded: boolean) => void;
-  setRegionLoaded: (is_loaded: boolean) => void;
+  setLocationLoaded: (isLoaded: boolean) => void;
+  setRegionLoaded: (isLoaded: boolean) => void;
   setBiddingZoneNoLocation: (zone: BiddingZone) => void;
 }
 
@@ -51,24 +49,24 @@ export const ZONES: BiddingZone[] = [
   },
 ];
 
+const bidigit: Intl.NumberFormat = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
+
 export function RegionSelect({
-  selectedZone,
-  timeOfFetch,
-  loadZone,
+  state,
+  homeController,
   controllerRef,
 }: {
-  selectedZone: BiddingZone | null;
-  timeOfFetch: Date | null;
-  loadZone: (zone: BiddingZone) => void;
+  state: HomeState;
+  homeController: HomeController;
   controllerRef: MutableRefObject<RegionSelectController | null>;
 }) {
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
   const [controllerState, setControllerState] = useState<RegionSelectState>({
-    location_loading: false,
-    location_loaded: false,
-    zone_loaded: false,
+    locationLoading: false,
+    locationLoaded: false,
+    zoneLoaded: false,
   });
 
   // Define controller methods that alter controller state for this region select
@@ -77,24 +75,24 @@ export function RegionSelect({
     setLocationLoading: (is_loading: boolean) => {
       controller.current.state = {
         ...controller.current.state,
-        location_loading: is_loading,
-        location_loaded: false,
-        zone_loaded: false,
+        locationLoading: is_loading,
+        locationLoaded: false,
+        zoneLoaded: false,
       };
       setControllerState(controller.current.state);
     },
-    setLocationLoaded: (is_loaded: boolean) => {
-      controller.current.state = { ...controller.current.state, location_loaded: is_loaded };
+    setLocationLoaded: (isLoaded: boolean) => {
+      controller.current.state = { ...controller.current.state, locationLoaded: isLoaded };
       setControllerState(controller.current.state);
     },
-    setRegionLoaded: (is_loaded: boolean) => {
-      controller.current.state = { ...controller.current.state, zone_loaded: is_loaded };
+    setRegionLoaded: (isLoaded: boolean) => {
+      controller.current.state = { ...controller.current.state, zoneLoaded: isLoaded };
       setControllerState(controller.current.state);
     },
     setBiddingZoneNoLocation: (zone: BiddingZone) => {
-      controller.current.state = { ...controller.current.state, location_loading: false, location_loaded: false };
+      controller.current.state = { ...controller.current.state, locationLoading: false, locationLoaded: false };
       setControllerState(controller.current.state);
-      loadZone(zone);
+      homeController.loadBiddingZone(zone);
     },
   });
 
@@ -103,42 +101,35 @@ export function RegionSelect({
 
   let dropdown;
 
-  const timeFormat: Intl.NumberFormat = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
-
   const dropdown_btn = (
     <div className="h-[3.5em] w-full">
       <div
         className={
           'flex h-full w-full cursor-pointer items-center justify-between whitespace-nowrap rounded-md border border-input bg-background p-[0.5em] text-[1em] text-sm font-medium leading-[1] text-[#a3a3a3] shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50' +
-          (controllerState.zone_loaded ? ' !border-[#5164cd]' : '')
+          (controllerState.zoneLoaded ? ' !border-[#5164cd]' : '')
         }
       >
-        <div className="font-[600] text-[#555]">{selectedZone ? selectedZone.value : 'ZONE'}</div>
-        {selectedZone ? selectedZone.label : 'Select Zone'}
+        <div className="font-[600] text-[#555]">{state.zone ? state.zone.value : 'ZONE'}</div>
+        {state.zone ? state.zone.label : 'Select Zone'}
         <div className="font-[600] text-[#555]">
-          {timeOfFetch
-            ? timeFormat.format(timeOfFetch.getHours()) + ':' + timeFormat.format(timeOfFetch.getMinutes())
+          {state.timeOfFetch
+            ? bidigit.format(state.timeOfFetch.getHours()) + ':' + bidigit.format(state.timeOfFetch.getMinutes())
             : '--:--'}
         </div>
       </div>
     </div>
   );
 
-  async function location_enable() {
+  async function locationEnable() {
     controller.current.setLocationLoading(true);
-
-    function delay(ms: number) {
-      return new Promise((resolve) => setTimeout(resolve, ms));
-    }
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
           pos;
-          await delay(500);
           const zone: BiddingZone = ZONES[0]; // TODO: Call our api to get zone from pos.lat, pos.lon
           controller.current.setLocationLoaded(true);
-          loadZone(zone);
+          homeController.loadBiddingZone(zone);
         },
         (err) => {
           console.log('get location error', err);
@@ -149,22 +140,6 @@ export function RegionSelect({
       controller.current.setLocationLoading(false);
     }
   }
-
-  const location = (
-    <div className="aspect-square h-[3.5em]">
-      <Button
-        variant="outline"
-        onClick={location_enable}
-        className={
-          'h-full w-full justify-center p-[0.5em] text-[1.1em] leading-[1] text-[#555]' +
-          (controllerState.location_loading ? ' !hover:text-[#5164cd] !text-[#5164cd]' : '') +
-          (controllerState.location_loaded ? ' !border-[#5164cd]' : '')
-        }
-      >
-        <FaLocationDot />
-      </Button>
-    </div>
-  );
 
   const region_list = (
     <Command>
@@ -217,7 +192,19 @@ export function RegionSelect({
 
   return (
     <div className="flex w-[100%] max-w-[406px] gap-[5px] text-[14px]">
-      {location}
+      <div className="aspect-square h-[3.5em]">
+        <Button
+          variant="outline"
+          onClick={locationEnable}
+          className={
+            'h-full w-full justify-center p-[0.5em] text-[1.1em] leading-[1] text-[#555]' +
+            (controllerState.locationLoading ? ' !hover:text-[#5164cd] !text-[#5164cd]' : '') +
+            (controllerState.locationLoaded ? ' !border-[#5164cd]' : '')
+          }
+        >
+          <FaLocationDot />
+        </Button>
+      </div>
       {dropdown}
     </div>
   );

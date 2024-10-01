@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import { PriceLevels } from '@/app/home';
+import { PriceLevels } from '@/app/types';
 
 const PRICE_LABEL = {
   HIGH: (
@@ -29,7 +29,7 @@ const PRICE_LABEL = {
 };
 
 function getPriceLabel(priceLevels: PriceLevels | null, price: number | null) {
-  if (!price || !priceLevels) {
+  if (price === null || !priceLevels) {
     return <Skeleton className="h-[5.5em] w-[15em]" />;
   }
   return price > priceLevels.high ? PRICE_LABEL.HIGH : price < priceLevels.low ? PRICE_LABEL.LOW : PRICE_LABEL.NORM;

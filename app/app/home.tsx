@@ -1,20 +1,12 @@
 'use client';
 
-import { RegionSelect, BiddingZone, RegionSelectController } from '@/components/region-select';
-import CurrentPrice from '@/components/current-price';
+import { PriceData, PriceLevels, BiddingZone } from '@/app/types';
+
+import ContentPanel from '@/components/content-panel';
+import { RegionSelect, RegionSelectController } from '@/components/region-select';
 import { useState, useRef } from 'react';
-import { Chart } from '@/components/chart';
 import Footer from './footer';
-import Image from 'next/image';
 import fetchPrice from '@/app/api';
-import getPriceLabel from '@/components/labels';
-
-export type PriceData = Array<{ price: number; time: number }>;
-
-export type PriceLevels = {
-  high: number;
-  low: number;
-};
 
 export type HomeState = {
   zone: BiddingZone | null;
@@ -104,39 +96,12 @@ export default function Home() {
 
   if (homeState.error) return 'An error has occurred: ' + homeState.error.message;
 
-  const noZoneSelectedPanel = (
-    <div className="relative h-[23.5em] w-[100%] max-w-[406px]">
-      <Image
-        src="https://i.pinimg.com/originals/9a/f9/0f/9af90f155c5d30af21494b2afb3e9431.png"
-        className="h-full w-full opacity-35"
-        width={624}
-        height={468}
-        alt="Zone not specified"
-      ></Image>
-      <h2 className="translate-y[-50%] absolute left-[50%] top-[50%] translate-x-[-50%] text-[1.5em] font-[600] text-[#a3a3a3]">
-        No Zone Selected
-      </h2>
-    </div>
-  );
-
-  const pricePanel = (
-    <>
-      <CurrentPrice
-        property="Price"
-        label={getPriceLabel(homeState.priceLevels, homeState.price)}
-        value={homeState.price}
-      />
-      <Chart data={homeState.fetchData} timestamp={homeState.timeOfFetch} priceLevels={homeState.priceLevels} />
-    </>
-  );
-
   return (
     <div className="flex flex-col items-center justify-center gap-6">
-      {homeState.zone ? pricePanel : noZoneSelectedPanel}
+      <ContentPanel state={homeState}></ContentPanel>
       <RegionSelect
-        selectedZone={homeState.zone}
-        timeOfFetch={homeState.timeOfFetch}
-        loadZone={homeController.current.loadBiddingZone}
+        state={homeState}
+        homeController={homeController.current}
         controllerRef={regionSelectControllerRef}
       />
       <Footer timestamp={homeState.timeOfFetch} />
