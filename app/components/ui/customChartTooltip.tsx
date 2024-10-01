@@ -23,7 +23,7 @@ const CustomChartTooltipContent = forwardRef<
   }
 
   return (
-    <div ref={ref} className={'background-[#000000] text-[#a3a3a3]'}>
+    <div ref={ref} className={'bg-background text-[#a3a3a3]'}>
       <h3 className="text-[1.2em] font-[800]">
         {item.payload.time == 24 ? '23:59' : time_format.format(item.payload.time) + ':00'}
       </h3>
