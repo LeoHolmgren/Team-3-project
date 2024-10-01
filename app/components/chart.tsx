@@ -5,9 +5,8 @@ import * as React from 'react';
 import { PriceData, PriceLevels } from '@/app/types';
 
 import { XAxis, YAxis, Line, LineChart, ReferenceLine } from 'recharts';
-import { ChartConfig, ChartContainer, ChartTooltip } from '@/components/ui/chart';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Card, CardContent } from '@/components/ui/card';
-import CustomChartTooltipContent from '@/components/ui/customChartTooltip';
 
 const chartConfig = {
   price: {
@@ -51,14 +50,12 @@ export function Chart({
             (dataMax: number) => Math.floor(dataMax * 100 + 1) / 100,
           ]}
         ></YAxis>
-
         <ReferenceLine
           x={timestamp ? timestamp.getHours() + timestamp.getMinutes() / 60 : 0}
           stroke="#a3a3a3"
           strokeDasharray="1 3"
           strokeWidth={1}
         />
-
         <ReferenceLine y={priceLevels?.low ?? 0} stroke="#51cd87" strokeDasharray="1 3" opacity={0.6} strokeWidth={1} />
         <ReferenceLine
           y={priceLevels?.high ?? 0}
@@ -67,9 +64,11 @@ export function Chart({
           opacity={0.8}
           strokeWidth={1}
         />
-
-        <ChartTooltip cursor={false} content={<CustomChartTooltipContent />} />
-
+        <ChartTooltip
+          cursor={false}
+          labelFormatter={(_, payload) => `${payload[0].payload.time}:00`}
+          content={<ChartTooltipContent />}
+        />
         <Line
           dataKey="price"
           type="stepAfter"

@@ -136,7 +136,7 @@ const ChartTooltipContent = React.forwardRef<
           : itemConfig?.label;
 
       if (labelFormatter) {
-        return <div className={cn('font-medium', labelClassName)}>{labelFormatter(value, payload)}</div>;
+        return <div className={cn('font-medium', labelClassName)}>{`${labelFormatter(value, payload)}`}</div>;
       }
 
       if (!value) {
@@ -205,13 +205,17 @@ const ChartTooltipContent = React.forwardRef<
                         nestLabel ? 'items-end' : 'items-center'
                       )}
                     >
-                      <div className="grid gap-1.5">
+                      {/* <div className="grid gap-1.5">
                         {nestLabel ? tooltipLabel : null}
                         <span className="text-muted-foreground">{itemConfig?.label || item.name}</span>
-                      </div>
+                      </div> */}
                       {item.value && (
                         <span className="font-mono font-medium tabular-nums text-foreground">
-                          {item.value.toLocaleString()}
+                          {`${item.value.toLocaleString('en-US', {
+                            minimumFractionDigits: 3,
+                            maximumFractionDigits: 3,
+                            useGrouping: false,
+                          })} SEK/kWh`}
                         </span>
                       )}
                     </div>
