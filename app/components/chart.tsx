@@ -16,6 +16,11 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+// Format data so that the ending is extended one stair step (price is valid that whole hour) (array ++ array[last])
+function formatData(data: PriceData | null) {
+  return data ? [...data, { price: data[data.length - 1].price, time: data[data.length - 1].time + 1 }] : [];
+}
+
 export function Chart({
   data,
   timestamp,
@@ -27,10 +32,7 @@ export function Chart({
 }) {
   const chart = (
     <ChartContainer config={chartConfig} className="min-h-[200px] p-0">
-      <LineChart
-        // Format data so that the ending is extended one stair step (price is valid that whole hour) (array ++ array[last])
-        data={data ? [...data, { price: data[data.length - 1].price, time: data[data.length - 1].time + 1 }] : []}
-      >
+      <LineChart data={formatData(data)}>
         <XAxis
           height={15}
           type="number"

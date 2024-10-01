@@ -42,6 +42,7 @@ export default function Home() {
 
   const regionSelectControllerRef = useRef<RegionSelectController>(null);
 
+  // The controller is how other components interract with this component
   const homeController = useRef<HomeController>({
     state: homeState,
     setErrorState: (error: Error) => {

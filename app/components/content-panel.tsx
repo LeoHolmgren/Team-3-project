@@ -11,6 +11,7 @@ export default function ContentPanel({ state }: { state: HomeState }) {
       <Chart data={state.fetchData} timestamp={state.timeOfFetch} priceLevels={state.priceLevels} />
     </>
   ) : (
+    // No zone selected view
     <div className="relative h-[23.5em] w-[100%] max-w-[406px]">
       <Image
         src="https://i.pinimg.com/originals/9a/f9/0f/9af90f155c5d30af21494b2afb3e9431.png"

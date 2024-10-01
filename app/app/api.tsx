@@ -1,9 +1,9 @@
-import { BiddingZone } from '@/app/types';
+import { BiddingZone, PriceData } from '@/app/types';
 
 const bidigit = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
 
 // Call external api to get price for zone
-const fetchPrice = async (zone: BiddingZone) => {
+export default async function fetchPrice(zone: BiddingZone): Promise<{ arrived: Date; data: PriceData }> {
   const currTime = new Date(Date.now() - 0 * 1000 * 60 * 60 * 24 * 1);
   const year = currTime.getFullYear();
   const month = currTime.getMonth() + 1;
@@ -36,6 +36,4 @@ const fetchPrice = async (zone: BiddingZone) => {
       }),
     };
   });
-};
-
-export default fetchPrice;
+}
