@@ -2,3 +2,5 @@ __pycache__
 bun.lockb
 .env
 .vscode
+venv
+.DATABASE_URL_SECRET_DO_NOT_SHARE

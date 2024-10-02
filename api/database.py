@@ -3,7 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # Database connection URL
-DATABASE_URL = "postgresql://ElectricityPricesDatabase_owner:Sf54EaVzqjeP@ep-lingering-queen-a2q4uvi7.eu-central-1.aws.neon.tech/ElectricityPricesDatabase?sslmode=require"
+with open('../.DATABASE_URL_SECRET_DO_NOT_SHARE', 'r') as file:
+    DATABASE_URL = file.read().replace('\n', '')
 
 # interface: connection to db
 engine = create_engine(DATABASE_URL)

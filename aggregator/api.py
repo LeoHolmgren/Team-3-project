@@ -7,12 +7,9 @@ import os
 import sys
 import traceback
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-
-def database_create_connection():
+def database_create_connection(url):
     try:
-        return psycopg2.connect(DATABASE_URL)
+        return psycopg2.connect(url)
     except (psycopg2.DatabaseError, Exception) as error:
         print(error)
 
@@ -62,7 +59,10 @@ def log(trace):
     print(trace)
 
 if __name__ == '__main__':
-    conn = database_create_connection()
+    with open('../.DATABASE_URL_SECRET_DO_NOT_SHARE', 'r') as file:
+        url_string = file.read().replace('\n', '')
+
+    conn = database_create_connection(url_string)
     cursor = conn.cursor()
     for z in zones:
         try:
