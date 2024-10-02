@@ -3,8 +3,8 @@ import Link from 'next/link';
 import React from 'react';
 import { Button } from '../components/ui/button';
 import Image from 'next/image'; // Import the Image component
-import logoLight from './logo-light.png'; // Import the light mode logo
-import logoDark from './logo-dark.png';   // Import the dark mode logo
+import logoLight from '@/app/res/logo-light.png'; // Import the light mode logo
+import logoDark from '@/app/res/logo-dark.png';   // Import the dark mode logo
 
 export default function Header() {
   return (
@@ -16,17 +16,17 @@ export default function Header() {
           <Image
             src={logoLight}
             alt="Company Logo"
-            width={200}
-            height={200}
-            className="block dark:hidden"
+            width={392}
+            height={198}
+            className="w-auto h-[45px] p-[5px] block dark:hidden"
           />
           {/* Dark mode logo */}
           <Image
             src={logoDark}
             alt="Company Logo"
-            width={200}
-            height={200}
-            className="hidden dark:block"
+            width={392}
+            height={198}
+            className="w-auto h-[45px] p-[5px] hidden dark:block"
           />
         </Link>
       </div>
