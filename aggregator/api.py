@@ -13,7 +13,6 @@ def database_create_connection(url):
     except (psycopg2.DatabaseError, Exception) as error:
         print(error)
 
-
 zones = ["SE1", "SE2", "SE3", "SE4"]
 HTTP_STATUS_OK = 200
 
