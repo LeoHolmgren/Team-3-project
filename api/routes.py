@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime
-from .database import SessionLocal
+from database import SessionLocal
 
 router = APIRouter()
 

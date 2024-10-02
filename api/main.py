@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from .routes import router
-from .database import engine  # Still import engine for the database connection
+from routes import router
+from database import engine  # Still import engine for the database connection
 
 # FastAPI application instance
 app = FastAPI()
