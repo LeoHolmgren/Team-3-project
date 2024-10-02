@@ -21,7 +21,7 @@ export default function ContentPanel({ state }: { state: HomeState }) {
         height={468}
         alt="Zone not specified"
       ></Image>
-      <h2 className="translate-y[-50%] absolute left-[50%] top-[50%] translate-x-[-50%] text-[1.5em] font-[600] text-[#a3a3a3]">
+      <h2 className="translate-y[-50%] absolute left-[50%] top-[50%] translate-x-[-50%] text-[1.5em] font-[600] text-[#5A5A5A] dark:text-[#a3a3a3]">
         No Zone Selected
       </h2>
     </div>
