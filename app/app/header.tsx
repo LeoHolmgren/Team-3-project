@@ -1,10 +1,12 @@
-import { GitHubLogoIcon } from '@radix-ui/react-icons';
-import Link from 'next/link';
-import React from 'react';
-import { Button } from '../components/ui/button';
 import Image from 'next/image'; // Import the Image component
 import logoLight from '@/app/res/logo-light.png'; // Import the light mode logo
 import logoDark from '@/app/res/logo-dark.png';   // Import the dark mode logo
+import { GitHubLogoIcon } from '@radix-ui/react-icons';
+
+import Link from 'next/link';
+import React from 'react';
+import { Button } from '../components/ui/button';
+import { ModeToggle } from '@/components/mode-toggle';
 
 export default function Header() {
   return (
@@ -18,7 +20,7 @@ export default function Header() {
             alt="Company Logo"
             width={392}
             height={198}
-            className="w-auto h-[45px] p-[5px] block dark:hidden"
+            className="w-auto h-[3em] p-[0.4em] block dark:hidden"
           />
           {/* Dark mode logo */}
           <Image
@@ -26,12 +28,11 @@ export default function Header() {
             alt="Company Logo"
             width={392}
             height={198}
-            className="w-auto h-[45px] p-[5px] hidden dark:block"
+            className="w-auto h-[3em] p-[0.4em] hidden dark:block"
           />
         </Link>
       </div>
       <div className="flex items-center space-x-4">
-        {/* <ModeToggle /> */}
         <Button className="w-9 px-0" variant="outline" asChild>
           <Link
             href="https://github.com/LeoHolmgren/Team-3-project"
@@ -42,6 +43,7 @@ export default function Header() {
             <span className="sr-only">GitHub</span>
           </Link>
         </Button>
+        <ModeToggle />
       </div>
     </div>
   );
