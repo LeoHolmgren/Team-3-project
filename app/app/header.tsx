@@ -2,13 +2,16 @@ import { GitHubLogoIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 import React from 'react';
 import { Button } from '../components/ui/button';
+import Image from 'next/image';  // Import the Image component
+import logo from './logo.png';  // Import the logo image (adjust the path as necessary)
 
 export default function Header() {
   return (
     <div className="relative z-50 flex items-center justify-between py-8">
       <div className="flex items-center space-x-4">
-        <Link href="/" className="text-3xl font-bold text-[#a3a3a3]">
-          OnOff
+        <Link href="/">
+          {/* Replace text with logo */}
+          <Image src={logo} alt="Company Logo" width={200} height={200} />
         </Link>
       </div>
       <div className="flex items-center space-x-4">
