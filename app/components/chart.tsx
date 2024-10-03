@@ -46,7 +46,7 @@ export function Chart({
           scale="linear"
           hide={true}
           domain={[
-            (dataMin: number) => Math.floor(dataMin * 100) / 100,
+            (dataMin: number) => Math.min(Math.floor(dataMin * 100) / 100, 0),
             (dataMax: number) => Math.floor(dataMax * 100 + 1) / 100,
           ]}
         ></YAxis>
