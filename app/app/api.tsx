@@ -4,6 +4,7 @@ const bidigit = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
 
 // Call external api to get price for zone
 export default async function fetchPrice(zone: BiddingZone): Promise<{ arrived: Date; data: PriceData }> {
+  
   const response = await fetch('http://127.0.0.1:8000/price-data/SE1');
   console.log(response);
   //console.log(await response.text());
