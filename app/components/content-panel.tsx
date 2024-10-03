@@ -3,7 +3,7 @@ import getPriceLabel from '@/components/labels';
 import CurrentPrice from '@/components/current-price';
 import { Chart } from '@/components/chart';
 import Image from 'next/image';
-import noZoneSrc from '@/app/res/noZone.png';
+import noZoneSrc from '@/app/public/no-zone.png';
 
 export default function ContentPanel({ state }: { state: HomeState }) {
   return state.zone ? ( // TODO: check more vars. only show if we should

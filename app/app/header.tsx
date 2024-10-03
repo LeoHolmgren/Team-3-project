@@ -1,6 +1,6 @@
 import Image from 'next/image'; // Import the Image component
-import logoLight from '@/app/res/logo-light.png'; // Import the light mode logo
-import logoDark from '@/app/res/logo-dark.png'; // Import the dark mode logo
+import logoLight from '@/app/public/logo-light.png'; // Import the light mode logo
+import logoDark from '@/app/public/logo-dark.png'; // Import the dark mode logo
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
 
 import Link from 'next/link';
@@ -13,8 +13,6 @@ export default function Header() {
     <div className="relative z-50 flex items-center justify-between py-8">
       <div className="flex items-center space-x-4">
         <Link href="/">
-          {/* Replace text with logos */}
-          {/* Light mode logo */}
           <Image
             src={logoLight}
             alt="Company Logo"
@@ -22,7 +20,6 @@ export default function Header() {
             height={198}
             className="block h-[3em] w-auto p-[0.4em] dark:hidden"
           />
-          {/* Dark mode logo */}
           <Image
             src={logoDark}
             alt="Company Logo"
