@@ -64,9 +64,8 @@ async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_d
     # Fetches a specific price data entry by zone from the price_data table (SQL)
     query = text("SELECT * FROM price_data WHERE zone = :zone")
     result = db.execute(query, {"zone": price_data_zone})
-    price_data = result.fetchone()
 
-    print(price_data)
+    price_data = result.fetchone()
 
     if price_data is None:
         raise HTTPException(status_code=404, detail="PriceData by zone not found")

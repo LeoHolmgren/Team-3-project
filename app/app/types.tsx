@@ -9,3 +9,8 @@ export type BiddingZone = {
   value: string;
   label: string;
 };
+
+export type Location = {
+  lat: number;
+  lon: number;
+}
