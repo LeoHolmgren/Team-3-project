@@ -1,9 +1,10 @@
 from decimal import Decimal
 
+import data
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, date
 
 import requests
 import json
@@ -84,3 +85,36 @@ async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_d
 def get_zone_from_location(lat: float, lon: float):
     request = requests.get(f"https://api.electricitymap.org/v3/carbon-intensity/latest?lat={lat}&lon={lon}")
     return json.loads(request.content).get("zone")
+
+
+# GET endpoint: Get price-data for a specific day zone
+@router.get("/price-data/date/{specific_date}")
+def get_price_data_by_date(specific_date: date, price_data_zone: str, db: Session = Depends(get_db)):
+    query = text("""
+            SELECT * FROM price_data 
+            WHERE DATE(time_start) = :specific_date AND zone = :zone
+        """)
+    result = db.execute(query, {"specific_date": specific_date, "zone": price_data_zone})
+    price_data_list = result.fetchall()
+
+    if not price_data_list:
+        raise HTTPException(status_code=404, detail="No price data found for the specified date")
+
+    # hourly price data
+    hourly_data = {hour: {"price": None, "time": None} for hour in range(24)}
+
+    #  hourly data with fetched results
+    for row in price_data_list:
+        hour = row.time_start.hour
+        hourly_data[hour] = {
+            "price": row.price_sek,
+            "time": hour
+    }
+    # The data as an array
+    data = [hourly_data[hour] for hour in range(24)]
+
+    # Format the results
+    return [{
+        "arrived": int(price_data_list[0].created_at.timestamp() * 1000),
+        "data": data
+    } for row in price_data_list]
