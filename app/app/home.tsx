@@ -1,157 +1,111 @@
 'use client';
 
-import { RegionSelect, BiddingZone, RegionSelectController, ZONES } from '@/components/region-select';
-import CurrentPrice from '@/components/current-price';
-import { useState, useRef, ReactElement } from 'react';
-import { Chart } from '@/components/chart';
+import { PriceData, PriceLevels, BiddingZone } from '@/app/types';
+
+import ContentPanel from '@/components/content-panel';
+import { RegionSelect, RegionSelectController } from '@/components/region-select';
+import { useState, useRef } from 'react';
 import Footer from './footer';
+import fetchPrice from '@/app/api';
 
-const PRICE_LABEL = {
-  HIGH: (
-    <h2
-      style={{ opacity: '0.85', fontSize: '5em', lineHeight: 1.1, fontWeight: 800 }}
-      className={'inline-block bg-gradient-to-r from-[#cd7a51] to-[#cd5181] bg-clip-text text-transparent'}
-    >
-      HIGH
-    </h2>
-  ),
-  NORM: (
-    <h2
-      style={{ opacity: '0.85', fontSize: '5em', lineHeight: 1.1, fontWeight: 800 }}
-      className={'inline-block bg-gradient-to-r from-[#5157cd] to-[#51cdc7] bg-clip-text text-transparent'}
-    >
-      NORM
-    </h2>
-  ),
-  LOW: (
-    <h2
-      style={{ opacity: '0.85', fontSize: '5em', lineHeight: 1.1, fontWeight: 800 }}
-      className={'inline-block bg-gradient-to-r from-[#51cd87] to-[#83cd51] bg-clip-text text-transparent'}
-    >
-      LOW
-    </h2>
-  ),
-};
-
-type HomeState = {
-  zone: BiddingZone;
-  is_fetching_price: boolean;
+export type HomeState = {
+  zone: BiddingZone | null;
+  isFetchingPrice: boolean;
+  timeOfFetch: Date | null;
+  fetchData: PriceData | null;
   price: number | null;
+  priceLevels: PriceLevels | null;
   error: Error | null;
 };
 
 export interface HomeController {
   state: HomeState;
+  setErrorState: (error: Error) => void;
   loadBiddingZone: (zone: BiddingZone) => void;
 }
 
+const MOCK_PRICE_LEVELS: PriceLevels = {
+  high: 0.2,
+  low: 0.1,
+};
+
 export default function Home() {
   const [homeState, setHomeState] = useState<HomeState>({
-    zone: ZONES[0],
-    is_fetching_price: false,
+    zone: null,
+    isFetchingPrice: false,
+    timeOfFetch: null,
+    fetchData: null,
     price: null,
+    priceLevels: null,
     error: null,
   });
 
   const regionSelectControllerRef = useRef<RegionSelectController>(null);
 
-  // Call external api to get price for zone
-  const price_api_call = async (zone: BiddingZone) => {
-    function delay(ms: number) {
-      return new Promise((resolve) => setTimeout(resolve, ms));
-    }
-
-    await delay(500);
-
-    const currTime = new Date();
-    const year = currTime.getFullYear();
-    const month = currTime.getMonth() + 1;
-    const day = currTime.getDate();
-
-    const URL =
-      'https://www.elprisetjustnu.se/api/v1/prices/' + year + '/0' + month + '-' + day + '_' + zone.value + '.json';
-
-    return fetch(URL);
-  };
-
-  const home_controller = useRef<HomeController>({
+  // The controller is how other components interract with this component
+  const homeController = useRef<HomeController>({
     state: homeState,
+    setErrorState: (error: Error) => {
+      homeController.current.state = {
+        ...homeController.current.state,
+        error: error,
+      };
+      setHomeState(homeController.current.state);
+    },
     loadBiddingZone: async (zone) => {
-      home_controller.current.state = {
-        ...home_controller.current.state,
+      homeController.current.state = {
+        ...homeController.current.state,
         zone: zone,
         price: null,
-        is_fetching_price: true,
+        priceLevels: null,
+        isFetchingPrice: true,
         error: null,
       };
 
       // Price starts loading, update state
       regionSelectControllerRef.current?.setRegionLoaded(false);
-      setHomeState(home_controller.current.state);
+      setHomeState(homeController.current.state);
 
       let response;
 
-      // Error in request occurred, set error state
-      function set_error_state() {
-        home_controller.current.state = {
-          ...home_controller.current.state,
-          error: new Error('Could not load current price for bidding zone ' + zone.value),
-        };
-        setHomeState(home_controller.current.state);
-      }
-
       try {
-        response = await price_api_call(zone);
-      } catch (exception) {
-        set_error_state();
+        response = await fetchPrice(zone);
+      } catch (e) {
+        if (e instanceof Error) {
+          homeController.current.setErrorState(e);
+          return;
+        }
+        homeController.current.setErrorState(
+          new Error('Could not load current price for bidding zone ' + homeController.current.state.zone?.value)
+        );
         return;
       }
 
-      if (!response.ok) {
-        set_error_state();
-      }
-
       // Price is loaded, update state
-      home_controller.current.state = {
-        ...home_controller.current.state,
-        is_fetching_price: false,
-        price: (await response.json())[new Date().getHours()]['SEK_per_kWh'],
+      homeController.current.state = {
+        ...homeController.current.state,
+        isFetchingPrice: false,
+        timeOfFetch: response.arrived,
+        fetchData: response.data,
+        price: response.data[response.arrived.getHours()].price,
+        priceLevels: MOCK_PRICE_LEVELS,
       };
-      setHomeState(home_controller.current.state);
+      setHomeState(homeController.current.state);
       regionSelectControllerRef.current?.setRegionLoaded(true);
     },
   });
 
   if (homeState.error) return 'An error has occurred: ' + homeState.error.message;
 
-  const mock_price_level: { high: number; low: number } = {
-    high: 0.225,
-    low: 0.15,
-  };
-
-  let used_label: ReactElement;
-  if (homeState.price) {
-    if (homeState.price >= mock_price_level.high) {
-      used_label = PRICE_LABEL.HIGH;
-    } else if (homeState.price <= mock_price_level.low) {
-      used_label = PRICE_LABEL.LOW;
-    } else {
-      used_label = PRICE_LABEL.NORM;
-    }
-  } else {
-    used_label = PRICE_LABEL.NORM;
-  }
-
   return (
     <div className="flex flex-col items-center justify-center gap-6">
-      <CurrentPrice property="Price" label={used_label} value={homeState.price} />
-      <Chart zone={homeState.zone?.value ?? ''} />
+      <ContentPanel state={homeState}></ContentPanel>
       <RegionSelect
-        selectedZone={homeState.zone}
-        loadZone={home_controller.current.loadBiddingZone}
+        state={homeState}
+        homeController={homeController.current}
         controllerRef={regionSelectControllerRef}
       />
-      <Footer selectedZone={homeState.zone} />
+      <Footer timestamp={homeState.timeOfFetch} />
     </div>
   );
 }
