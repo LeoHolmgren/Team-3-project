@@ -9,7 +9,7 @@ export default function ContentPanel({ state }: { state: HomeState }) {
   return state.zone ? ( // TODO: check more vars. only show if we should
     <>
       <CurrentPrice property="Price" label={getPriceLabel(state.priceLevels, state.price)} value={state.price} />
-      <Chart zone={state.zone?.value ?? ''} />
+      <Chart data={state.fetchData} timestamp={state.timeOfFetch} priceLevels={state.priceLevels} />
     </>
   ) : (
     // No zone selected view
