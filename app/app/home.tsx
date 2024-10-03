@@ -70,6 +70,7 @@ export default function Home() {
 
       try {
         response = await fetchPrice(zone);
+        // throw error here to test error banner
       } catch (e) {
         if (e instanceof Error) {
           homeController.current.setErrorState(e);
@@ -94,8 +95,6 @@ export default function Home() {
       regionSelectControllerRef.current?.setRegionLoaded(true);
     },
   });
-
-  if (homeState.error) return 'An error has occurred: ' + homeState.error.message;
 
   return (
     <div className="flex flex-col items-center justify-center gap-6">
