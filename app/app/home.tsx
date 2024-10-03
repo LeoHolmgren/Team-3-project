@@ -4,9 +4,9 @@ import { PriceData, PriceLevels, BiddingZone } from '@/app/types';
 
 import ContentPanel from '@/components/content-panel';
 import { RegionSelect, RegionSelectController } from '@/components/region-select';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import Footer from './footer';
-import fetchPrice from '@/app/api';
+import { fetchPrice } from '@/app/api';
 
 export type HomeState = {
   zone: BiddingZone | null;
@@ -53,6 +53,8 @@ export default function Home() {
       setHomeState(homeController.current.state);
     },
     loadBiddingZone: async (zone) => {
+      
+      // Price starts loading, update state
       homeController.current.state = {
         ...homeController.current.state,
         zone: zone,
@@ -61,9 +63,6 @@ export default function Home() {
         isFetchingPrice: true,
         error: null,
       };
-
-      // Price starts loading, update state
-      regionSelectControllerRef.current?.setRegionLoaded(false);
       setHomeState(homeController.current.state);
 
       let response;
@@ -91,7 +90,6 @@ export default function Home() {
         priceLevels: MOCK_PRICE_LEVELS,
       };
       setHomeState(homeController.current.state);
-      regionSelectControllerRef.current?.setRegionLoaded(true);
     },
   });
 

@@ -1,15 +1,13 @@
-import { BiddingZone, PriceData } from '@/app/types';
+import { BiddingZone, PriceData, Location } from '@/app/types';
 
 const bidigit = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
 
 // Call external api to get price for zone
-export default async function fetchPrice(zone: BiddingZone): Promise<{ arrived: Date; data: PriceData }> {
+export async function fetchPrice(zone: BiddingZone): Promise<{ arrived: Date; data: PriceData }> {
   
-  const response = await fetch('http://127.0.0.1:8000/price-data/SE1');
-  console.log(response);
+  //const response = await fetch('http://127.0.0.1:8000/price-data/SE1');
+  //console.log(response);
   //console.log(await response.text());
-
-  
 
   const currTime = new Date(Date.now() - 0 * 1000 * 60 * 60 * 24 * 1);
   const year = currTime.getFullYear();
@@ -43,4 +41,10 @@ export default async function fetchPrice(zone: BiddingZone): Promise<{ arrived: 
       }),
     };
   });
+}
+
+export async function getBiddingZoneFromLocation(location: Location) {
+  const response = await fetch('http://127.0.0.1:8000/get-zone-by-location?lat=' + location.lat + "&lon=" + location.lon);
+  const text = await response.text();
+  return text.replaceAll('"', '').split("-").reverse()[0]; // Remove the [SE-]SE3
 }
