@@ -14,11 +14,11 @@ import { getBiddingZoneFromLocation } from '@/app/api';
 import { HomeState, HomeController } from '@/app/home';
 
 enum LocationState {
-  DISABLED="disabled",
-  ENABLED="enabled",
-  LOADING="loading",
-  ERROR="error",
-  LOADED="loaded"
+  DISABLED = 'disabled',
+  ENABLED = 'enabled',
+  LOADING = 'loading',
+  ERROR = 'error',
+  LOADED = 'loaded',
 }
 
 // State for the region select interface
@@ -113,7 +113,7 @@ export function RegionSelect({
           controller.current.setLocationError(e);
           return;
         }
-        controller.current.setLocationError(Error("Failed to get zone from location"));
+        controller.current.setLocationError(Error('Failed to get zone from location'));
         return;
       }
 
@@ -125,15 +125,14 @@ export function RegionSelect({
       setControllerState(controller.current.state);
 
       // Tell home component to load new BiddingZone
-      const foundZone = ZONES.find((priority) => priority.value === zone)
+      const foundZone = ZONES.find((priority) => priority.value === zone);
 
       if (foundZone) {
         homeController.loadBiddingZone(foundZone);
       } else {
-        controller.current.setLocationError(Error("Zone " + zone + " is not in ZONES constant"));
+        controller.current.setLocationError(Error('Zone ' + zone + ' is not in ZONES constant'));
         return;
       }
-
     },
     setLocationError: (err) => {
       console.log(err);
@@ -176,13 +175,12 @@ export function RegionSelect({
   );
 
   async function locationEnable() {
-
     controller.current.setLocationEnable();
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        async pos => {
-          controller.current.setLocation({lat: pos.coords.latitude, lon: pos.coords.longitude});
+        async (pos) => {
+          controller.current.setLocation({ lat: pos.coords.latitude, lon: pos.coords.longitude });
         },
         (err) => {
           console.log('get location error', err);
@@ -190,7 +188,7 @@ export function RegionSelect({
             controller.current.setLocationError(err);
             return;
           }
-          controller.current.setLocationError(Error("Could not get location"));
+          controller.current.setLocationError(Error('Could not get location'));
         }
       );
     }
@@ -208,9 +206,7 @@ export function RegionSelect({
               value={zone.label}
               onSelect={(value) => {
                 controller.current.setLocationDisable();
-                homeController.loadBiddingZone(
-                  ZONES.find((priority) => priority.label === value) || ZONES[0]
-                );
+                homeController.loadBiddingZone(ZONES.find((priority) => priority.label === value) || ZONES[0]);
                 setOpen(false);
               }}
             >
@@ -246,11 +242,10 @@ export function RegionSelect({
     );
   }
 
-  const blueIcon: boolean = (
+  const blueIcon: boolean =
     controllerState.locationState == LocationState.ENABLED ||
     controllerState.locationState == LocationState.LOADING ||
-    controllerState.locationState == LocationState.LOADED 
-  ); 
+    controllerState.locationState == LocationState.LOADED;
 
   const redIcon: boolean = controllerState.locationState == LocationState.ERROR;
 
@@ -264,7 +259,7 @@ export function RegionSelect({
           onClick={locationEnable}
           className={
             'h-full w-full justify-center p-[0.5em] text-[1.1em] leading-[1] text-[#555]' +
-            (blueIcon  ? ' !hover:text-[#5164cd] !text-[#5164cd]' : '') +
+            (blueIcon ? ' !hover:text-[#5164cd] !text-[#5164cd]' : '') +
             (redIcon ? ' !hover:text-[#FF0000] !text-[#FF0000]' : '') +
             (blueBorder ? ' !border-[#5164cd]' : '')
           }

@@ -53,7 +53,6 @@ export default function Home() {
       setHomeState(homeController.current.state);
     },
     loadBiddingZone: async (zone) => {
-      
       // Price starts loading, update state
       homeController.current.state = {
         ...homeController.current.state,

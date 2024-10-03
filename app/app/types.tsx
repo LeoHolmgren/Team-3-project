@@ -13,4 +13,4 @@ export type BiddingZone = {
 export type Location = {
   lat: number;
   lon: number;
-}
+};
