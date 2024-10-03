@@ -107,5 +107,6 @@ def get_price_data_by_date(specific_date: date, price_data_zone: str, db: Sessio
             "price": row.price_sek,
             "time": hour
     }
+
     # Format the results
     return   hourly_data
