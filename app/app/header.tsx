@@ -1,6 +1,6 @@
 import Image from 'next/image'; // Import the Image component
 import logoLight from '@/app/res/logo-light.png'; // Import the light mode logo
-import logoDark from '@/app/res/logo-dark.png';   // Import the dark mode logo
+import logoDark from '@/app/res/logo-dark.png'; // Import the dark mode logo
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
 
 import Link from 'next/link';
@@ -20,7 +20,7 @@ export default function Header() {
             alt="Company Logo"
             width={392}
             height={198}
-            className="w-auto h-[3em] p-[0.4em] block dark:hidden"
+            className="block h-[3em] w-auto p-[0.4em] dark:hidden"
           />
           {/* Dark mode logo */}
           <Image
@@ -28,17 +28,13 @@ export default function Header() {
             alt="Company Logo"
             width={392}
             height={198}
-            className="w-auto h-[3em] p-[0.4em] hidden dark:block"
+            className="hidden h-[3em] w-auto p-[0.4em] dark:block"
           />
         </Link>
       </div>
       <div className="flex items-center space-x-4">
         <Button className="w-9 px-0" variant="outline" asChild>
-          <Link
-            href="https://github.com/LeoHolmgren/Team-3-project"
-            target="_blank"
-            rel="noreferrer"
-          >
+          <Link href="https://github.com/LeoHolmgren/Team-3-project" target="_blank" rel="noreferrer">
             <GitHubLogoIcon className="h-5 w-5" />
             <span className="sr-only">GitHub</span>
           </Link>
