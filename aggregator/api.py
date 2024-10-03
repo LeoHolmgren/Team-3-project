@@ -1,36 +1,37 @@
-from flask import Flask
-from flask import json
 import time
 import requests
 from datetime import datetime
+import json
+import psycopg2
+import os
+import sys
+import traceback
 
-app = Flask(__name__)
-
-cached_zones = {}
-
-# Current format for storing price data
-# {
-#   "SEK_per_kWh": 0.0,
-#   "time_start": 0.0,
-#   "time_end": 0.0
-# }
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 
-def fetch_external_price_by_zone(zone):
-    valid_zones = ["SE1", "SE2", "SE3", "SE4"]
-    valid_zone = False
-    for v in valid_zones:
-        if v == zone:
-            valid_zones = True
-    if not valid_zones:
-        raise ValueError('Client specified invalid zone')
-    request = requests.get(
-        "https://www.elprisetjustnu.se/api/v1/prices/2024/09-17_" + zone +
-        ".json")
-    if request.status_code != 200:
+def database_create_connection():
+    try:
+        return psycopg2.connect(DATABASE_URL)
+    except (psycopg2.DatabaseError, Exception) as error:
+        print(error)
+
+
+zones = ["SE1", "SE2", "SE3", "SE4"]
+HTTP_STATUS_OK = 200
+
+
+def fetch_external_price_by_zone(zone, time):
+    date = datetime.utcfromtimestamp(time)
+    year = str(date.year)
+    month = str(date.month).zfill(2)
+    day = str(date.day).zfill(2)
+    url = "https://www.elprisetjustnu.se/api/v1/prices/" + year + "/" + month + "-" + day + "_" + zone + ".json"
+    request = requests.get(url)
+
+    if request.status_code != HTTP_STATUS_OK:
         raise ValueError('External API did not return data')
 
-    # TODO: Error handling?
     data = json.loads(request.content)
 
     list_of_new = []
@@ -46,37 +47,31 @@ def fetch_external_price_by_zone(zone):
     return list_of_new
 
 
-def get_cached_price_by_zone(zone):
-    current_hour = int(time.time() / (60 * 60))
-    cached_item = cached_zones.get(zone)
-    if cached_item != None:
-        if cached_item["hour"] == current_hour:
-            return cached_item["data"]
+def add_item(cursor, zone, price_SEK, time_start, time_end):
+    sql_query = """INSERT INTO price_data(zone, price_SEK, time_start, time_end)
+    VALUES(%s, %s, %s, %s)
+    ON CONFLICT DO NOTHING;
+    """
+    cursor.execute(sql_query,
+                   (zone, price_SEK, datetime.utcfromtimestamp(time_start),
+                    datetime.utcfromtimestamp(time_end)))
+    return
 
-    try:
-        external_content = fetch_external_price_by_zone(zone)
-    except ValueError as value:
-        print(value)
-        return "Internal Server Error", 503
-    except Exception as error:
-        print('Caught this error: ' + repr(error))
-        return "Internal Server Error", 503
+def log(trace):
+    # TODO: Better system for logging errors
+    print(trace)
 
-    if cached_zones.get(zone) == None:
-        cached_zones[zone] = {"data": external_content, "hour": current_hour}
-        return cached_zones[zone]["data"]
-
-    # TODO: Slow, especially since we can order entries by date. But it
-    # does not seem to matter for now since this will be done once every
-    # hour.
-    for n in external_content:
-        if n not in cached_zones[zone]["data"]:
-            cached_zones[zone]["data"].append(n)
-
-    cached_zones[zone]["hour"] = current_hour
-    return cached_zones[zone]["data"]
-
-
-@app.route('/api/<zone>')
-def location(zone):
-    return get_cached_price_by_zone(zone)
+if __name__ == '__main__':
+    conn = database_create_connection()
+    cursor = conn.cursor()
+    for z in zones:
+        try:
+            external_data = fetch_external_price_by_zone(
+                z,
+                datetime.now().timestamp())
+        except Exception as e:
+            log(traceback.format_exception(*sys.exc_info()))
+            continue
+        for e in external_data:
+            add_item(cursor, z, e["price_SEK"], e["time_start"], e["time_end"])
+    conn.commit()

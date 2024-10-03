@@ -3,6 +3,7 @@ import getPriceLabel from '@/components/labels';
 import CurrentPrice from '@/components/current-price';
 import { Chart } from '@/components/chart';
 import Image from 'next/image';
+import noZoneSrc from '@/app/res/noZone.png';
 
 export default function ContentPanel({ state }: { state: HomeState }) {
   return state.zone ? ( // TODO: check more vars. only show if we should
@@ -14,7 +15,7 @@ export default function ContentPanel({ state }: { state: HomeState }) {
     // No zone selected view
     <div className="relative h-[23.5em] w-[100%] max-w-[406px]">
       <Image
-        src="https://i.pinimg.com/originals/9a/f9/0f/9af90f155c5d30af21494b2afb3e9431.png"
+        src={noZoneSrc}
         className="h-full w-full opacity-35"
         width={624}
         height={468}
