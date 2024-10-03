@@ -18,11 +18,11 @@ export async function fetchPrice(zone: BiddingZone): Promise<{ arrived: Date; da
     }
 
     const timeOfData = new Date();
-    const json: {arrived: number, data: Array<{ price: number, time: number }>} = await response.json();
+    const json: PriceData = await response.json();
 
     return {
       arrived: timeOfData,
-      data: json.data,
+      data: json,
     };
   });
 }
