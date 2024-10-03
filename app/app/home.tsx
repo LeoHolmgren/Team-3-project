@@ -80,6 +80,8 @@ export default function Home() {
         return;
       }
 
+      console.log(response);
+
       // Price is loaded, update state
       homeController.current.state = {
         ...homeController.current.state,
