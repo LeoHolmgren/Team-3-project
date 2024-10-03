@@ -1,6 +1,4 @@
 from decimal import Decimal
-
-import data
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -101,7 +99,7 @@ def get_price_data_by_date(specific_date: date, price_data_zone: str, db: Sessio
         raise HTTPException(status_code=404, detail="No price data found for the specified date")
 
     # hourly price data
-    hourly_data = {hour: {"price": None, "time": None} for hour in range(24)}
+    hourly_data = [{"price": None, "time": None} for hour in range(24)]
 
     #  hourly data with fetched results
     for row in price_data_list:
@@ -110,11 +108,5 @@ def get_price_data_by_date(specific_date: date, price_data_zone: str, db: Sessio
             "price": row.price_sek,
             "time": hour
     }
-    # The data as an array
-    data = [hourly_data[hour] for hour in range(24)]
-
     # Format the results
-    return [{
-        "arrived": int(price_data_list[0].created_at.timestamp() * 1000),
-        "data": data
-    } for row in price_data_list]
+    return   hourly_data
