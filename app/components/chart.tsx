@@ -26,54 +26,6 @@ const chartConfig = {
 
 export function Chart({ zone }: { zone: string }) {
 
-   // data from the api
-  const [chartData, setChartData] = useState<{ day: string, price: number }[]>([]);
-  // tracks if the data is currently being fetched
-  const [loading, setLoading] = useState(true);
-  // captures errors that happen while fetching
-  const [error, setError] = useState<string | null>(null);
-  // Fetch data from the API
-  useEffect(() => {
-      const response = await fetch(`/api/price-data/zone/${zone}`);
-      console.log(response);
-     const fetchData = async () => {
-     setLoading(true);
-    setError(null);
-
-    try {
-      // Fetch data from the FastAPI backend
-      // const response = await fetch(`/api/price-data/zone/${zone}`);
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail || 'Error fetching data');
-      }
-
-      // Formatting data to match the chart
-      const formattedData = data.map((item: any) => ({
-        day: new Date(item.time_start).toLocaleDateString('en-US', { weekday: 'long' }),  // Format day
-        price: item.price_sek,
-      }));
-
-      setChartData(formattedData);
-
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchData();
-
-}, [zone]);
-
-  // Handling of loading.. and error
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-
-
   return (
     <Card>
       <CardHeader>
