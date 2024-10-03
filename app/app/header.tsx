@@ -1,4 +1,8 @@
+import Image from 'next/image'; // Import the Image component
+import logoLight from '@/app/public/logo-light.png'; // Import the light mode logo
+import logoDark from '@/app/public/logo-dark.png'; // Import the dark mode logo
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
+
 import Link from 'next/link';
 import React from 'react';
 import { Button } from '../components/ui/button';
@@ -8,8 +12,21 @@ export default function Header() {
   return (
     <div className="relative z-50 flex items-center justify-between py-8">
       <div className="flex items-center space-x-4">
-        <Link href="/" className="text-3xl font-bold text-[#a3a3a3]">
-          OnOff
+        <Link href="/">
+          <Image
+            src={logoLight}
+            alt="Company Logo"
+            width={392}
+            height={198}
+            className="block h-[3em] w-auto p-[0.4em] dark:hidden"
+          />
+          <Image
+            src={logoDark}
+            alt="Company Logo"
+            width={392}
+            height={198}
+            className="hidden h-[3em] w-auto p-[0.4em] dark:block"
+          />
         </Link>
       </div>
       <div className="flex items-center space-x-4">
