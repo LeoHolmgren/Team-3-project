@@ -3,7 +3,7 @@ import getPriceLabel from '@/components/labels';
 import CurrentPrice from '@/components/current-price';
 import { Chart } from '@/components/chart';
 import noZoneSrc from '@/app/public/no-zone.png';
-import errorSrc from '@/app/public/error.jpg';
+import errorSrc from '@/app/public/error.png';
 import Banner from './banner';
 
 export default function ContentPanel({ state }: { state: HomeState }) {
