@@ -194,7 +194,6 @@ export function RegionSelect({
         }
       );
     }
-
   }
 
   const region_list = (
