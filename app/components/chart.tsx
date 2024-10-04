@@ -1,19 +1,12 @@
 'use client';
 
-import { CartesianGrid, XAxis, LabelList, Line, LineChart } from 'recharts';
+import * as React from 'react';
+
+import { PriceData, PriceLevels } from '@/app/types';
+
+import { XAxis, YAxis, Line, LineChart, ReferenceLine } from 'recharts';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-
-const chartData = [
-  { day: 'Monday', price: 0.188 },
-  { day: 'Tuesday', price: 0.198 },
-  { day: 'Wednesday', price: 0.251 },
-  { day: 'Thursday', price: 0.291 },
-  { day: 'Friday', price: 0.189 },
-  { day: 'Saturday', price: 0.245 },
-  { day: 'Sunday', price: 0.205 },
-];
+import { Card, CardContent } from '@/components/ui/card';
 
 const chartConfig = {
   price: {
@@ -22,50 +15,77 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function Chart({ zone }: { zone: string }) {
+// Format data so that the ending is extended one stair step (price is valid that whole hour) (array ++ array[last])
+function formatData(data: PriceData | null) {
+  return data ? [...data, { price: data[data.length - 1].price, time: data[data.length - 1].time + 1 }] : [];
+}
+
+export function Chart({
+  data,
+  timestamp,
+  priceLevels,
+}: {
+  data: PriceData | null;
+  timestamp: Date | null;
+  priceLevels: PriceLevels | null;
+}) {
+  const chart = (
+    <ChartContainer config={chartConfig} className="min-h-[200px]">
+      <LineChart data={formatData(data)}>
+        <XAxis
+          height={15}
+          type="number"
+          dataKey="time"
+          domain={[0, 24]}
+          interval="preserveStartEnd"
+          scale="linear"
+          ticks={[0, 6, 12, 18, 24]}
+          tickFormatter={(num) => (num == 24 ? '23:59' : num + ':00')}
+        ></XAxis>
+        <YAxis
+          scale="linear"
+          hide={true}
+          domain={[
+            (dataMin: number) => Math.min(Math.floor(dataMin * 100) / 100, 0),
+            (dataMax: number) => Math.floor(dataMax * 100 + 1) / 100,
+          ]}
+        ></YAxis>
+        <ReferenceLine
+          x={timestamp ? timestamp.getHours() + timestamp.getMinutes() / 60 : 0}
+          stroke="#a3a3a3"
+          strokeDasharray="1 3"
+          strokeWidth={1}
+        />
+        <ReferenceLine y={priceLevels?.low ?? 0} stroke="#51cd87" strokeDasharray="1 3" opacity={0.6} strokeWidth={1} />
+        <ReferenceLine
+          y={priceLevels?.high ?? 0}
+          stroke="#cd5181"
+          strokeDasharray="1 4"
+          opacity={0.8}
+          strokeWidth={1}
+        />
+        <ChartTooltip
+          cursor={false}
+          labelFormatter={(_, payload) => `${payload[0].payload.time}:00`}
+          content={<ChartTooltipContent />}
+        />
+        <Line
+          dataKey="price"
+          type="stepAfter"
+          stroke="var(--color-price)"
+          strokeWidth={1}
+          dot={false}
+          activeDot={{
+            r: 3,
+          }}
+        ></Line>
+      </LineChart>
+    </ChartContainer>
+  );
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Price chart - {zone}</CardTitle>
-        <CardDescription>16.09.2024 - 23.09.2024</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="min-h-[200px]">
-          <LineChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              top: 20,
-              left: 20,
-              right: 20,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="day"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
-            <Line
-              dataKey="price"
-              type="natural"
-              stroke="var(--color-price)"
-              strokeWidth={2}
-              dot={{
-                fill: 'var(--color-price)',
-              }}
-              activeDot={{
-                r: 6,
-              }}
-            >
-              <LabelList position="top" offset={12} className="fill-foreground" fontSize={12} />
-            </Line>
-          </LineChart>
-        </ChartContainer>
-      </CardContent>
+    <Card className="border-0 shadow-none">
+      <CardContent className="p-0">{chart}</CardContent>
     </Card>
   );
 }
