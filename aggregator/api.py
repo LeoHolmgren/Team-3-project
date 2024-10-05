@@ -1,4 +1,4 @@
-import time
+import os
 import requests
 from datetime import datetime, timedelta
 import psycopg2
@@ -10,8 +10,9 @@ from dateutil import tz
 
 # Insert API key and database URL here
 # These constants will be used to establish database connections and make API calls.
-DATABASE_URL = "postgresql://ElectricityPricesDatabase_owner:Sf54EaVzqjeP@ep-lingering-queen-a2q4uvi7.eu-central-1.aws.neon.tech/ElectricityPricesDatabase?sslmode=require"
-ENTSOE_API_KEY = 'fdcdf1f9-4760-4792-8b50-ad0c995b3f94'
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+ENTSOE_API_KEY = os.getenv("ENTSOE_API_KEY")
 
 # Establish a connection to the PostgreSQL database using the DATABASE_URL.
 # If the connection fails, it raises an exception and exits the script.
