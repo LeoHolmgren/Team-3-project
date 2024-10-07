@@ -1,4 +1,4 @@
 @echo off
 
-cd app
+cd %~dp0..\app
 npm run dev
