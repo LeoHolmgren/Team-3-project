@@ -6,3 +6,4 @@ bun.lockb
 .vscode
 venv
 .DATABASE_URL_SECRET_DO_NOT_SHARE
+SECRETS/*
