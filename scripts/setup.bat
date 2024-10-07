@@ -1,5 +1,7 @@
 @echo off
 
+set OLDDIR=%CD%
+
 :: Install aggregator environment
 echo Setting up aggregator environment...
 cd %~dp0..\aggregator
@@ -18,3 +20,5 @@ echo Installing API dependencies...
 echo Installing app dependencies... 
 cd %~dp0..\app
 npm install
+
+cd %OLDDIR%
