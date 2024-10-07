@@ -21,7 +21,6 @@ def get_db():
         db.close()
 
 
-
 # Mocked data
 price_levels_by_zone = {
     'SE1': {'high': 0.500, 'low': 0.300},
@@ -31,7 +30,7 @@ price_levels_by_zone = {
 }
 
 # GET endpoint: Get price levels by zone
-@router.get("/getPriceLevels/{zone}")
+@router.get("/get-price-levels/{zone}")
 async def get_price_levels(zone: str):
     levels = price_levels_by_zone.get(zone, price_levels_by_zone['default'])
 
@@ -48,52 +47,33 @@ def get_zone_from_location(lat: float, lon: float):
     return json.loads(request.content).get("zone")
 
 
-# GET endpoint: Fetch data by Zone
+# GET endpoint: Fetch data by Zone And time interval (Seconds since epoch)
 @router.get("/price-data/")
 async def read_price_data_zone(zone: str, start: int, end: int, db: Session = Depends(get_db)):
+
+    startstr = datetime.fromtimestamp(start).strftime('%Y-%m-%d %H:%M:%S')
+    endstr = datetime.fromtimestamp(end).strftime('%Y-%m-%d %H:%M:%S')
 
     # Fetches a specific price data entry by zone from the price_data table (SQL)
     query = text("SELECT * FROM price_data WHERE zone = :zone AND time_start >= :start and time_end <= :end")
     
     result = db.execute(query, {
         "zone": zone,
-        "start": start,
-        "end": end
+        "start": startstr,
+        "end": endstr
     })
 
-    print(result)
-
-    price_data = result.fetchone()
+    price_data = result.fetchall()
 
     if price_data is None:
-        raise HTTPException(status_code=404, detail="PriceData by zone not found")
+        raise HTTPException(status_code=404, detail="No Price Data For Given Zone And Time Interval Was Found")
 
-    return "UNDER CONSTRUCTION"
+    ret = []
 
+    for entry in price_data:
+        ret.append({
+            "price": entry[1],
+            "time": int(entry[2].timestamp())
+        })
 
-# GET endpoint: Get price-data for a specific day zone
-@router.get("/price-data/date/{specific_date}")
-def get_price_data_by_date(specific_date: date, price_data_zone: str, db: Session = Depends(get_db)):
-    query = text("""
-            SELECT * FROM price_data 
-            WHERE DATE(time_start) = :specific_date AND zone = :zone
-        """)
-    result = db.execute(query, {"specific_date": specific_date, "zone": price_data_zone})
-    price_data_list = result.fetchall()
-
-    if not price_data_list:
-        raise HTTPException(status_code=404, detail="No price data found for the specified date")
-
-    # hourly price data
-    hourly_data = [{"price": None, "time": None} for hour in range(24)]
-
-    #  hourly data with fetched results
-    for row in price_data_list:
-        hour = row.time_start.hour
-        hourly_data[hour] = {
-            "price": row.price_sek,
-            "time": hour
-    }
-
-    # Format the results
-    return   hourly_data
+    return ret

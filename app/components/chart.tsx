@@ -30,11 +30,7 @@ export function Chart({
   priceLevels: PriceLevels | null;
 }) {
   const chart = (
-<<<<<<< HEAD
     <ChartContainer config={chartConfig} className="min-h-[200px] p-0">
-=======
-    <ChartContainer config={chartConfig} className="min-h-[200px]">
->>>>>>> scripts
       <LineChart data={formatData(data)}>
         <XAxis
           height={15}
@@ -50,11 +46,7 @@ export function Chart({
           scale="linear"
           hide={true}
           domain={[
-<<<<<<< HEAD
-            (dataMin: number) => Math.floor(dataMin * 100) / 100,
-=======
             (dataMin: number) => Math.min(Math.floor(dataMin * 100) / 100, 0),
->>>>>>> scripts
             (dataMax: number) => Math.floor(dataMax * 100 + 1) / 100,
           ]}
         ></YAxis>
@@ -92,11 +84,7 @@ export function Chart({
   );
 
   return (
-<<<<<<< HEAD
-    <Card className="border-0">
-=======
     <Card className="border-0 shadow-none">
->>>>>>> scripts
       <CardContent className="p-0">{chart}</CardContent>
     </Card>
   );

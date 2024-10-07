@@ -107,7 +107,6 @@ export function RegionSelect({
 
       try {
         zone = await getBiddingZoneFromLocation(location);
-        console.log(zone);
       } catch (e) {
         if (e instanceof Error) {
           controller.current.setLocationError(e);
