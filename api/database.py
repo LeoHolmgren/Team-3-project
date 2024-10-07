@@ -1,17 +1,13 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-
-# Database connection URL
-with open('../.DATABASE_URL_SECRET_DO_NOT_SHARE', 'r') as file:
-    DATABASE_URL = file.read().replace('\n', '')
+from SECRETS.secrets import DATABASE_URL
 
 # interface: connection to db
 engine = create_engine(DATABASE_URL)
 
 #session factory: creates new session objects for database transactions
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 
 # Function to fetch all data from the table
 def fetch_all_data():
