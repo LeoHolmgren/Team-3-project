@@ -1,6 +1,6 @@
 @echo off
 
-:: Go to api directory
+:: Go to aggregator directory
 cd %~dp0..\aggregator
 
 :: Run API
