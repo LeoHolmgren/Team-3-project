@@ -8,9 +8,7 @@ import requests
 import json
 import os
 
-from .database import SessionLocal  # Absolute import for SessionLocal
-
-API_AUTH_TOKEN = os.getenv("API_AUTH_TOKEN")
+from database import SessionLocal  # Absolute import for SessionLocal
 
 router = APIRouter()
 
@@ -21,6 +19,26 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+
+# Mocked data
+price_levels_by_zone = {
+    'SE1': {'high': 0.500, 'low': 0.300},
+    'SE2': {'high': 0.700, 'low': 0.400},
+    'SE3': {'high': 0.600, 'low': 0.350},
+    'default': {'high': 0.1000, 'low': 0.500}
+}
+
+# GET endpoint: Get price levels by zone
+@router.get("/getPriceLevels/{zone}")
+async def get_price_levels(zone: str):
+    levels = price_levels_by_zone.get(zone, price_levels_by_zone['default'])
+
+    return {
+        "zone": zone,
+        "priceLevels": levels
+    }
 
 
 # GET endpoint: Get the BiddingZone given coordinates
