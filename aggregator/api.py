@@ -7,6 +7,8 @@ import os
 import sys
 import traceback
 
+from SECRETS.secrets import DATABASE_URL
+
 def database_create_connection(url):
     try:
         return psycopg2.connect(url)
@@ -58,10 +60,8 @@ def log(trace):
     print(trace)
 
 if __name__ == '__main__':
-    with open('../.DATABASE_URL_SECRET_DO_NOT_SHARE', 'r') as file:
-        url_string = file.read().replace('\n', '')
 
-    conn = database_create_connection(url_string)
+    conn = database_create_connection(DATABASE_URL)
     cursor = conn.cursor()
     for z in zones:
         try:
