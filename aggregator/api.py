@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import time
+=======
+import os
+>>>>>>> c858252fb3d7c58d080eaf13fe2511e466126959
 import requests
 from datetime import datetime, timedelta
 import psycopg2
@@ -7,11 +11,20 @@ import traceback
 import xml.etree.ElementTree as ET
 from dateutil import parser
 from dateutil import tz
+<<<<<<< HEAD
 
 # Insert API key and database URL here
 # These constants will be used to establish database connections and make API calls.
 DATABASE_URL = "postgresql://ElectricityPricesDatabase_owner:Sf54EaVzqjeP@ep-lingering-queen-a2q4uvi7.eu-central-1.aws.neon.tech/ElectricityPricesDatabase?sslmode=require"
 ENTSOE_API_KEY = 'fdcdf1f9-4760-4792-8b50-ad0c995b3f94'
+=======
+
+# Insert API key and database URL here
+# These constants will be used to establish database connections and make API calls.
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+ENTSOE_API_KEY = os.getenv("ENTSOE_API_KEY")
+>>>>>>> c858252fb3d7c58d080eaf13fe2511e466126959
 
 # Establish a connection to the PostgreSQL database using the DATABASE_URL.
 # If the connection fails, it raises an exception and exits the script.

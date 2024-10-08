@@ -106,10 +106,14 @@ export function RegionSelect({
       <div
         className={
 <<<<<<< HEAD
+<<<<<<< HEAD
           'flex h-full w-full cursor-pointer items-center justify-between whitespace-nowrap rounded-md border border-input bg-background p-[0.5em] text-[1em] text-sm font-medium leading-[1] text-[#a3a3a3] shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50' +
 =======
           'text[#5A5A5A] flex h-full w-full cursor-pointer items-center justify-between whitespace-nowrap rounded-md border border-input bg-background p-[0.5em] text-[1em] text-sm font-medium leading-[1] shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 dark:text-[#a3a3a3]' +
 >>>>>>> d20fd90975157caaf4bd2d1e11d3019d115ecf49
+=======
+          'text[#5A5A5A] flex h-full w-full cursor-pointer items-center justify-between whitespace-nowrap rounded-md border border-input bg-background p-[0.5em] text-[1em] text-sm font-medium leading-[1] shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 dark:text-[#a3a3a3]' +
+>>>>>>> c858252fb3d7c58d080eaf13fe2511e466126959
           (controllerState.zoneLoaded ? ' !border-[#5164cd]' : '')
         }
       >
