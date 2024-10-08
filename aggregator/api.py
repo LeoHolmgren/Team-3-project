@@ -206,7 +206,8 @@ if __name__ == '__main__':
             print(f"Fetching prices for {z}")
             external_data = fetch_external_price_by_zone(
                 z,
-                datetime.utcnow().timestamp())  # Current timestamp is passed here.
+                datetime.now(datetime.UTC).timestamp() # Current timestamp is passed here.
+            )
             
             # For each energy price entry retrieved, insert it into the database.
             for e in external_data:
