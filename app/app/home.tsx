@@ -6,6 +6,7 @@ import ContentPanel from '@/components/content-panel';
 import { RegionSelect, RegionSelectController } from '@/components/region-select';
 import { useState, useRef } from 'react';
 import Footer from './footer';
+import useLocalStorage from '@/hooks/useLocalStorage';
 import fetchPrice from '@/app/api';
 
 export type HomeState = {
@@ -30,7 +31,7 @@ const MOCK_PRICE_LEVELS: PriceLevels = {
 };
 
 export default function Home() {
-  const [homeState, setHomeState] = useState<HomeState>({
+  const [homeState, setHomeState] = useLocalStorage<HomeState>('homeState', {
     zone: null,
     isFetchingPrice: false,
     timeOfFetch: null,
