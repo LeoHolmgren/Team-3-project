@@ -1,9 +1,10 @@
 from decimal import Decimal
 
+import numpy as np
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import requests
 import json
@@ -113,12 +114,51 @@ price_levels_by_zone = {
 
 # GET endpoint: Get price levels by zone
 @router.get("/getPriceLevels/{zone}")
-async def get_price_levels(zone: str):
-    levels = price_levels_by_zone.get(zone, price_levels_by_zone['default'])
+async def get_price_levels(zone: str, db: Session = Depends(get_db)):
+    # getting the latest price entry:
+    query_latest_time = text("""
+            SELECT time_start FROM price_data 
+            WHERE zone = :zone 
+            ORDER BY time_start DESC 
+            LIMIT 1
+        """)
+    latest_time_result = db.execute(query_latest_time, {"zone": zone}).fetchone()
+
+    if not latest_time_result:
+        raise HTTPException(status_code=404, detail="No price data available for this zone.")
+
+    # current time
+    current_time = latest_time_result[0]
+    # back one month
+    past_month = current_time - timedelta(days=30)
+
+    # All prices within the last month
+    query_prices = text("""
+            SELECT price_sek FROM price_data 
+            WHERE zone = :zone 
+            AND time_start BETWEEN :past_month AND :current_time
+        """)
+    result = db.execute(query_prices, {
+        "zone": zone,
+        "past_month": past_month,
+        "current_time": current_time
+    })
+
+    prices = [row[0] for row in result.fetchall()]
+
+    if not prices:
+        raise HTTPException(status_code=404, detail="No price data for the last month in this zone.")
+
+    # Calculating the top and bottom quartiles:
+    high_price = float(np.percentile(prices, 75))
+    low_price = float(np.percentile(prices, 25))
 
     return {
         "zone": zone,
-        "priceLevels": levels
+        "priceLevels": {
+            "high" : high_price,
+            "low" : low_price
+        }
     }
 
 
