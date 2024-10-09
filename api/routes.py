@@ -9,9 +9,7 @@ import requests
 import json
 import os
 
-from .database import SessionLocal  # Absolute import for SessionLocal
-
-API_AUTH_TOKEN = os.getenv("API_AUTH_TOKEN")
+from database import SessionLocal  # Absolute import for SessionLocal
 
 router = APIRouter()
 

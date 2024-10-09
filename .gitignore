@@ -1,5 +1,9 @@
 __pycache__
 bun.lockb
+.idea
 .env
 .venv
 .vscode
+venv
+.DATABASE_URL_SECRET_DO_NOT_SHARE
+SECRETS/*
