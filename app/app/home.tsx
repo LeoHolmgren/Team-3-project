@@ -70,14 +70,7 @@ export default function Home() {
 
       try {
         response = await fetchPrice(zone);
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
         // throw error here to test error banner
->>>>>>> d20fd90975157caaf4bd2d1e11d3019d115ecf49
-=======
-        // throw error here to test error banner
->>>>>>> c858252fb3d7c58d080eaf13fe2511e466126959
       } catch (e) {
         if (e instanceof Error) {
           homeController.current.setErrorState(e);
@@ -103,14 +96,6 @@ export default function Home() {
     },
   });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  if (homeState.error) return 'An error has occurred: ' + homeState.error.message;
-
-=======
->>>>>>> d20fd90975157caaf4bd2d1e11d3019d115ecf49
-=======
->>>>>>> c858252fb3d7c58d080eaf13fe2511e466126959
   return (
     <div className="flex flex-col items-center justify-center gap-6">
       <ContentPanel state={homeState}></ContentPanel>
