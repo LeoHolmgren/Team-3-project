@@ -47,7 +47,7 @@ export default function Home() {
 
   // The controller is how other components interract with this component
   const homeController = useRef<HomeController>({
-    state: homeState,
+    state: { ...homeState, zone }, 
     setErrorState: (error: Error) => {
       homeController.current.state = {
         ...homeController.current.state,
@@ -112,10 +112,10 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center gap-6">
-      <ContentPanel state={homeState}></ContentPanel>
+      <ContentPanel state={{ ...homeState, zone }}></ContentPanel>
       {isMounted && (
         <RegionSelect
-          state={homeState}
+          state={{ ...homeState, zone }}
           homeController={homeController.current}
           controllerRef={regionSelectControllerRef}
         />
