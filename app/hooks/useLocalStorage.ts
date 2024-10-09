@@ -1,20 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
+// Function to store values to Local Storage
 function useLocalStorage<T>(key: string, initialValue: T) {
-  const readValue = () => {
-    if (typeof window === 'undefined') {
-      return initialValue;
-    }
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item, reviver) : initialValue;
-    } catch (error) {
-      console.warn(`Error reading localStorage key “${key}”:`, error);
-      return initialValue;
-    }
-  };
+  const [storedValue, setStoredValue] = useState<T>(initialValue);
+  const [isMounted, setIsMounted] = useState(false);
 
-  const [storedValue, setStoredValue] = useState<T>(readValue);
+  useEffect(() => {
+    setIsMounted(true);
+
+    if (typeof window !== 'undefined') {
+      try {
+        const item = window.localStorage.getItem(key);
+        if (item) {
+          setStoredValue(JSON.parse(item));
+        }
+      } catch (error) {
+        console.warn(`Error reading localStorage key "${key}":`, error);
+      }
+    }
+  }, [key]);
 
   const setValue = (value: T | ((val: T) => T)) => {
     try {
@@ -24,19 +28,11 @@ function useLocalStorage<T>(key: string, initialValue: T) {
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
       }
     } catch (error) {
-      console.warn(`Error setting localStorage key “${key}”:`, error);
+      console.warn(`Error setting localStorage key "${key}":`, error);
     }
   };
 
-  return [storedValue, setValue] as const;
+  return [storedValue, setValue, isMounted] as const;
 }
-
-// Function to parse Date fields in the object
-const reviver = (key: string, value: any) => {
-  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)) {
-    return new Date(value); // Parse date strings back into Date objects
-  }
-  return value;
-};
 
 export default useLocalStorage;
