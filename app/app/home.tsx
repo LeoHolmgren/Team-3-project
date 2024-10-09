@@ -3,10 +3,10 @@
 import { PriceData, PriceLevels, BiddingZone } from '@/app/types';
 import ContentPanel from '@/components/content-panel';
 import { RegionSelect, RegionSelectController } from '@/components/region-select';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useLayoutEffect } from 'react';
 import Footer from './footer';
-import useLocalStorage from '@/hooks/useLocalStorage';
 import fetchPrice from '@/app/api';
+import { getStoredBiddingZone, setStoredBiddingZone } from '@/app/local-storage';
 
 export type HomeState = {
   zone: BiddingZone | null;
@@ -30,24 +30,23 @@ const MOCK_PRICE_LEVELS: PriceLevels = {
 };
 
 export default function Home() {
-  const [zone, setZone] = useLocalStorage<BiddingZone | null>('selectedZone', null); // Persist zone in localStorage
-  const [isMounted, setIsMounted] = useState(false); 
-  
+  const isLoaded = useRef<boolean>(false);
+  const regionSelectControllerRef = useRef<RegionSelectController>(null);
+
   // Set homeState without the 'zone' field as zone is managed separately
-  const [homeState, setHomeState] = useState<Omit<HomeState, 'zone'>>({
+  const [homeState, setHomeState] = useState<HomeState>({
+    zone: null,
     isFetchingPrice: false,
     timeOfFetch: null,
     fetchData: null,
     price: null,
-    priceLevels: MOCK_PRICE_LEVELS,
+    priceLevels: null,
     error: null,
   });
 
-  const regionSelectControllerRef = useRef<RegionSelectController>(null);
-
   // The controller is how other components interract with this component
   const homeController = useRef<HomeController>({
-    state: { ...homeState, zone }, 
+    state: homeState,
     setErrorState: (error: Error) => {
       homeController.current.state = {
         ...homeController.current.state,
@@ -57,7 +56,6 @@ export default function Home() {
     },
     loadBiddingZone: async (zone: BiddingZone) => {
       // Set zone in both localStorage and state
-      setZone(zone);
       homeController.current.state = {
         ...homeController.current.state,
         zone: zone,
@@ -70,6 +68,7 @@ export default function Home() {
       // Price starts loading, update state
       regionSelectControllerRef.current?.setRegionLoaded(false);
       setHomeState(homeController.current.state);
+      setStoredBiddingZone(zone);
 
       let response;
 
@@ -101,25 +100,22 @@ export default function Home() {
     },
   });
 
-  // Synchronize zone from localStorage with homeState after client-side mount
-  useEffect(() => {
-    setIsMounted(true); 
-    if (zone) {
-      // If zone exists in localStorage, load the bidding zone
-      homeController.current.loadBiddingZone(zone);  
+  useLayoutEffect(() => {
+    if (!isLoaded.current) {
+      const biddingZone: BiddingZone | null = getStoredBiddingZone();
+      if (biddingZone) homeController.current.loadBiddingZone(biddingZone);
+      isLoaded.current = true;
     }
-  }, [zone]);
+  });
 
   return (
     <div className="flex flex-col items-center justify-center gap-6">
-      <ContentPanel state={{ ...homeState, zone }}></ContentPanel>
-      {isMounted && (
-        <RegionSelect
-          state={{ ...homeState, zone }}
-          homeController={homeController.current}
-          controllerRef={regionSelectControllerRef}
-        />
-      )}
+      <ContentPanel state={homeState}></ContentPanel>
+      <RegionSelect
+        state={homeState}
+        homeController={homeController.current}
+        controllerRef={regionSelectControllerRef}
+      />
       <Footer timestamp={homeState.timeOfFetch} />
     </div>
   );
