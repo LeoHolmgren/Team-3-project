@@ -7,6 +7,7 @@ import { useState, useRef, useLayoutEffect } from 'react';
 import Footer from './footer';
 import fetchPrice from '@/app/api';
 import { getStoredBiddingZone, setStoredBiddingZone } from '@/app/local-storage';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export type HomeState = {
   zone: BiddingZone | null;
@@ -107,6 +108,15 @@ export default function Home() {
       isLoaded.current = true;
     }
   });
+
+  if (!isLoaded.current) {
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <Skeleton className="h-[29.625em] w-[25.375em]" />
+        <Footer timestamp={homeState.timeOfFetch} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center gap-6">
