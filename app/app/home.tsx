@@ -1,10 +1,9 @@
 'use client';
 
 import { PriceData, PriceLevels, BiddingZone } from '@/app/types';
-
 import ContentPanel from '@/components/content-panel';
 import { RegionSelect, RegionSelectController } from '@/components/region-select';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Footer from './footer';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import fetchPrice from '@/app/api';
@@ -31,13 +30,16 @@ const MOCK_PRICE_LEVELS: PriceLevels = {
 };
 
 export default function Home() {
-  const [homeState, setHomeState] = useLocalStorage<HomeState>('homeState', {
-    zone: null,
+  const [zone, setZone] = useLocalStorage<BiddingZone | null>('selectedZone', null); // Persist zone in localStorage
+  const [isMounted, setIsMounted] = useState(false); 
+  
+  // Set homeState without the 'zone' field as zone is managed separately
+  const [homeState, setHomeState] = useState<Omit<HomeState, 'zone'>>({
     isFetchingPrice: false,
     timeOfFetch: null,
     fetchData: null,
     price: null,
-    priceLevels: null,
+    priceLevels: MOCK_PRICE_LEVELS,
     error: null,
   });
 
@@ -53,7 +55,9 @@ export default function Home() {
       };
       setHomeState(homeController.current.state);
     },
-    loadBiddingZone: async (zone) => {
+    loadBiddingZone: async (zone: BiddingZone) => {
+      // Set zone in both localStorage and state
+      setZone(zone);
       homeController.current.state = {
         ...homeController.current.state,
         zone: zone,
@@ -97,14 +101,25 @@ export default function Home() {
     },
   });
 
+  // Synchronize zone from localStorage with homeState after client-side mount
+  useEffect(() => {
+    setIsMounted(true); 
+    if (zone) {
+      // If zone exists in localStorage, load the bidding zone automatically
+      homeController.current.loadBiddingZone(zone);  
+    }
+  }, [zone]);
+
   return (
     <div className="flex flex-col items-center justify-center gap-6">
       <ContentPanel state={homeState}></ContentPanel>
-      <RegionSelect
-        state={homeState}
-        homeController={homeController.current}
-        controllerRef={regionSelectControllerRef}
-      />
+      {isMounted && (
+        <RegionSelect
+          state={homeState}
+          homeController={homeController.current}
+          controllerRef={regionSelectControllerRef}
+        />
+      )}
       <Footer timestamp={homeState.timeOfFetch} />
     </div>
   );
