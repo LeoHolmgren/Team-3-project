@@ -105,7 +105,7 @@ export default function Home() {
   useEffect(() => {
     setIsMounted(true); 
     if (zone) {
-      // If zone exists in localStorage, load the bidding zone automatically
+      // If zone exists in localStorage, load the bidding zone
       homeController.current.loadBiddingZone(zone);  
     }
   }, [zone]);
