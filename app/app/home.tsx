@@ -1,12 +1,13 @@
 'use client';
 
 import { PriceData, PriceLevels, BiddingZone } from '@/app/types';
-
 import ContentPanel from '@/components/content-panel';
 import { RegionSelect, RegionSelectController } from '@/components/region-select';
-import { useState, useRef } from 'react';
+import { useState, useRef, useLayoutEffect } from 'react';
 import Footer from './footer';
 import { fetchPrice } from '@/app/api';
+import { getStoredBiddingZone, setStoredBiddingZone } from '@/app/local-storage';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export type HomeState = {
   zone: BiddingZone | null;
@@ -30,6 +31,10 @@ const MOCK_PRICE_LEVELS: PriceLevels = {
 };
 
 export default function Home() {
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const regionSelectControllerRef = useRef<RegionSelectController>(null);
+
+  // Set homeState without the 'zone' field as zone is managed separately
   const [homeState, setHomeState] = useState<HomeState>({
     zone: null,
     isFetchingPrice: false,
@@ -39,8 +44,6 @@ export default function Home() {
     priceLevels: null,
     error: null,
   });
-
-  const regionSelectControllerRef = useRef<RegionSelectController>(null);
 
   // The controller is how other components interract with this component
   const homeController = useRef<HomeController>({
@@ -52,8 +55,8 @@ export default function Home() {
       };
       setHomeState(homeController.current.state);
     },
-    loadBiddingZone: async (zone) => {
-      // Price starts loading, update state
+    loadBiddingZone: async (zone: BiddingZone) => {
+      // Set zone in both localStorage and state
       homeController.current.state = {
         ...homeController.current.state,
         zone: zone,
@@ -63,6 +66,7 @@ export default function Home() {
         error: null,
       };
       setHomeState(homeController.current.state);
+      setStoredBiddingZone(zone);
 
       let response;
 
@@ -92,6 +96,23 @@ export default function Home() {
       setHomeState(homeController.current.state);
     },
   });
+
+  useLayoutEffect(() => {
+    if (!isLoaded) {
+      const biddingZone: BiddingZone | null = getStoredBiddingZone();
+      if (biddingZone) homeController.current.loadBiddingZone(biddingZone);
+      setIsLoaded(true);
+    }
+  });
+
+  if (!isLoaded) {
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <Skeleton className="h-[29.625em] w-[25.375em]" />
+        <Footer timestamp={homeState.timeOfFetch} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center gap-6">

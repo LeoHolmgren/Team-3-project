@@ -179,12 +179,17 @@ def fetch_external_price_by_zone(zone, time):
 
 # Insert data into the database. This function uses the previously fetched price data.
 def add_item(cursor, zone, price_SEK, time_start, time_end):
+    # Convert datetime objects to Unix timestamps
+    time_start_unix = int(time_start.timestamp())  # Convert to Unix timestamp (as an integer)
+    time_end_unix = int(time_end.timestamp())      # Convert to Unix timestamp (as an integer)
+    
     sql_query = """INSERT INTO price_data(zone, price_SEK, time_start, time_end)
     VALUES(%s, %s, %s, %s)
     ON CONFLICT DO NOTHING;
     """
     try:
-        cursor.execute(sql_query, (zone, price_SEK, time_start, time_end))
+        # Use the Unix timestamps for time_start and time_end
+        cursor.execute(sql_query, (zone, price_SEK, time_start_unix, time_end_unix))
     except Exception as e:
         print(f"Failed to insert data for zone {zone}: {e}")
 
@@ -206,8 +211,7 @@ if __name__ == '__main__':
             print(f"Fetching prices for {z}")
             external_data = fetch_external_price_by_zone(
                 z,
-                datetime.now(datetime.UTC).timestamp() # Current timestamp is passed here.
-            )
+                datetime.utcnow().timestamp())  # Current timestamp is passed here.
             
             # For each energy price entry retrieved, insert it into the database.
             for e in external_data:

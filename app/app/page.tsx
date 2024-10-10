@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import HomeComponent from './home';
+import HomeComponent from '@/app/home';
 
 export const metadata: Metadata = {
   title: 'OnOff',
