@@ -95,7 +95,6 @@ export function useHomeState(
         priceLevels: MOCK_PRICE_LEVELS,
       };
       setState(homeController.current.state);
-      console.log(regionSelectControllerRef.current);
       regionSelectControllerRef.current?.setDataLoaded();
     },
   });

@@ -1,97 +1,109 @@
-'use client';
+import { ReactElement } from 'react';
+import { ChartLabel } from '@/components/chart-label';
+import { useChartState } from '@/components/chart-state';
+import { ChartState } from '@/components/chart-state';
 
-import * as React from 'react';
+export function Chart({ state }: { state: ChartState }) {
+  const xarr = state.data ? state.data.map(({ time }) => time) : [];
+  const xMin = Math.min(...xarr);
+  const xMax = Math.max(...xarr) + 1000 * 60 * 60;
+  const yarr = state.data ? state.data.map(({ price }) => price) : [];
+  const yMin = Math.min(...yarr);
+  const yMax = Math.max(...yarr);
 
-import { PriceData, Levels } from '@/app/types';
+  const x = state.timestamp ? (state.timestamp.getTime() - 0 * 1000 * 60 * 60 - xMin) / (xMax - xMin) : xMin;
 
-import { XAxis, YAxis, Line, LineChart, ReferenceLine } from 'recharts';
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { Card, CardContent } from '@/components/ui/card';
+  const props = {
+    data: state.data,
+    xMin: xMin,
+    xMax: xMax,
+  };
 
-const chartConfig = {
-  price: {
-    label: 'Price',
-    color: 'hsl(var(--chart-1))',
-  },
-} satisfies ChartConfig;
+  const [refs] = useChartState(props);
 
-// Format data so that the ending is extended one stair step (price is valid that whole hour) (array ++ array[last])
-function formatData(data: PriceData | null): PriceData {
-  if (!data) return [];
-  const data2: PriceData = data.map((p, t) => {
-    return { price: p.price, time: t };
+  refs.props.current = props;
+
+  if (!state.data || !state.data.length) {
+    return <div className="flex aspect-[1.4] h-[22em] items-center justify-center text-[0.9em]">No Data</div>;
+  }
+
+  const divs: Array<ReactElement> = state.data.map(({ price, time }) => {
+    const percentage: number = Math.max((price - yMin) / yMax, 0);
+    return (
+      <div className="flex grow flex-col" key={time}>
+        <div style={{ flexGrow: 1 - percentage }} className="basis-[1px]"></div>
+        <div
+          style={{ backgroundColor: 'hsla(var(--chart-1), 0.5)', flexGrow: percentage }}
+          className="grow basis-[1px]"
+        ></div>
+      </div>
+    );
   });
-  return data2;
-}
 
-export function Chart({
-  data,
-  timestamp,
-  priceLevels,
-}: {
-  data: PriceData | null;
-  timestamp: Date | null;
-  priceLevels: Levels | null;
-}) {
-  console.log(formatData(data));
-
-  const chart = (
-    <ChartContainer config={chartConfig} className="min-h-[200px] p-0">
-      <LineChart data={formatData(data)}>
-        <XAxis
-          height={15}
-          type="number"
-          dataKey="time"
-          domain={[0, 24]}
-          interval="preserveStartEnd"
-          scale="linear"
-          ticks={[0, 6, 12, 18, 24]}
-          tickFormatter={(num) => (num == 24 ? '23:59' : num + ':00')}
-        ></XAxis>
-        <YAxis
-          scale="linear"
-          hide={true}
-          domain={[
-            (dataMin: number) => Math.min(Math.floor(dataMin * 100) / 100, 0),
-            (dataMax: number) => Math.floor(dataMax * 100 + 1) / 100,
-          ]}
-        ></YAxis>
-        <ReferenceLine
-          x={timestamp ? timestamp.getHours() + timestamp.getMinutes() / 60 : 0}
-          stroke="#a3a3a3"
-          strokeDasharray="1 3"
-          strokeWidth={1}
-        />
-        <ReferenceLine y={priceLevels?.low ?? 0} stroke="#51cd87" strokeDasharray="1 3" opacity={0.6} strokeWidth={1} />
-        <ReferenceLine
-          y={priceLevels?.high ?? 0}
-          stroke="#cd5181"
-          strokeDasharray="1 4"
-          opacity={0.8}
-          strokeWidth={1}
-        />
-        <ChartTooltip
-          cursor={false}
-          labelFormatter={(_, payload) => `${payload[0].payload.time}:00`}
-          content={<ChartTooltipContent />}
-        />
-        <Line
-          dataKey="price"
-          type="stepAfter"
-          stroke="var(--color-price)"
-          strokeWidth={1}
-          dot={false}
-          activeDot={{
-            r: 3,
-          }}
-        ></Line>
-      </LineChart>
-    </ChartContainer>
+  const reference: ReactElement = (
+    <div
+      ref={refs.chartLine}
+      style={{
+        borderLeft: '1px dotted hsl(var(--text))',
+        left: x * 100 + '%',
+      }}
+      className="t-0 absolute h-full"
+    ></div>
   );
 
+  const label: ReactElement = (
+    <div ref={refs.label} className="inline-block pb-[1em]">
+      <ChartLabel
+        initialState={{
+          value: 0.1,
+          unit: state.unit,
+          time: state.timestamp ?? new Date(),
+        }}
+        setStateRef={refs.setLabelState}
+      />
+    </div>
+  );
+
+  // =============================================================================================
+
   return (
-    <Card className="border-0 shadow-none">
-      <CardContent className="p-0">{chart}</CardContent>
-    </Card>
+    <div className="flex aspect-[1.4] h-[22em] max-w-[100%] flex-col text-[0.9em]">
+      <div className="text-center text-[1.7em] text-[hsl(var(--text))]">
+        <h2 className="pb-[1em] font-[300] leading-[0.5em]">{state.property}</h2>
+      </div>
+      <div ref={refs.labelContainer} className="text-[0.7em]">
+        {label}
+      </div>
+      <div ref={refs.chartContainer} onMouseMove={refs.onChartMouseMove} className="relative flex grow">
+        <div className="flex grow pt-[1.5em]">{divs}</div>
+        {reference}
+      </div>
+      <div className="flex flex-col">
+        <div style={{ borderTop: '1px solid hsl(var(--text))' }} className="flex h-[0.25em] justify-between opacity-55">
+          <div style={{ borderLeft: '1px solid hsl(var(--text))' }}></div>
+          <div style={{ borderLeft: '1px solid hsl(var(--text))' }}></div>
+          <div style={{ borderLeft: '1px solid hsl(var(--text))' }}></div>
+          <div style={{ borderLeft: '1px solid hsl(var(--text))' }}></div>
+          <div style={{ borderLeft: '1px solid hsl(var(--text))' }}></div>
+        </div>
+        <div className="flex justify-between text-[0.7em] text-[hsl(var(--text))]">
+          <div className="w-0">
+            <p>0:00</p>
+          </div>
+          <div className="w-0">
+            <p style={{ transform: 'translate(-50%)', width: 'fit-content' }}>6:00</p>
+          </div>
+          <div className="w-0">
+            <p style={{ transform: 'translate(-50%)', width: 'fit-content' }}>12:00</p>
+          </div>
+          <div className="w-0">
+            <p style={{ transform: 'translate(-50%)', width: 'fit-content' }}>18:00</p>
+          </div>
+          <div className="w-0">
+            <p style={{ transform: 'translate(-100%)', width: 'fit-content' }}>23:59</p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
