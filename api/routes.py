@@ -1,12 +1,12 @@
 from decimal import Decimal
 
-import numpy as np
+from numpy import percentile
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 
-import requests
+# import requests
 import json
 import os
 
@@ -150,8 +150,8 @@ async def get_price_levels(zone: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No price data for the last month in this zone.")
 
     # Calculating the top and bottom quartiles:
-    high_price = float(np.percentile(prices, 75))
-    low_price = float(np.percentile(prices, 25))
+    high_price = float(percentile(prices, 75))
+    low_price = float(percentile(prices, 25))
 
     return {
         "zone": zone,
