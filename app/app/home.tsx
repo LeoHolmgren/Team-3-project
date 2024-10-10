@@ -1,7 +1,6 @@
 'use client';
 
 import { PriceData, PriceLevels, BiddingZone } from '@/app/types';
-
 import ContentPanel from '@/components/content-panel';
 import { RegionSelect, RegionSelectController } from '@/components/region-select';
 import { useState, useRef } from 'react';
@@ -23,6 +22,20 @@ export interface HomeController {
   setErrorState: (error: Error) => void;
   loadBiddingZone: (zone: BiddingZone) => void;
 }
+
+ //Function to clear the zone and reset the app's state to zero
+ const resetAppState = () => {
+  setZone(null); // Clear the selected zone in localStorage
+  setHomeState({
+    isFetchingPrice: false,
+    timeOfFetch: null,
+    fetchData: null,
+    price: null,
+    priceLevels: null,
+    error: null,
+  });
+};
+
 
 const MOCK_PRICE_LEVELS: PriceLevels = {
   high: 0.2,
