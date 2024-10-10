@@ -121,13 +121,20 @@ async def get_price_levels(zone: str):
         "priceLevels": levels
     }
 
-#
+
+# GET endpoint: Get the BiddingZone given coordinates
+@router.get("/get-zone-by-location/")
+def get_zone_from_location(lat: float, lon: float):
+    request = requests.get(f"https://api.electricitymap.org/v3/carbon-intensity/latest?lat={lat}&lon={lon}")
+    return json.loads(request.content).get("zone")
+
 def when_to_notify(zone:str, db: Session = Depends(get_db)):
     
-    scheduler.start()
+    #this gets the high price of the last month
     price_levels = get_price_levels(zone=zone, db=db)
     high_price_last_month = price_levels["priceLevels"]["high"]
 
+    #this gets the current price
     query_current_price = text("""
             SELECT price_sek FROM price_data 
             WHERE zone = :zone 
@@ -140,15 +147,11 @@ def when_to_notify(zone:str, db: Session = Depends(get_db)):
         current_price = float(current_price_result[0])
         print(f"Current price in zone {zone}: {current_price} SEK")
     
+    #here we compere and if the current price is higher than the high price of the last month we send an email
     if current_price > high_price_last_month:
         # SEND THE EMAIL
         print(f"Current price in zone {zone} is higher than the high price of the last month!")
                 
-scheduler.add_job(when_to_notify, 'interval', hours=1) 
-
-
-# GET endpoint: Get the BiddingZone given coordinates
-@router.get("/get-zone-by-location/")
-def get_zone_from_location(lat: float, lon: float):
-    request = requests.get(f"https://api.electricitymap.org/v3/carbon-intensity/latest?lat={lat}&lon={lon}")
-    return json.loads(request.content).get("zone")
+# Schedule the price check
+def start_scheduler(zone: str, db: Session = Depends(get_db)):
+    scheduler.add_job(func=when_to_notify, trigger="interval", minutes=10, args=[zone, db])
