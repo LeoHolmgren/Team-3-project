@@ -9,10 +9,9 @@ from dateutil import parser
 from dateutil import tz
 
 # Insert API key and database URL here
-# These constants will be used to establish database connections and make API calls.
-
-DATABASE_URL = os.getenv("DATABASE_URL")
-ENTSOE_API_KEY = os.getenv("ENTSOE_API_KEY")
+# These imports will be used to establish database connections and make API calls.
+from SECRETS.secrets import DATABASE_URL
+from SECRETS.secrets import ENTSOE_API_KEY
 
 # Establish a connection to the PostgreSQL database using the DATABASE_URL.
 # If the connection fails, it raises an exception and exits the script.

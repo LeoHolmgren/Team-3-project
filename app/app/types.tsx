@@ -10,4 +10,7 @@ export type BiddingZone = {
   label: string;
 };
 
-export const BIDDING_ZONE_KEY = 'BiddingZone';
+export type Location = {
+  lat: number;
+  lon: number;
+};

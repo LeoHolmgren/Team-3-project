@@ -3,15 +3,13 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# Database connection URL
-DATABASE_URL = os.getenv("DATABASE_URL")
+from SECRETS.secrets import DATABASE_URL
 
 # interface: connection to db
 engine = create_engine(DATABASE_URL)
 
 #session factory: creates new session objects for database transactions
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 
 # Function to fetch all data from the table
 def fetch_all_data():

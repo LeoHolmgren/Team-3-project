@@ -1,3 +1,2 @@
-#!/bin/bash
-source .env
-python3 ./api.py
+#!/bin/sh
+./venv/bin/python3 ./api.py
