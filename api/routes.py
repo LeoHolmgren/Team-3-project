@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime
-from apscheduler.schedulers.background import BackgroundScheduler
 
 import requests
 import json
@@ -13,7 +12,6 @@ import os
 from database import SessionLocal  # Absolute import for SessionLocal
 
 router = APIRouter()
-scheduler = BackgroundScheduler()
 
 # get a database session
 def get_db():
