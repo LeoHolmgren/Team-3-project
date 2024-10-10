@@ -94,6 +94,7 @@ export default function Home() {
         priceLevels: MOCK_PRICE_LEVELS,
       };
       setHomeState(homeController.current.state);
+      regionSelectControllerRef.current?.setDataLoaded();
     },
   });
 
