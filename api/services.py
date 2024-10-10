@@ -4,9 +4,6 @@ from sqlalchemy.orm import Session
 from apscheduler.schedulers.background import BackgroundScheduler
 from api.routes import get_price_levels, get_db
 
-scheduler = BackgroundScheduler()
-
-
 def when_to_notify(zone: str, db: Session = Depends(get_db)):
     # this gets the high price of the last month
     price_levels = get_price_levels(zone=zone, db=db)
@@ -33,4 +30,6 @@ def when_to_notify(zone: str, db: Session = Depends(get_db)):
 
 # Schedule the price check
 def start_scheduler(zone: str, db: Session = Depends(get_db)):
+    scheduler = BackgroundScheduler()
     scheduler.add_job(func=when_to_notify, trigger="interval", minutes=10, args=[zone, db])
+    scheduler.start()
