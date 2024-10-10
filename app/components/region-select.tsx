@@ -36,6 +36,7 @@ export interface RegionSelectController {
   setLocationDisable: () => void;
   setLocation: (location: Location) => void;
   setLocationError: (err: Error) => void;
+  setDataLoading: () => void;
   setDataLoaded: () => void;
 }
 
@@ -143,6 +144,13 @@ export function RegionSelect({
       };
       setControllerState(controller.current.state);
     },
+    setDataLoading: () => {
+      controller.current.state = {
+        ...controller.current.state,
+        dataLoaded: false,
+      };
+      setControllerState(controller.current.state);
+    },
     setDataLoaded: () => {
       controller.current.state = {
         ...controller.current.state,
@@ -156,8 +164,6 @@ export function RegionSelect({
   controllerRef.current = controller.current;
 
   let dropdown;
-
-  console.log(controllerState.locationState)
 
   const dropdown_btn = (
     <div className="h-[3.5em] w-full">

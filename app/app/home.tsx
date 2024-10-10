@@ -67,6 +67,7 @@ export default function Home() {
       };
       setHomeState(homeController.current.state);
       setStoredBiddingZone(zone);
+      regionSelectControllerRef.current?.setDataLoading();
 
       let response;
 
