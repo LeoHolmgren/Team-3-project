@@ -24,41 +24,6 @@ def get_db():
     finally:
         db.close()
 
-# POST endpoint: Insert data directly into the electricity_prices table
-@router.post("/price-data/")
-async def create_price_data(zone: str, price_sek: Decimal, time_start: datetime, time_end: datetime,
-                             db: Session = Depends(get_db)):
-
-# Inserts a new price data entry into the electricity_prices table (SQL)
-
-    query = text("""
-            INSERT INTO price_data (zone, price_sek, time_start, time_end)
-            VALUES (:zone, :price_sek, :time_start, :time_end)
-            RETURNING id, zone, price_sek, time_start, time_end, created_at
-        """)
-
-
-    result = db.execute(query, {
-    "zone": zone,
-    "price_sek": price_sek,  # Ensure case matches the DB
-    "time_start": time_start,
-    "time_end": time_end
-    })
-    db.commit()
-
-    # Fetch the inserted data (including the generated id)
-    new_price_data = result.fetchone()
-
-
-    return {
-    "id": new_price_data.id,
-    "zone": new_price_data.zone,
-    "price_sek": new_price_data.price_sek,
-    "time_start": new_price_data.time_start,
-    "time_end": new_price_data.time_end,
-    "created_at": new_price_data.created_at
-    }
-
 # GET endpoint: Fetch data by ID
 @router.get("/price-data/{price_data_id}")
 async def read_price_data(price_data_id: int, db: Session = Depends(get_db)):
