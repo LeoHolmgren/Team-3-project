@@ -12,7 +12,7 @@ export default function Home({ initialZone }: { initialZone: BiddingZone | null 
   return (
     <div className="flex flex-col items-center justify-center gap-6">
       <ContentPanel state={state}></ContentPanel>
-      <RegionSelect state={state} homeController={controller.current} controllerRef={regionControllerRef} />
+      <RegionSelect homeState={state} homeController={controller} controllerRef={regionControllerRef} />
       <Footer timestamp={state.timeOfFetch} />
     </div>
   );

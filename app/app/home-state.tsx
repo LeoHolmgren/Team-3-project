@@ -1,8 +1,8 @@
 import { BiddingZone } from '@/app/types';
 import { PriceData, PriceLevels } from '@/app/types';
-import { RegionSelectController } from '@/components/region-select';
+import { RegionSelectController } from '@/components/region-select-state';
 import { useState, useRef } from 'react';
-import fetchPrice from '@/app/api';
+import { fetchPrice } from '@/app/api';
 import { setCookie } from '@/app/client-cookie';
 import { useLayoutEffect } from 'react';
 import { BIDDING_ZONE_KEY } from '@/app/constants';
@@ -66,7 +66,6 @@ export function useHomeState(
       };
 
       // Price starts loading, update state
-      regionSelectControllerRef.current?.setRegionLoaded(false);
       setState(homeController.current.state);
       if (triggered) setCookie<BiddingZone>(BIDDING_ZONE_KEY, zone, null);
 
@@ -91,15 +90,17 @@ export function useHomeState(
         ...homeController.current.state,
         isFetchingPrice: false,
         timeOfFetch: response.arrived,
-        fetchData: response.data,
-        price: response.data[response.arrived.getHours()].price,
+        fetchData: response.data.length ? response.data : null,
+        price: response.data[response.arrived.getHours()]?.price ?? null,
         priceLevels: MOCK_PRICE_LEVELS,
       };
       setState(homeController.current.state);
-      regionSelectControllerRef.current?.setRegionLoaded(true);
+      console.log(regionSelectControllerRef.current);
+      regionSelectControllerRef.current?.setDataLoaded();
     },
   });
 
+  // Do once at start
   useLayoutEffect(() => {
     if (!triggered.current) {
       if (initialZone) homeController.current.loadBiddingZone(initialZone);

@@ -2,7 +2,6 @@ import { BiddingZone, PriceData, Location } from '@/app/types';
 
 // Call external api to get price for zone
 export async function fetchPrice(zone: BiddingZone): Promise<{ arrived: Date; data: PriceData }> {
-  
   const currTime = Date.now() - 0 * 1000 * 60 * 60 * 24 * 1;
   const start = new Date(currTime).setHours(0, 0, 0);
   const end = new Date(currTime).setHours(23, 59, 59);
@@ -10,11 +9,11 @@ export async function fetchPrice(zone: BiddingZone): Promise<{ arrived: Date; da
   const URL =
     'http://127.0.0.1:8000/price-data?zone=' +
     zone.value +
-    "&start=" +
+    '&start=' +
     Math.floor(start / 1000) +
-    "&end=" +
+    '&end=' +
     (Math.floor(end / 1000) + 1);
-    
+
   return fetch(URL).then(async (response) => {
     if (!response.ok) {
       Promise.reject(Error('Bad response (' + response.status + ') - ' + response.statusText));
@@ -23,9 +22,9 @@ export async function fetchPrice(zone: BiddingZone): Promise<{ arrived: Date; da
     const timeOfData = new Date();
     const json_in: PriceData = await response.json();
 
-    const json: PriceData = json_in.map(obj => {
-      return {...obj, time: new Date(obj.time * 1000).getHours()}
-    })
+    const json: PriceData = json_in.map((obj) => {
+      return { ...obj, time: new Date(obj.time * 1000).getHours() };
+    });
 
     return {
       arrived: timeOfData,
