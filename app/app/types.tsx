@@ -9,3 +9,5 @@ export type BiddingZone = {
   value: string;
   label: string;
 };
+
+export const BIDDING_ZONE_KEY = 'BiddingZone';

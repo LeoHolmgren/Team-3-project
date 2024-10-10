@@ -1,4 +1,4 @@
-import { HomeState } from '@/app/home';
+import { HomeState } from '@/app/home-state';
 import getPriceLabel from '@/components/labels';
 import CurrentPrice from '@/components/current-price';
 import { Chart } from '@/components/chart';

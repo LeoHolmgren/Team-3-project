@@ -1,18 +1,14 @@
 'use client';
 
 import { MutableRefObject, useState, useRef } from 'react';
-
 import { BiddingZone } from '@/app/types';
-
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-
 import { FaLocationDot } from 'react-icons/fa6';
-
-import { HomeState, HomeController } from '@/app/home';
+import { HomeState, HomeController } from '@/app/home-state';
 
 // State for the region select interface
 type RegionSelectState = {
