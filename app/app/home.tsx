@@ -5,7 +5,7 @@ import ContentPanel from '@/components/content-panel';
 import { RegionSelect, RegionSelectController } from '@/components/region-select';
 import { useState, useRef, useLayoutEffect } from 'react';
 import Footer from './footer';
-import fetchPrice from '@/app/api';
+import { fetchPrice } from '@/app/api';
 import { getStoredBiddingZone, setStoredBiddingZone } from '@/app/local-storage';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -65,11 +65,9 @@ export default function Home() {
         isFetchingPrice: true,
         error: null,
       };
-
-      // Price starts loading, update state
-      regionSelectControllerRef.current?.setRegionLoaded(false);
       setHomeState(homeController.current.state);
       setStoredBiddingZone(zone);
+      regionSelectControllerRef.current?.setDataLoading();
 
       let response;
 
@@ -97,7 +95,7 @@ export default function Home() {
         priceLevels: MOCK_PRICE_LEVELS,
       };
       setHomeState(homeController.current.state);
-      regionSelectControllerRef.current?.setRegionLoaded(true);
+      regionSelectControllerRef.current?.setDataLoaded();
     },
   });
 
