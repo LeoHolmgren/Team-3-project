@@ -23,7 +23,7 @@ export async function fetchPrice(zone: BiddingZone): Promise<{ arrived: Date; da
     const json_in: PriceData = await response.json();
 
     const json: PriceData = json_in.map((obj) => {
-      return { ...obj, time: new Date(obj.time * 1000).getHours() };
+      return { ...obj, time: new Date(obj.time * 1000).getTime() };
     });
 
     return {

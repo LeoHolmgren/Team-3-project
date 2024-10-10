@@ -1,10 +1,10 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import { PriceLevels } from '@/app/types';
+import { Levels } from '@/app/types';
 
 const PRICE_LABEL = {
   HIGH: (
     <h2
-      style={{ opacity: '0.85', fontSize: '5em', lineHeight: 1.1, fontWeight: 800 }}
+      style={{ opacity: '0.85', fontSize: '3em', lineHeight: 1, fontWeight: 800 }}
       className={'inline-block bg-gradient-to-r from-[#cd7a51] to-[#cd5181] bg-clip-text text-transparent'}
     >
       HIGH
@@ -12,7 +12,7 @@ const PRICE_LABEL = {
   ),
   NORM: (
     <h2
-      style={{ opacity: '0.85', fontSize: '5em', lineHeight: 1.1, fontWeight: 800 }}
+      style={{ opacity: '0.85', fontSize: '3em', lineHeight: 1, fontWeight: 800 }}
       className={'inline-block bg-gradient-to-r from-[#5157cd] to-[#51cdc7] bg-clip-text text-transparent'}
     >
       NORM
@@ -20,7 +20,7 @@ const PRICE_LABEL = {
   ),
   LOW: (
     <h2
-      style={{ opacity: '0.85', fontSize: '5em', lineHeight: 1.1, fontWeight: 800 }}
+      style={{ opacity: '0.85', fontSize: '3em', lineHeight: 1, fontWeight: 800 }}
       className={'inline-block bg-gradient-to-r from-[#51cd87] to-[#83cd51] bg-clip-text text-transparent'}
     >
       LOW
@@ -28,7 +28,7 @@ const PRICE_LABEL = {
   ),
 };
 
-function getPriceLabel(priceLevels: PriceLevels | null, price: number | null) {
+function getPriceLabel(priceLevels: Levels | null, price: number | null) {
   if (price === null || !priceLevels) {
     return <Skeleton className="h-[5.5em] w-[15em]" />;
   }

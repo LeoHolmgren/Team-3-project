@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { PriceData, PriceLevels } from '@/app/types';
+import { PriceData, Levels } from '@/app/types';
 
 import { XAxis, YAxis, Line, LineChart, ReferenceLine } from 'recharts';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -16,8 +16,12 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 // Format data so that the ending is extended one stair step (price is valid that whole hour) (array ++ array[last])
-function formatData(data: PriceData | null) {
-  return data ? [...data, { price: data[data.length - 1].price, time: data[data.length - 1].time + 1 }] : [];
+function formatData(data: PriceData | null): PriceData {
+  if (!data) return [];
+  const data2: PriceData = data.map((p, t) => {
+    return { price: p.price, time: t };
+  });
+  return data2;
 }
 
 export function Chart({
@@ -27,8 +31,10 @@ export function Chart({
 }: {
   data: PriceData | null;
   timestamp: Date | null;
-  priceLevels: PriceLevels | null;
+  priceLevels: Levels | null;
 }) {
+  console.log(formatData(data));
+
   const chart = (
     <ChartContainer config={chartConfig} className="min-h-[200px] p-0">
       <LineChart data={formatData(data)}>

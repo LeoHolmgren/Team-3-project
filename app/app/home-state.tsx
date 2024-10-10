@@ -1,5 +1,5 @@
 import { BiddingZone } from '@/app/types';
-import { PriceData, PriceLevels } from '@/app/types';
+import { PriceData, Levels } from '@/app/types';
 import { RegionSelectController } from '@/components/region-select-state';
 import { useState, useRef } from 'react';
 import { fetchPrice } from '@/app/api';
@@ -14,7 +14,7 @@ export type HomeState = {
   timeOfFetch: Date | null;
   fetchData: PriceData | null;
   price: number | null;
-  priceLevels: PriceLevels | null;
+  priceLevels: Levels | null;
   error: Error | null;
 };
 
@@ -24,7 +24,7 @@ export interface HomeController {
   loadBiddingZone: (zone: BiddingZone) => void;
 }
 
-const MOCK_PRICE_LEVELS: PriceLevels = {
+const MOCK_PRICE_LEVELS: Levels = {
   high: 0.2,
   low: 0.1,
 };
