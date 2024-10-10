@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime
+from apscheduler.schedulers.background import BackgroundScheduler
 
 import requests
 import json
@@ -12,6 +13,7 @@ import os
 from database import SessionLocal  # Absolute import for SessionLocal
 
 router = APIRouter()
+scheduler = BackgroundScheduler()
 
 # get a database session
 def get_db():
@@ -118,6 +120,31 @@ async def get_price_levels(zone: str):
         "zone": zone,
         "priceLevels": levels
     }
+
+#
+def when_to_notify(zone:str, db: Session = Depends(get_db)):
+    
+    scheduler.start()
+    price_levels = get_price_levels(zone=zone, db=db)
+    high_price_last_month = price_levels["priceLevels"]["high"]
+
+    query_current_price = text("""
+            SELECT price_sek FROM price_data 
+            WHERE zone = :zone 
+            ORDER BY time_start DESC 
+            LIMIT 1
+        """)
+    current_price_result = db.execute(query_current_price, {"zone": zone}).fetchone()
+    
+    if current_price_result:
+        current_price = float(current_price_result[0])
+        print(f"Current price in zone {zone}: {current_price} SEK")
+    
+    if current_price > high_price_last_month:
+        # SEND THE EMAIL
+        print(f"Current price in zone {zone} is higher than the high price of the last month!")
+                
+scheduler.add_job(when_to_notify, 'interval', hours=1) 
 
 
 # GET endpoint: Get the BiddingZone given coordinates
