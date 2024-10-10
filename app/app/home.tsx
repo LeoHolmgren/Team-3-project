@@ -31,7 +31,7 @@ const MOCK_PRICE_LEVELS: PriceLevels = {
 };
 
 export default function Home() {
-  const isLoaded = useRef<boolean>(false);
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const regionSelectControllerRef = useRef<RegionSelectController>(null);
 
   // Set homeState without the 'zone' field as zone is managed separately
@@ -102,14 +102,14 @@ export default function Home() {
   });
 
   useLayoutEffect(() => {
-    if (!isLoaded.current) {
+    if (!isLoaded) {
       const biddingZone: BiddingZone | null = getStoredBiddingZone();
       if (biddingZone) homeController.current.loadBiddingZone(biddingZone);
-      isLoaded.current = true;
+      setIsLoaded(true);
     }
   });
 
-  if (!isLoaded.current) {
+  if (!isLoaded) {
     return (
       <div className="flex flex-col items-center justify-center">
         <Skeleton className="h-[29.625em] w-[25.375em]" />
