@@ -12,7 +12,7 @@ interface HeaderProps {
   onClickLogo: () => void; 
 }
 
-export default function Header() {
+export default function Header({ onClickLogo }: HeaderProps) {
   return (
     <div className="relative z-50 flex items-center justify-between py-8">
       <div className="flex items-center space-x-4">
