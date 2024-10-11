@@ -10,11 +10,13 @@ import { Button } from '../components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 
 // Function to handle logo click
-interface HeaderProps {
-  onClickLogo?: () => void; 
-}
+// interface HeaderProps {
+//   onClickLogo?: () => void; 
+// }
 
-export default function Header({ onClickLogo }: HeaderProps) {
+export default function Header() {
+  const { resetAppState } = useAppContext();
+  
   return (
     <header className="fixed top-0 w-full z-50 flex justify-between items-center p-4 bg-transparent">
       <div onClick={onClickLogo ? onClickLogo : () => {}} className="cursor-pointer">
