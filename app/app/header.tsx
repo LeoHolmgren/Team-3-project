@@ -16,8 +16,7 @@ interface HeaderProps {
 
 export default function Header({ onClickLogo }: HeaderProps) {
   return (
-    <div className="relative z-50 flex items-center justify-between py-8">
-      <div className="flex items-center space-x-4">
+    <header className="fixed top-0 w-full z-50 flex justify-between items-center p-4 bg-black">
       <div onClick={onClickLogo ? onClickLogo : () => {}} className="cursor-pointer">
           <Image
             src={logoLight}
@@ -34,7 +33,6 @@ export default function Header({ onClickLogo }: HeaderProps) {
             className="hidden h-[3em] w-auto p-[0.4em] dark:block"
           />
         </div>
-      </div>
       <div className="flex items-center space-x-4">
         <Button className="w-9 px-0" variant="outline" asChild>
           <Link href="https://github.com/LeoHolmgren/Team-3-project" target="_blank" rel="noreferrer">
@@ -44,6 +42,6 @@ export default function Header({ onClickLogo }: HeaderProps) {
         </Button>
         <ModeToggle />
       </div>
-    </div>
+    </header>
   );
 }
