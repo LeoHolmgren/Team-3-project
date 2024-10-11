@@ -9,14 +9,14 @@ import { ModeToggle } from '@/components/mode-toggle';
 
 // Function to handle logo click
 interface HeaderProps {
-  onClickLogo: () => void; 
+  onClickLogo?: () => void; 
 }
 
 export default function Header({ onClickLogo }: HeaderProps) {
   return (
     <div className="relative z-50 flex items-center justify-between py-8">
       <div className="flex items-center space-x-4">
-      <div onClick={onClickLogo} className="cursor-pointer">
+      <div onClick={onClickLogo ? onClickLogo : () => {}} className="cursor-pointer">
           <Image
             src={logoLight}
             alt="Company Logo"
