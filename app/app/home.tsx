@@ -35,7 +35,6 @@ export default function Home() {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const regionSelectControllerRef = useRef<RegionSelectController>(null);
 
-  // Set homeState without the 'zone' field as zone is managed separately
   const [homeState, setHomeState] = useState<HomeState>({
     zone: null,
     isFetchingPrice: false,
