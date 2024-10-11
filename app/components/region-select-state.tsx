@@ -34,6 +34,7 @@ export interface RegionSelectController {
   setLocationDisable: () => void;
   setLocation: (location: Location) => void;
   setLocationError: (err: Error) => void;
+  setDataLoading: () => void;
   setDataLoaded: () => void;
 }
 
@@ -108,6 +109,13 @@ export function useRegionSelect(
       controller.current.state = {
         ...controller.current.state,
         locationState: LocationState.ERROR,
+      };
+      setState(controller.current.state);
+    },
+    setDataLoading: () => {
+      controller.current.state = {
+        ...controller.current.state,
+        dataState: DataState.LOADING,
       };
       setState(controller.current.state);
     },

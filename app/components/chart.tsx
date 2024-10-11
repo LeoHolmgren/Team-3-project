@@ -28,7 +28,7 @@ export function Chart({ state }: { state: ChartState }) {
   }
 
   const divs: Array<ReactElement> = state.data.map(({ price, time }) => {
-    const percentage: number = Math.max((price - yMin) / yMax, 0);
+    const percentage: number = Math.max((price - yMin) / (yMax - yMin), 0);
     return (
       <div className="flex grow flex-col" key={time}>
         <div style={{ flexGrow: 1 - percentage }} className="basis-[1px]"></div>
@@ -71,7 +71,7 @@ export function Chart({ state }: { state: ChartState }) {
       <div className="text-center text-[1.7em] text-[hsl(var(--text))]">
         <h2 className="pb-[1em] font-[300] leading-[0.5em]">{state.property}</h2>
       </div>
-      <div ref={refs.labelContainer} className="text-[0.7em]">
+      <div ref={refs.labelContainer} className="text-[0.9em]">
         {label}
       </div>
       <div ref={refs.chartContainer} onMouseMove={refs.onChartMouseMove} className="relative flex grow">

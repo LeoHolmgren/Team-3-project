@@ -67,6 +67,7 @@ export function useHomeState(
 
       // Price starts loading, update state
       setState(homeController.current.state);
+      regionSelectControllerRef.current?.setDataLoading();
       if (triggered) setCookie<BiddingZone>(BIDDING_ZONE_KEY, zone, null);
 
       let response;

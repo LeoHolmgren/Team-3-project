@@ -67,9 +67,10 @@ export function useChartState(props: ChartProps): [ChartRefs] {
     if (!setLabelState.current) return;
     if (!propsRef.current.data || !propsRef.current.data.length) return;
 
-    const i = Math.floor(propsRef.current.data.length * progress);
+    const p = Math.min(Math.max(0, progress), 0.99999);
+    const i = Math.floor(propsRef.current.data.length * p);
     const item = propsRef.current.data[i];
-    const time = progress * (propsRef.current.xMax - propsRef.current.xMin) + propsRef.current.xMin;
+    const time = p * (propsRef.current.xMax - propsRef.current.xMin) + propsRef.current.xMin;
     setLabelState.current({
       value: item.price,
       unit: 'SEK / kWh',
@@ -82,8 +83,9 @@ export function useChartState(props: ChartProps): [ChartRefs] {
     if (!chartLineRef.current) return;
     if (!(e.nativeEvent.target instanceof HTMLElement)) return;
 
+    const b = e.nativeEvent.clientX;
     const a = chartContainerRef.current.getBoundingClientRect().x;
-    const b = e.nativeEvent.target.getBoundingClientRect().x + e.nativeEvent.offsetX;
+
     const progress = Math.min(Math.max((b - a) / chartContainerRef.current.offsetWidth, 0), 1);
     setProgress(progress);
   }

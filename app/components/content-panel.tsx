@@ -9,7 +9,7 @@ export default function ContentPanel({ state }: { state: HomeState }) {
     return <Banner image={errorSrc} label={`Error ${state.error.message}`} />;
   } else if (state.zone) {
     return (
-      <>
+      <div className="text-[0.9em]">
         <Chart
           state={{
             property: 'Price',
@@ -19,7 +19,7 @@ export default function ContentPanel({ state }: { state: HomeState }) {
             timestamp: state.timeOfFetch,
           }}
         />
-      </>
+      </div>
     );
   } else {
     return <Banner image={noZoneSrc} label="Zone not specified" />;
