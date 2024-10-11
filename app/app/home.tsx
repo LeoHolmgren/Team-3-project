@@ -60,6 +60,20 @@ export default function Home() {
     error: null,
   });
 
+   // Reset app state when the logo is clicked
+  const resetAppState = () => {
+    setHomeState({
+      zone: null,
+      isFetchingPrice: false,
+      timeOfFetch: null,
+      fetchData: null,
+      price: null,
+      priceLevels: null,
+      error: null,
+    });
+    localStorage.removeItem('BiddingZone'); // Clear stored zone from localStorage
+  };
+
   // The controller is how other components interract with this component
   const homeController = useRef<HomeController>({
     state: homeState,
@@ -135,6 +149,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center gap-6">
+      <Header onClickLogo={resetAppState} />
       <ContentPanel state={homeState}></ContentPanel>
       <RegionSelect
         state={homeState}
