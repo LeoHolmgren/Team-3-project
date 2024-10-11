@@ -133,7 +133,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center gap-6">
+    <div className="flex flex-col items-center justify-center gap-6 pt-16">
       <Header onClickLogo={resetAppState} />
       <ContentPanel state={homeState}></ContentPanel>
       <RegionSelect
