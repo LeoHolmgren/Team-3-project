@@ -26,20 +26,6 @@ export interface HomeController {
   loadBiddingZone: (zone: BiddingZone) => void;
 }
 
- //Function to clear the zone and reset the app's state to zero
- const resetAppState = () => {
-  setZone(null); // Clear the selected zone in localStorage
-  setHomeState({
-    isFetchingPrice: false,
-    timeOfFetch: null,
-    fetchData: null,
-    price: null,
-    priceLevels: null,
-    error: null,
-  });
-};
-
-
 const MOCK_PRICE_LEVELS: PriceLevels = {
   high: 0.2,
   low: 0.1,
