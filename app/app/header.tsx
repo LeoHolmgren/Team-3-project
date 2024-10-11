@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image'; // Import the Image component
+import styles from './header.module.css'; 
 import logoLight from '@/app/public/logo-light.png'; // Import the light mode logo
 import logoDark from '@/app/public/logo-dark.png'; // Import the dark mode logo
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
@@ -16,7 +17,7 @@ interface HeaderProps {
 
 export default function Header({ onClickLogo }: HeaderProps) {
   return (
-    <div className="relative z-50 flex items-center justify-between py-8">
+    <div className={styles.header}> 
       <div className="flex items-center space-x-4">
       <div onClick={onClickLogo ? onClickLogo : () => {}} className="cursor-pointer">
           <Image
