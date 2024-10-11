@@ -29,12 +29,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <div className="relative m-auto flex min-h-screen max-w-5xl flex-col px-4">
-          <Providers>
-            <Header />
-            <main className="flex-1">{children}</main>
-          </Providers>
-        </div>
+        <AppProvider resetAppState={() => {}}>
+          <div className="relative m-auto flex min-h-screen max-w-5xl flex-col px-4">
+            <Providers>
+              <Header />
+              <main className="flex-1">{children}</main>
+            </Providers>
+          </div>
+        </AppProvider>
       </body>
     </html>
   );

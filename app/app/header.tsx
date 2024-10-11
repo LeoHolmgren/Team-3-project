@@ -20,7 +20,7 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 w-full z-50 flex justify-between items-center p-4 bg-transparent">
-      <div onClick={onClickLogo ? onClickLogo : () => {}} className="cursor-pointer">
+      <div onClick={resetAppState} className="cursor-pointer">
           <Image
             src={logoLight}
             alt="Company Logo"
