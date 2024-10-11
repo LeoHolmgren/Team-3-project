@@ -16,7 +16,7 @@ interface HeaderProps {
 
 export default function Header({ onClickLogo }: HeaderProps) {
   return (
-    <header className="fixed top-0 w-full z-50 flex justify-between items-center p-4 bg-black">
+    <header className="fixed top-0 w-full z-50 flex justify-between items-center p-4 bg-white dark:bg-black">
       <div onClick={onClickLogo ? onClickLogo : () => {}} className="cursor-pointer">
           <Image
             src={logoLight}
