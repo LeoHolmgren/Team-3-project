@@ -8,7 +8,7 @@ import Link from 'next/link';
 import React from 'react';
 import { Button } from '../components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
-import { useAppContext } from '@/context/AppContext'; 
+import { useAppContext } from './appContext'; 
 
 // Function to handle logo click
 // interface HeaderProps {

@@ -4,11 +4,12 @@ import { PriceData, PriceLevels, BiddingZone } from '@/app/types';
 import ContentPanel from '@/components/content-panel';
 import { RegionSelect, RegionSelectController } from '@/components/region-select';
 import { useState, useRef, useLayoutEffect } from 'react';
-import Header from './header';
+// import Header from './header';
 import Footer from './footer';
 import fetchPrice from '@/app/api';
 import { getStoredBiddingZone, setStoredBiddingZone } from '@/app/local-storage';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AppProvider } from './appContext';
 
 export type HomeState = {
   zone: BiddingZone | null;
@@ -133,15 +134,17 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center gap-6 pt-24">
-      <Header onClickLogo={resetAppState} />
-      <ContentPanel state={homeState}></ContentPanel>
-      <RegionSelect
-        state={homeState}
-        homeController={homeController.current}
-        controllerRef={regionSelectControllerRef}
-      />
-      <Footer timestamp={homeState.timeOfFetch} />
-    </div>
+    <AppProvider resetAppState={resetAppState}>
+      <div className="flex flex-col items-center justify-center gap-6 pt-24">
+        {/* <Header onClickLogo={resetAppState} /> */}
+        <ContentPanel state={homeState}></ContentPanel>
+        <RegionSelect
+          state={homeState}
+          homeController={homeController.current}
+          controllerRef={regionSelectControllerRef}
+        />
+        <Footer timestamp={homeState.timeOfFetch} />
+      </div>
+    </AppProvider>
   );
 }
