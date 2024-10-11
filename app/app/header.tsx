@@ -18,7 +18,6 @@ interface HeaderProps {
 export default function Header({ onClickLogo }: HeaderProps) {
   return (
     <div className={styles.header}> 
-      <div className="flex items-center space-x-4">
       <div onClick={onClickLogo ? onClickLogo : () => {}} className="cursor-pointer">
           <Image
             src={logoLight}
@@ -35,7 +34,6 @@ export default function Header({ onClickLogo }: HeaderProps) {
             className="hidden h-[3em] w-auto p-[0.4em] dark:block"
           />
         </div>
-      </div>
       <div className="flex items-center space-x-4">
         <Button className="w-9 px-0" variant="outline" asChild>
           <Link href="https://github.com/LeoHolmgren/Team-3-project" target="_blank" rel="noreferrer">
