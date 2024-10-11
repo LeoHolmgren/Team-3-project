@@ -10,11 +10,6 @@ import { Button } from '../components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { useAppContext } from './appContext'; 
 
-// Function to handle logo click
-// interface HeaderProps {
-//   onClickLogo?: () => void; 
-// }
-
 export default function Header() {
   const { resetAppState } = useAppContext();
 
