@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image'; // Import the Image component
 import logoLight from '@/app/public/logo-light.png'; // Import the light mode logo
 import logoDark from '@/app/public/logo-dark.png'; // Import the dark mode logo
