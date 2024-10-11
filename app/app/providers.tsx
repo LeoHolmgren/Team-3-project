@@ -7,7 +7,6 @@ const queryClient = new QueryClient();
 
 export default function Providers({
   children,
-  resetAppState,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
