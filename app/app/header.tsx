@@ -14,24 +14,25 @@ export default function Header() {
   const { resetAppState } = useAppContext();
 
   return (
-    <header className="fixed top-0 w-full z-50 flex justify-between items-center p-4 bg-transparent">
-      <div onClick={resetAppState} className="cursor-pointer">
-          <Image
-            src={logoLight}
-            alt="Company Logo"
-            width={392}
-            height={198}
-            className="block h-[3em] w-auto p-[0.4em] dark:hidden"
-          />
-          <Image
-            src={logoDark}
-            alt="Company Logo"
-            width={392}
-            height={198}
-            className="hidden h-[3em] w-auto p-[0.4em] dark:block"
-          />
-        </div>
-      <div className="flex items-center space-x-4">
+    <header className="fixed top-0 w-full max-w-screen-xl z-50 flex justify-between items-center p-4 bg-transparent mx-auto">
+      <div onClick={resetAppState} className="cursor-pointer flex-shrink-0">
+        <Image
+          src={logoLight}
+          alt="Company Logo"
+          width={392}
+          height={198}
+          className="block h-[3em] w-auto p-[0.4em] dark:hidden"
+        />
+        <Image
+          src={logoDark}
+          alt="Company Logo"
+          width={392}
+          height={198}
+          className="hidden h-[3em] w-auto p-[0.4em] dark:block"
+        />
+      </div>
+
+      <div className="flex items-center space-x-4 mr-12 flex-shrink-0">
         <Button className="w-9 px-0" variant="outline" asChild>
           <Link href="https://github.com/LeoHolmgren/Team-3-project" target="_blank" rel="noreferrer">
             <GitHubLogoIcon className="h-5 w-5" />
