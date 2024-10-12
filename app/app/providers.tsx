@@ -11,14 +11,18 @@ export default function Providers({
   resetAppState,
 }: Readonly<{
   children: React.ReactNode;
-  resetAppState: () => void;  // Pass resetAppState from Home.tsx
+  resetAppState?: () => void;  // Pass resetAppState from Home.tsx
 }>) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-        <AppProvider resetAppState={resetAppState}> 
-          {children}
-        </AppProvider>
+        {resetAppState ? (
+          <AppProvider resetAppState={resetAppState}>
+            {children}
+          </AppProvider>
+        ) : (
+          children
+        )}
       </ThemeProvider>
     </QueryClientProvider>
   );
