@@ -134,16 +134,16 @@ export default function Home() {
 
   return (
     <AppProvider resetAppState={resetAppState}>
-      <div className="flex flex-col items-center justify-center gap-6 pt-24">
-        {/* <Header onClickLogo={resetAppState} /> */}
-        <ContentPanel state={homeState}></ContentPanel>
-        <RegionSelect
-          state={homeState}
-          homeController={homeController.current}
-          controllerRef={regionSelectControllerRef}
-        />
-        <Footer timestamp={homeState.timeOfFetch} />
-      </div>
+      <Header />
+        <div className="flex flex-col items-center justify-center gap-6 pt-24">
+          <ContentPanel state={homeState}></ContentPanel>
+          <RegionSelect
+            state={homeState}
+            homeController={homeController.current}
+            controllerRef={regionSelectControllerRef}
+          />
+          <Footer timestamp={homeState.timeOfFetch} />
+        </div>
     </AppProvider>
   );
 }
