@@ -1,15 +1,15 @@
-'use client';  // Ensure this is a client component since it deals with state
+'use client';
 
 import { createContext, useContext, ReactNode } from 'react';
 
 interface AppContextType {
-  resetAppState: () => void;  // Define the function type
+  resetAppState: () => void;
 }
 
 // Create the context with a default value (empty function)
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-// Create a custom hook to use the context
+// Hook to access the context
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (!context) {
@@ -18,13 +18,13 @@ export const useAppContext = () => {
   return context;
 };
 
-// Create a provider component
+// Provider component
 export const AppProvider = ({
   children,
   resetAppState,
 }: {
   children: ReactNode;
-  resetAppState: () => void;  // Expect resetAppState as a prop
+  resetAppState: () => void;
 }) => {
   return (
     <AppContext.Provider value={{ resetAppState }}>

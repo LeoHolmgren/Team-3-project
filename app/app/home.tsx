@@ -8,7 +8,7 @@ import Footer from './footer';
 import fetchPrice from '@/app/api';
 import { getStoredBiddingZone, setStoredBiddingZone } from '@/app/local-storage';
 import { Skeleton } from '@/components/ui/skeleton';
-import Providers from './providers';
+import { AppProvider } from './appContext';
 
 export type HomeState = {
   zone: BiddingZone | null;
@@ -133,7 +133,7 @@ export default function Home() {
   }
 
   return (
-    <Providers resetAppState={resetAppState}>
+    <AppProvider resetAppState={resetAppState}>
       <div className="flex flex-col items-center justify-center gap-6 pt-24">
         {/* <Header onClickLogo={resetAppState} /> */}
         <ContentPanel state={homeState}></ContentPanel>
@@ -144,6 +144,6 @@ export default function Home() {
         />
         <Footer timestamp={homeState.timeOfFetch} />
       </div>
-    </Providers>
+    </AppProvider>
   );
 }
