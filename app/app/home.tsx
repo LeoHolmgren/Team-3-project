@@ -8,7 +8,7 @@ import Footer from './footer';
 import fetchPrice from '@/app/api';
 import { getStoredBiddingZone, setStoredBiddingZone } from '@/app/local-storage';
 import { Skeleton } from '@/components/ui/skeleton';
-import Providers from './appContext';
+import Providers from './providers';
 
 export type HomeState = {
   zone: BiddingZone | null;
