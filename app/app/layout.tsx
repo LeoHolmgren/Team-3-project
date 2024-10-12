@@ -32,7 +32,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <div className="relative m-auto flex min-h-screen max-w-5xl flex-col px-4">
-          <Providers resetAppState={dummyResetAppState}>
+          <Providers>
             <Header />
             <main className="flex-1">{children}</main>
           </Providers>
