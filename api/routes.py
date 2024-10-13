@@ -4,12 +4,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime
+from pydantic import EmailStr, BaseModel
+from sqlalchemy.exc import IntegrityError
 
 import requests
 import json
-import os
 
-from database import SessionLocal  # Absolute import for SessionLocal
+from database import SessionLocal
+from models import Subscriber as EmailSubscriber
 
 router = APIRouter()
 
@@ -20,6 +22,35 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+class Subscriber(BaseModel):
+    email: EmailStr
+    name: str
+
+
+@router.post("/{zone}/subscribe")
+async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depends(get_db)):
+    try:
+        # TODO: check if zone exists   
+        new_subscriber = EmailSubscriber(
+            email=subscriber.email,
+            name=subscriber.name,
+            zone=zone,
+        )
+
+        session.add(new_subscriber)
+        session.commit()
+        session.refresh(new_subscriber)
+        return new_subscriber
+    
+    except IntegrityError:
+        session.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail="Email already subscribed to this or different zone",
+        )
+
 
 # POST endpoint: Insert data directly into the electricity_prices table
 @router.post("/price-data/")
@@ -57,26 +88,26 @@ async def create_price_data(zone: str, price_sek: Decimal, time_start: datetime,
     }
 
 # GET endpoint: Fetch data by ID
-@router.get("/price-data/{price_data_id}")
-async def read_price_data(price_data_id: int, db: Session = Depends(get_db)):
+# @router.get("/price-data/{price_data_id}")
+# async def read_price_data(price_data_id: int, db: Session = Depends(get_db)):
 
-# Fetches a specific price data entry from the electricity_prices table (SQL)
+# # Fetches a specific price data entry from the electricity_prices table (SQL)
 
-    query = text("SELECT * FROM price_data WHERE id = :id")
-    result = db.execute(query, {"id": price_data_id})
-    price_data = result.fetchone()
+#     query = text("SELECT * FROM price_data WHERE id = :id")
+#     result = db.execute(query, {"id": price_data_id})
+#     price_data = result.fetchone()
 
-    if price_data is None:
-        raise HTTPException(status_code=404, detail="PriceData not found")
+#     if price_data is None:
+#         raise HTTPException(status_code=404, detail="PriceData not found")
 
-    return {
-    "id": price_data.id,
-    "zone": price_data.zone,
-    "price_sek": price_data.price_sek,  # Ensure case matches the DB
-    "time_start": price_data.time_start,
-    "time_end": price_data.time_end,
-    "created_at": price_data.created_at  # Include created_at for completeness
-    }
+#     return {
+#     "id": price_data.id,
+#     "zone": price_data.zone,
+#     "price_sek": price_data.price_sek,  # Ensure case matches the DB
+#     "time_start": price_data.time_start,
+#     "time_end": price_data.time_end,
+#     "created_at": price_data.created_at  # Include created_at for completeness
+#     }
 
 # GET endpoint: Fetch data by Zone
 @router.get("/price-data/{price_data_zone}")
