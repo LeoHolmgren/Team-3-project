@@ -51,7 +51,7 @@ price_levels_by_zone = {
 }
 
 # GET endpoint: Get price levels by zone
-@router.get("/getPriceLevels/{zone}")
+@router.get("/get-price-levels/{zone}")
 async def get_price_levels(zone: str):
     levels = price_levels_by_zone.get(zone, price_levels_by_zone['default'])
 
