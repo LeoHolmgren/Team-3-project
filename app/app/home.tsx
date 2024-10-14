@@ -4,10 +4,12 @@ import { PriceData, PriceLevels, BiddingZone } from '@/app/types';
 import ContentPanel from '@/components/content-panel';
 import { RegionSelect, RegionSelectController } from '@/components/region-select';
 import { useState, useRef, useLayoutEffect } from 'react';
+import Header from './header';
 import Footer from './footer';
 import fetchPrice from '@/app/api';
 import { getStoredBiddingZone, setStoredBiddingZone } from '@/app/local-storage';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AppProvider } from './appContext';
 
 export type HomeState = {
   zone: BiddingZone | null;
@@ -34,7 +36,6 @@ export default function Home() {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const regionSelectControllerRef = useRef<RegionSelectController>(null);
 
-  // Set homeState without the 'zone' field as zone is managed separately
   const [homeState, setHomeState] = useState<HomeState>({
     zone: null,
     isFetchingPrice: false,
@@ -44,6 +45,20 @@ export default function Home() {
     priceLevels: null,
     error: null,
   });
+
+   // Reset app state when the logo is clicked
+  const resetAppState = () => {
+    setHomeState({
+      zone: null,
+      isFetchingPrice: false,
+      timeOfFetch: null,
+      fetchData: null,
+      price: null,
+      priceLevels: null,
+      error: null,
+    });
+    localStorage.removeItem('BiddingZone'); // Clear stored zone from localStorage
+  };
 
   // The controller is how other components interract with this component
   const homeController = useRef<HomeController>({
@@ -119,14 +134,17 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center gap-6">
-      <ContentPanel state={homeState}></ContentPanel>
-      <RegionSelect
-        state={homeState}
-        homeController={homeController.current}
-        controllerRef={regionSelectControllerRef}
-      />
-      <Footer timestamp={homeState.timeOfFetch} />
-    </div>
+    <AppProvider resetAppState={resetAppState}>
+      <Header />
+        <div className="flex flex-col items-center justify-center gap-6 pt-24">
+          <ContentPanel state={homeState}></ContentPanel>
+          <RegionSelect
+            state={homeState}
+            homeController={homeController.current}
+            controllerRef={regionSelectControllerRef}
+          />
+          <Footer timestamp={homeState.timeOfFetch} />
+        </div>
+    </AppProvider>
   );
 }
