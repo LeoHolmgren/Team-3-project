@@ -12,9 +12,9 @@ export interface LocationController {
 export enum LocationState {
   ENABLED = 'enabled',
   DISABLED = 'disabled',
-  UNAVAILABLE = 'internal_error',
+  UNAVAILABLE = 'unavailable',
   SUCCESS = 'success',
-  ERROR = 'external_error',
+  ERROR = 'error',
 }
 
 export function LocationSelectZone({
