@@ -2,9 +2,8 @@ import { BiddingZone, PriceData, PriceLevels } from '@/app/types';
 import { STORE_HISTORY_COOKIE, MOCK_PRICE_LEVELS } from '@/app/constants';
 
 import useCookie from '@/hooks/use-cookie';
-import { MutableRefObject, useRef, useState } from 'react';
-import { SelectZoneController } from '@/components/select-zone-context';
-import fetchPrice from '@/app/api';
+import { useRef, useState } from 'react';
+import { getPrice } from '@/app/api';
 
 // ========================================================================
 
@@ -26,12 +25,9 @@ export interface HomeController {
 
 // ========================================================================
 
-export function useHomeContext(
-  loadZone: BiddingZone | null
-): [HomeState, HomeController, { selectZoneControllerRef: MutableRefObject<SelectZoneController | null> }, () => void] {
+export function useHomeContext(loadZone: BiddingZone | null): [HomeState, HomeController, () => void] {
   const loaded = useRef<boolean>(false);
 
-  const selectZoneControllerRef = useRef<SelectZoneController>(null);
   const [, setZoneCookie, deleteZoneCookie] = useCookie<BiddingZone | null>(STORE_HISTORY_COOKIE, null);
 
   const [state, setState] = useState<HomeState>({
@@ -48,7 +44,6 @@ export function useHomeContext(
   const resetState = () => {
     // TODO: if location is used and we to reset it is still highlighted
     // as being used
-    selectZoneControllerRef.current?.setRegionLoaded(false);
     setState({
       zone: null,
       isFetchingPrice: false,
@@ -83,14 +78,13 @@ export function useHomeContext(
       };
 
       // Price starts loading, update state
-      selectZoneControllerRef.current?.setRegionLoaded(false);
       setState(controller.current.state);
       setZoneCookie(zone, { expires: 30 }); // Cookie expires in 30 days
 
       let response;
 
       try {
-        response = await fetchPrice(zone);
+        response = await getPrice(zone);
         // throw error here to test error banner
       } catch (e) {
         if (e instanceof Error) {
@@ -113,7 +107,6 @@ export function useHomeContext(
         priceLevels: MOCK_PRICE_LEVELS,
       };
       setState(controller.current.state);
-      selectZoneControllerRef.current?.setRegionLoaded(true);
     },
   });
 
@@ -123,5 +116,5 @@ export function useHomeContext(
     loaded.current = true;
   }
 
-  return [state, controller.current, { selectZoneControllerRef: selectZoneControllerRef }, resetState];
+  return [state, controller.current, resetState];
 }
