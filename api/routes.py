@@ -4,12 +4,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime
+from pydantic import EmailStr, BaseModel
+from sqlalchemy.exc import IntegrityError
 
 import requests
 import json
-import os
 
-from database import SessionLocal  # Absolute import for SessionLocal
+from database import SessionLocal
+from models import Subscriber as EmailSubscriber
 
 router = APIRouter()
 
@@ -20,6 +22,35 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+class Subscriber(BaseModel):
+    email: EmailStr
+    name: str
+
+
+@router.post("/{zone}/subscribe")
+async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depends(get_db)):
+    try:
+        # TODO: check if zone exists   
+        new_subscriber = EmailSubscriber(
+            email=subscriber.email,
+            name=subscriber.name,
+            zone=zone,
+        )
+
+        session.add(new_subscriber)
+        session.commit()
+        session.refresh(new_subscriber)
+        return new_subscriber
+    
+    except IntegrityError:
+        session.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail="Email already subscribed to this or different zone",
+        )
+
 
 # POST endpoint: Insert data directly into the electricity_prices table
 @router.post("/price-data/")
