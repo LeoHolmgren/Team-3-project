@@ -11,6 +11,7 @@
 @layer base {
   :root {
     --text: 0 0% 35%;
+    --highlight: 231, 55%, 56%;
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
@@ -39,6 +40,7 @@
   }
   .dark {
     --text: 0 0% 64%;
+    --highlight: 231, 55%, 56%;
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
     --card: 240 10% 3.9%;

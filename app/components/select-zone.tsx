@@ -1,33 +1,25 @@
 'use client';
 
 import { MutableRefObject, useState, useRef } from 'react';
-
 import { BiddingZone } from '@/app/types';
-
 import { useMediaQuery } from '@/hooks/use-media-query';
-import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-
-import { FaLocationDot } from 'react-icons/fa6';
-
 import { HomeState, HomeController } from '@/app/home';
+import { LocationController, LocationSelectZone } from '@/components/select-zone-location';
 
 // State for the region select interface
 type RegionSelectState = {
-  locationLoading: boolean;
-  locationLoaded: boolean;
   zoneLoaded: boolean;
 };
 
 // Interface for controlling the Region Controller Visuals
 export interface RegionSelectController {
   state: RegionSelectState;
-  setLocationLoading: (is_loading: boolean) => void;
-  setLocationLoaded: (isLoaded: boolean) => void;
   setRegionLoaded: (isLoaded: boolean) => void;
-  setBiddingZoneNoLocation: (zone: BiddingZone) => void;
+  setBiddingZone: (zone: BiddingZone) => void;
+  setBiddingZoneKeepLocation: (zone: BiddingZone) => void;
 }
 
 export const ZONES: BiddingZone[] = [
@@ -64,34 +56,23 @@ export function RegionSelect({
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
   const [controllerState, setControllerState] = useState<RegionSelectState>({
-    locationLoading: false,
-    locationLoaded: false,
     zoneLoaded: false,
   });
+
+  const locationSelectControllerRef = useRef<LocationController>(null);
 
   // Define controller methods that alter controller state for this region select
   const controller = useRef<RegionSelectController>({
     state: controllerState,
-    setLocationLoading: (is_loading: boolean) => {
-      controller.current.state = {
-        ...controller.current.state,
-        locationLoading: is_loading,
-        locationLoaded: false,
-        zoneLoaded: false,
-      };
-      setControllerState(controller.current.state);
-    },
-    setLocationLoaded: (isLoaded: boolean) => {
-      controller.current.state = { ...controller.current.state, locationLoaded: isLoaded };
-      setControllerState(controller.current.state);
-    },
     setRegionLoaded: (isLoaded: boolean) => {
       controller.current.state = { ...controller.current.state, zoneLoaded: isLoaded };
       setControllerState(controller.current.state);
     },
-    setBiddingZoneNoLocation: (zone: BiddingZone) => {
-      controller.current.state = { ...controller.current.state, locationLoading: false, locationLoaded: false };
-      setControllerState(controller.current.state);
+    setBiddingZone: (zone: BiddingZone) => {
+      locationSelectControllerRef.current?.setDisabled();
+      homeController.loadBiddingZone(zone);
+    },
+    setBiddingZoneKeepLocation: (zone: BiddingZone) => {
       homeController.loadBiddingZone(zone);
     },
   });
@@ -120,27 +101,6 @@ export function RegionSelect({
     </div>
   );
 
-  async function locationEnable() {
-    controller.current.setLocationLoading(true);
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          pos;
-          const zone: BiddingZone = ZONES[0]; // TODO: Call our api to get zone from pos.lat, pos.lon
-          controller.current.setLocationLoaded(true);
-          homeController.loadBiddingZone(zone);
-        },
-        (err) => {
-          console.log('get location error', err);
-          controller.current.setLocationLoading(false);
-        }
-      );
-    } else {
-      controller.current.setLocationLoading(false);
-    }
-  }
-
   const region_list = (
     <Command>
       <CommandInput placeholder="Filter zone..." />
@@ -152,9 +112,7 @@ export function RegionSelect({
               key={zone.value}
               value={zone.label}
               onSelect={(value) => {
-                controller.current.setBiddingZoneNoLocation(
-                  ZONES.find((priority) => priority.label === value) || ZONES[0]
-                );
+                controller.current.setBiddingZone(ZONES.find((priority) => priority.label === value) || ZONES[0]);
                 setOpen(false);
               }}
             >
@@ -192,19 +150,10 @@ export function RegionSelect({
 
   return (
     <div className="flex w-[100%] max-w-[406px] gap-[5px] text-[14px]">
-      <div className="aspect-square h-[3.5em]">
-        <Button
-          variant="outline"
-          onClick={locationEnable}
-          className={
-            'h-full w-full justify-center p-[0.5em] text-[1.1em] leading-[1] text-[#555]' +
-            (controllerState.locationLoading ? ' !hover:text-[#5164cd] !text-[#5164cd]' : '') +
-            (controllerState.locationLoaded ? ' !border-[#5164cd]' : '')
-          }
-        >
-          <FaLocationDot />
-        </Button>
-      </div>
+      <LocationSelectZone
+        controllerRef={locationSelectControllerRef}
+        onSelectZone={controller.current.setBiddingZoneKeepLocation}
+      />
       {dropdown}
     </div>
   );

@@ -17,7 +17,7 @@ export enum LocationState {
   ERROR = 'external_error',
 }
 
-export function LocationButton({
+export function LocationSelectZone({
   controllerRef,
   onSelectZone,
 }: {
@@ -75,22 +75,24 @@ export function LocationButton({
   };
 
   return (
-    <Button
-      variant="outline"
-      onClick={locationEnable}
-      className={
-        'h-full w-full justify-center p-[0.5em] text-[1.1em] leading-[1] text-[#555]' +
-        (state == LocationState.ENABLED ? ' !hover:text-[hsl(var(--highlight))] !text-[hsl(var(--highlight))]' : '') +
-        (state == LocationState.SUCCESS
-          ? ' !hover:text-[hsl(var(--highlight))] !border-[hsl(var(--highlight))] !text-[hsl(var(--highlight))]'
-          : '') +
-        (state == LocationState.UNAVAILABLE ? ' !text-[hsl(var(--error))]' : '') +
-        (state == LocationState.ERROR
-          ? ' !hover:text-[hsl(var(--highlight))] !border-[hsl(var(--error))] !text-[hsl(var(--highlight))]'
-          : '')
-      }
-    >
-      <FaLocationDot />
-    </Button>
+    <div className="aspect-square h-[3.5em]">
+      <Button
+        variant="outline"
+        onClick={locationEnable}
+        className={
+          'h-full w-full justify-center p-[0.5em] text-[1.1em] leading-[1] text-[hsl(var(--text))]' +
+          (state == LocationState.ENABLED ? ' !hover:text-[hsl(var(--highlight))] !text-[hsl(var(--highlight))]' : '') +
+          (state == LocationState.SUCCESS
+            ? ' !hover:text-[hsl(var(--highlight))] !border-[hsl(var(--highlight))] !text-[hsl(var(--highlight))]'
+            : '') +
+          (state == LocationState.UNAVAILABLE ? ' !text-[hsl(var(--error))]' : '') +
+          (state == LocationState.ERROR
+            ? ' !hover:text-[hsl(var(--highlight))] !border-[hsl(var(--error))] !text-[hsl(var(--highlight))]'
+            : '')
+        }
+      >
+        <FaLocationDot />
+      </Button>
+    </div>
   );
 }

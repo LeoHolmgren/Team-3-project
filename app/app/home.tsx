@@ -2,7 +2,7 @@
 
 import { PriceData, PriceLevels, BiddingZone } from '@/app/types';
 import ContentPanel from '@/components/content-panel';
-import { RegionSelect, RegionSelectController } from '@/components/region-select';
+import { RegionSelect, RegionSelectController } from '@/components/select-zone';
 import { useState, useRef } from 'react';
 import Header from './header';
 import Footer from './footer';
