@@ -12,4 +12,8 @@ app.include_router(router)
 async def read_root():
     return {"message": "Welcome to the Price Data API!"}
 
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app)
+
 
