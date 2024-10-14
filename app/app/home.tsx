@@ -35,7 +35,7 @@ const MOCK_PRICE_LEVELS: PriceLevels = {
 export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   const loaded = useRef<boolean>(false);
   const regionSelectControllerRef = useRef<RegionSelectController>(null);
-  const [, setZoneCookie] = useCookie<BiddingZone | null>(STORE_HISTORY_COOKIE, null);
+  const [, setZoneCookie, deleteZoneCookie] = useCookie<BiddingZone | null>(STORE_HISTORY_COOKIE, null);
 
   const [homeState, setHomeState] = useState<HomeState>({
     zone: loadZone,
@@ -61,7 +61,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
       priceLevels: null,
       error: null,
     });
-    setZoneCookie(null); // Clear stored zone from cookies
+    deleteZoneCookie(); // Clear stored zone from cookies
   };
 
   // The controller is how other components interract with this component
