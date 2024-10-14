@@ -8,13 +8,13 @@ import Link from 'next/link';
 import React from 'react';
 import { Button } from '../components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
-import { useAppContext } from './appContext'; 
+import { useAppContext } from './appContext';
 
 export default function Header() {
   const { resetAppState } = useAppContext();
 
   return (
-    <header className="fixed top-0 w-full z-50 flex justify-between items-center p-4 bg-transparent">
+    <header className="flex items-center justify-between bg-transparent p-4">
       <div onClick={resetAppState} className="cursor-pointer">
         <Image
           src={logoLight}
