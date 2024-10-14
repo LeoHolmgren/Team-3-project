@@ -1,18 +1,16 @@
 from decimal import Decimal
-
 from numpy import percentile
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
+from pydantic import EmailStr, BaseModel
+from sqlalchemy.exc import IntegrityError
+from database import SessionLocal
+from models import Subscriber as EmailSubscriber
 
 import requests
 import json
-import os
-
-from .database import SessionLocal  # Absolute import for SessionLocal
-
-API_AUTH_TOKEN = os.getenv("API_AUTH_TOKEN")
 
 router = APIRouter()
 
@@ -44,6 +42,68 @@ async def read_price_data(price_data_id: int, db: Session = Depends(get_db)):
     "time_start": price_data.time_start,
     "time_end": price_data.time_end,
     "created_at": price_data.created_at  # Include created_at for completeness
+        
+class Subscriber(BaseModel):
+    email: EmailStr
+    name: str
+
+
+@router.post("/{zone}/subscribe")
+async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depends(get_db)):
+    try:
+        # TODO: check if zone exists   
+        new_subscriber = EmailSubscriber(
+            email=subscriber.email,
+            name=subscriber.name,
+            zone=zone,
+        )
+
+        session.add(new_subscriber)
+        session.commit()
+        session.refresh(new_subscriber)
+        return new_subscriber
+    
+    except IntegrityError:
+        session.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail="Email already subscribed to this or different zone",
+        )
+
+
+# POST endpoint: Insert data directly into the electricity_prices table
+@router.post("/price-data/")
+async def create_price_data(zone: str, price_sek: Decimal, time_start: datetime, time_end: datetime,
+                             db: Session = Depends(get_db)):
+
+# Inserts a new price data entry into the electricity_prices table (SQL)
+
+    query = text("""
+            INSERT INTO price_data (zone, price_sek, time_start, time_end)
+            VALUES (:zone, :price_sek, :time_start, :time_end)
+            RETURNING id, zone, price_sek, time_start, time_end, created_at
+        """)
+
+
+    result = db.execute(query, {
+    "zone": zone,
+    "price_sek": price_sek,  # Ensure case matches the DB
+    "time_start": time_start,
+    "time_end": time_end
+    })
+    db.commit()
+
+    # Fetch the inserted data (including the generated id)
+    new_price_data = result.fetchone()
+
+
+    return {
+    "id": new_price_data.id,
+    "zone": new_price_data.zone,
+    "price_sek": new_price_data.price_sek,
+    "time_start": new_price_data.time_start,
+    "time_end": new_price_data.time_end,
+    "created_at": new_price_data.created_at
     }
 
 # GET endpoint: Fetch data by Zone
@@ -61,12 +121,10 @@ async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_d
         raise HTTPException(status_code=404, detail="PriceData by zone not found")
 
     return {
-        "id": price_data.id,
         "zone": price_data.zone,
         "price_sek": price_data.price_sek,
         "time_start": price_data.time_start,
         "time_end": price_data.time_end
-
     }
 
 # GET endpoint: Get price levels by zone
@@ -125,6 +183,9 @@ async def get_price_levels(zone: str, db: Session = Depends(get_db)):
     low_price = float(percentile(prices, 25))
     print(f"Calculated high price: {high_price}, low price: {low_price}")
 
+@router.get("/get-price-levels/{zone}")
+async def get_price_levels(zone: str):
+    levels = price_levels_by_zone.get(zone, price_levels_by_zone['default'])
 
     return {
         "zone": zone,

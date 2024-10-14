@@ -1,6 +1,5 @@
 from fastapi import FastAPI
-from api.routes import router
-
+from routes import router
 
 # FastAPI application instance
 app = FastAPI()
@@ -12,5 +11,9 @@ app.include_router(router)
 @app.get("/")
 async def read_root():
     return {"message": "Welcome to the Price Data API!"}
+
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app)
 
 

@@ -1,12 +1,15 @@
 'use client';
 
 import { PriceData, PriceLevels, BiddingZone } from '@/app/types';
-
 import ContentPanel from '@/components/content-panel';
 import { RegionSelect, RegionSelectController } from '@/components/region-select';
 import { useState, useRef } from 'react';
+import Header from './header';
 import Footer from './footer';
 import fetchPrice from '@/app/api';
+import { AppProvider } from './appContext';
+import useCookie from '@/hooks/use-cookie';
+import { STORE_HISTORY_COOKIE } from '@/app/constants';
 
 export type HomeState = {
   zone: BiddingZone | null;
@@ -29,9 +32,13 @@ const MOCK_PRICE_LEVELS: PriceLevels = {
   low: 0.1,
 };
 
-export default function Home() {
+export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
+  const loaded = useRef<boolean>(false);
+  const regionSelectControllerRef = useRef<RegionSelectController>(null);
+  const [, setZoneCookie, deleteZoneCookie] = useCookie<BiddingZone | null>(STORE_HISTORY_COOKIE, null);
+
   const [homeState, setHomeState] = useState<HomeState>({
-    zone: null,
+    zone: loadZone,
     isFetchingPrice: false,
     timeOfFetch: null,
     fetchData: null,
@@ -40,7 +47,22 @@ export default function Home() {
     error: null,
   });
 
-  const regionSelectControllerRef = useRef<RegionSelectController>(null);
+  // Reset app state when the logo is clicked
+  const resetAppState = () => {
+    // TODO: if location is used and we to reset it is still highlighted
+    // as being used
+    regionSelectControllerRef.current?.setRegionLoaded(false);
+    setHomeState({
+      zone: null,
+      isFetchingPrice: false,
+      timeOfFetch: null,
+      fetchData: null,
+      price: null,
+      priceLevels: null,
+      error: null,
+    });
+    deleteZoneCookie(); // Clear stored zone from cookies
+  };
 
   // The controller is how other components interract with this component
   const homeController = useRef<HomeController>({
@@ -52,7 +74,8 @@ export default function Home() {
       };
       setHomeState(homeController.current.state);
     },
-    loadBiddingZone: async (zone) => {
+    loadBiddingZone: async (zone: BiddingZone) => {
+      // Set zone in both localStorage and state
       homeController.current.state = {
         ...homeController.current.state,
         zone: zone,
@@ -65,6 +88,7 @@ export default function Home() {
       // Price starts loading, update state
       regionSelectControllerRef.current?.setRegionLoaded(false);
       setHomeState(homeController.current.state);
+      setZoneCookie(zone, { expires: 30 }); // Cookie expires in 30 days
 
       let response;
 
@@ -96,15 +120,24 @@ export default function Home() {
     },
   });
 
+  // On first load, if there is a loadZone, load it
+  if (!loaded.current) {
+    if (loadZone) homeController.current.loadBiddingZone(loadZone);
+    loaded.current = true;
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center gap-6">
-      <ContentPanel state={homeState}></ContentPanel>
-      <RegionSelect
-        state={homeState}
-        homeController={homeController.current}
-        controllerRef={regionSelectControllerRef}
-      />
-      <Footer timestamp={homeState.timeOfFetch} />
-    </div>
+    <AppProvider resetAppState={resetAppState}>
+      <Header />
+      <div className="flex flex-col items-center justify-center gap-6 pt-24">
+        <ContentPanel state={homeState}></ContentPanel>
+        <RegionSelect
+          state={homeState}
+          homeController={homeController.current}
+          controllerRef={regionSelectControllerRef}
+        />
+        <Footer timestamp={homeState.timeOfFetch} />
+      </div>
+    </AppProvider>
   );
 }
