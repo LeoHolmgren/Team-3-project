@@ -23,7 +23,7 @@ def get_db():
     finally:
         db.close()
 
-
+        
 class Subscriber(BaseModel):
     email: EmailStr
     name: str
@@ -123,12 +123,10 @@ async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_d
         raise HTTPException(status_code=404, detail="PriceData by zone not found")
 
     return {
-        "id": price_data.id,
         "zone": price_data.zone,
         "price_sek": price_data.price_sek,
         "time_start": price_data.time_start,
         "time_end": price_data.time_end
-
     }
 
 
@@ -141,7 +139,7 @@ price_levels_by_zone = {
 }
 
 # GET endpoint: Get price levels by zone
-@router.get("/getPriceLevels/{zone}")
+@router.get("/get-price-levels/{zone}")
 async def get_price_levels(zone: str):
     levels = price_levels_by_zone.get(zone, price_levels_by_zone['default'])
 

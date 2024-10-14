@@ -27,10 +27,10 @@ def test_read_price_data_zone():
 
 def test_get_price_levels():
     for zone in test_zones_valid:
-        url = LOCAL_URL+"/getPriceLevels/"+zone
+        url = LOCAL_URL+"/get-price-levels/"+zone
         request = requests.get(url)
         if request.status_code != 200:
-            raise ValueError("/getPriceLevels/ returned "+str(request.status_code)+" when 200 was expected.")
+            raise ValueError("/get-price-levels/ returned "+str(request.status_code)+" when 200 was expected.")
         
         data = json.loads(request.content)
         levels = data["priceLevels"]
