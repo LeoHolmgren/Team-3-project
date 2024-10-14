@@ -88,26 +88,26 @@ async def create_price_data(zone: str, price_sek: Decimal, time_start: datetime,
     }
 
 # GET endpoint: Fetch data by ID
-# @router.get("/price-data/{price_data_id}")
-# async def read_price_data(price_data_id: int, db: Session = Depends(get_db)):
+@router.get("/price-data/{price_data_id}")
+async def read_price_data(price_data_id: int, db: Session = Depends(get_db)):
 
-# # Fetches a specific price data entry from the electricity_prices table (SQL)
+# Fetches a specific price data entry from the electricity_prices table (SQL)
 
-#     query = text("SELECT * FROM price_data WHERE id = :id")
-#     result = db.execute(query, {"id": price_data_id})
-#     price_data = result.fetchone()
+    query = text("SELECT * FROM price_data WHERE id = :id")
+    result = db.execute(query, {"id": price_data_id})
+    price_data = result.fetchone()
 
-#     if price_data is None:
-#         raise HTTPException(status_code=404, detail="PriceData not found")
+    if price_data is None:
+        raise HTTPException(status_code=404, detail="PriceData not found")
 
-#     return {
-#     "id": price_data.id,
-#     "zone": price_data.zone,
-#     "price_sek": price_data.price_sek,  # Ensure case matches the DB
-#     "time_start": price_data.time_start,
-#     "time_end": price_data.time_end,
-#     "created_at": price_data.created_at  # Include created_at for completeness
-#     }
+    return {
+    "id": price_data.id,
+    "zone": price_data.zone,
+    "price_sek": price_data.price_sek,  # Ensure case matches the DB
+    "time_start": price_data.time_start,
+    "time_end": price_data.time_end,
+    "created_at": price_data.created_at  # Include created_at for completeness
+    }
 
 # GET endpoint: Fetch data by Zone
 @router.get("/price-data/{price_data_zone}")
