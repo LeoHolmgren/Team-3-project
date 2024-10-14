@@ -1,7 +1,6 @@
 'use client';
 
 import { BiddingZone, Location } from '@/app/types';
-import { HomeState } from '@/app/home-context';
 import { GetLocationButton, LocationStatus, LocationState } from '@/components/get-location';
 import { SelectZonesDropdown } from '@/components/select-zone-dropdown';
 import { BIDIGIT } from '@/app/constants';
@@ -9,10 +8,16 @@ import { useState, useRef } from 'react';
 import { getZoneFromLocation } from '@/app/api';
 
 export function SelectZone({
-  homeState,
+  error,
+  loaded,
+  zone,
+  timestamp,
   onSelectZone,
 }: {
-  homeState: HomeState;
+  error: boolean;
+  loaded: boolean;
+  zone: BiddingZone | null;
+  timestamp: Date | null;
   onSelectZone: (zone: BiddingZone) => void;
 }) {
   const [locationStatus, setLocationStatus] = useState<LocationStatus>(LocationStatus.DEFAULT);
@@ -20,6 +25,7 @@ export function SelectZone({
   // Set state of location button
   const setLocationStateRef = useRef<((state: LocationState) => void) | null>(null);
 
+  // Load zone from API and select that zone
   function setZoneFromLocation(location: Location) {
     getZoneFromLocation(location)
       .then((zone: BiddingZone) => {
@@ -48,19 +54,16 @@ export function SelectZone({
       <div
         className={
           'flex h-full w-full cursor-pointer items-center justify-between whitespace-nowrap rounded-md border border-input bg-background p-[0.5em] text-[1em] text-sm font-medium leading-[1] text-[hsl(var(--text))] shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50' +
-          (homeState.fetchData ? ' !border-[hsl(var(--highlight))]' : '')
+          (loaded ? ' !border-[hsl(var(--highlight))]' : '') +
+          (error ? ' !border-[hsl(var(--error))]' : '')
         }
       >
         <div className="font-[600] text-[hsl(var(--text))] opacity-85 dark:opacity-45">
-          {homeState.zone ? homeState.zone.value : 'ZONE'}
+          {zone ? zone.value : 'ZONE'}
         </div>
-        {homeState.zone ? homeState.zone.label : 'Select Zone'}
+        {zone ? zone.label : 'Select Zone'}
         <div className="font-[600] text-[hsl(var(--text))] opacity-85 dark:opacity-45">
-          {homeState.timeOfFetch
-            ? BIDIGIT.format(homeState.timeOfFetch.getHours()) +
-              ':' +
-              BIDIGIT.format(homeState.timeOfFetch.getMinutes())
-            : '--:--'}
+          {timestamp ? BIDIGIT.format(timestamp.getHours()) + ':' + BIDIGIT.format(timestamp.getMinutes()) : '--:--'}
         </div>
       </div>
     </div>

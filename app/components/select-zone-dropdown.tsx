@@ -31,8 +31,8 @@ export function SelectZonesDropdown({
                 setOpen(false);
               }}
             >
-              <div className="text-[hsl(var(--text))] font-[400]">
-                <span className="font-[600] dark:opacity-45 opacity-85">{zone.value}</span>
+              <div className="font-[400] text-[hsl(var(--text))]">
+                <span className="font-[600] opacity-85 dark:opacity-45">{zone.value}</span>
                 &nbsp;
                 {zone.label}
               </div>
