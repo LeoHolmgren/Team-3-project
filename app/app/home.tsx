@@ -3,13 +3,13 @@
 import { PriceData, PriceLevels, BiddingZone } from '@/app/types';
 import ContentPanel from '@/components/content-panel';
 import { RegionSelect, RegionSelectController } from '@/components/region-select';
-import { useState, useRef, useLayoutEffect } from 'react';
+import { useState, useRef } from 'react';
 import Header from './header';
 import Footer from './footer';
 import fetchPrice from '@/app/api';
-import { getStoredBiddingZone, setStoredBiddingZone } from '@/app/local-storage';
-import { Skeleton } from '@/components/ui/skeleton';
 import { AppProvider } from './appContext';
+import useCookie from '@/hooks/use-cookie';
+import { STORE_HISTORY_COOKIE } from '@/app/constants';
 
 export type HomeState = {
   zone: BiddingZone | null;
@@ -32,12 +32,13 @@ const MOCK_PRICE_LEVELS: PriceLevels = {
   low: 0.1,
 };
 
-export default function Home() {
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
+export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
+  const loaded = useRef<boolean>(false);
   const regionSelectControllerRef = useRef<RegionSelectController>(null);
+  const [, setZoneCookie, deleteZoneCookie] = useCookie<BiddingZone | null>(STORE_HISTORY_COOKIE, null);
 
   const [homeState, setHomeState] = useState<HomeState>({
-    zone: null,
+    zone: loadZone,
     isFetchingPrice: false,
     timeOfFetch: null,
     fetchData: null,
@@ -46,8 +47,11 @@ export default function Home() {
     error: null,
   });
 
-   // Reset app state when the logo is clicked
+  // Reset app state when the logo is clicked
   const resetAppState = () => {
+    // TODO: if location is used and we to reset it is still highlighted
+    // as being used
+    regionSelectControllerRef.current?.setRegionLoaded(false);
     setHomeState({
       zone: null,
       isFetchingPrice: false,
@@ -57,7 +61,7 @@ export default function Home() {
       priceLevels: null,
       error: null,
     });
-    localStorage.removeItem('BiddingZone'); // Clear stored zone from localStorage
+    deleteZoneCookie(); // Clear stored zone from cookies
   };
 
   // The controller is how other components interract with this component
@@ -84,7 +88,7 @@ export default function Home() {
       // Price starts loading, update state
       regionSelectControllerRef.current?.setRegionLoaded(false);
       setHomeState(homeController.current.state);
-      setStoredBiddingZone(zone);
+      setZoneCookie(zone, { expires: 30 }); // Cookie expires in 30 days
 
       let response;
 
@@ -116,35 +120,24 @@ export default function Home() {
     },
   });
 
-  useLayoutEffect(() => {
-    if (!isLoaded) {
-      const biddingZone: BiddingZone | null = getStoredBiddingZone();
-      if (biddingZone) homeController.current.loadBiddingZone(biddingZone);
-      setIsLoaded(true);
-    }
-  });
-
-  if (!isLoaded) {
-    return (
-      <div className="flex flex-col items-center justify-center">
-        <Skeleton className="h-[29.625em] w-[25.375em]" />
-        <Footer timestamp={homeState.timeOfFetch} />
-      </div>
-    );
+  // On first load, if there is a loadZone, load it
+  if (!loaded.current) {
+    if (loadZone) homeController.current.loadBiddingZone(loadZone);
+    loaded.current = true;
   }
 
   return (
     <AppProvider resetAppState={resetAppState}>
       <Header />
-        <div className="flex flex-col items-center justify-center gap-6 pt-24">
-          <ContentPanel state={homeState}></ContentPanel>
-          <RegionSelect
-            state={homeState}
-            homeController={homeController.current}
-            controllerRef={regionSelectControllerRef}
-          />
-          <Footer timestamp={homeState.timeOfFetch} />
-        </div>
+      <div className="flex flex-col items-center justify-center gap-6 pt-24">
+        <ContentPanel state={homeState}></ContentPanel>
+        <RegionSelect
+          state={homeState}
+          homeController={homeController.current}
+          controllerRef={regionSelectControllerRef}
+        />
+        <Footer timestamp={homeState.timeOfFetch} />
+      </div>
     </AppProvider>
   );
 }
