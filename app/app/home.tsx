@@ -49,6 +49,9 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
 
   // Reset app state when the logo is clicked
   const resetAppState = () => {
+    // TODO: if location is used and we to reset it is still highlighted
+    // as being used
+    regionSelectControllerRef.current?.setRegionLoaded(false);
     setHomeState({
       zone: null,
       isFetchingPrice: false,
@@ -58,7 +61,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
       priceLevels: null,
       error: null,
     });
-    localStorage.removeItem('BiddingZone'); // Clear stored zone from localStorage
+    setZoneCookie(null); // Clear stored zone from cookies
   };
 
   // The controller is how other components interract with this component
