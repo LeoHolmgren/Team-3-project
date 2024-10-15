@@ -21,30 +21,51 @@ const formSchema = z.object({
   email: z.string().email({
     message: 'Please enter a valid email address.',
   }),
+  name: z.string().min(1, {
+    message: 'Please enter your name.',
+  }),
 });
 
 export default function SubscribeDialog() {
+  const zone = 'SE1';
   const isMounted = useMounted();
-
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
+      name: '',
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Here you would typically send the email to your backend
-    console.log(values);
-    setIsSubmitted(true);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setError(null);
+
+    try {
+      const response = await fetch(`https://team-3-project-api.vercel.app/${zone}/subscribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to subscribe. Please try again.');
+      }
+
+      setIsSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+    }
   }
 
   if (!isMounted) return <Button>Subscribe</Button>;
 
   return (
-    <Dialog /*onOpenChange={() => setIsSubmitted(false)}*/>
+    <Dialog>
       <DialogTrigger>
         <Button>Subscribe</Button>
       </DialogTrigger>
@@ -54,12 +75,25 @@ export default function SubscribeDialog() {
           <DialogDescription>
             {isSubmitted
               ? 'You`ve successfully subscribed to our notifications.'
-              : 'Get notified when electricity prices are low.'}
+              : 'Get notified when electricity prices are low in SE1.'}
           </DialogDescription>
         </DialogHeader>
         {!isSubmitted && (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Mr Smith" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="email"
@@ -69,11 +103,12 @@ export default function SubscribeDialog() {
                     <FormControl>
                       <Input placeholder="your.email@example.com" {...field} />
                     </FormControl>
-                    <FormDescription>We&apos;ll use this email to send you price alerts.</FormDescription>
+                    <FormDescription>We`ll use this email to send you price alerts.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+              {error && <p className="text-sm text-red-500">{error}</p>}
               <Button type="submit" className="w-full">
                 Subscribe
               </Button>
