@@ -41,13 +41,13 @@ async def read_price_data(price_data_id: int, db: Session = Depends(get_db)):
     "price_sek": price_data.price_sek,  # Ensure case matches the DB
     "time_start": price_data.time_start,
     "time_end": price_data.time_end,
-    "created_at": price_data.created_at  # Include created_at for completeness
+    "created_at": price_data.created_at } # Include created_at for completeness
         
 class Subscriber(BaseModel):
     email: EmailStr
     name: str
 
-
+# Function to subscribe
 @router.post("/{zone}/subscribe")
 async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depends(get_db)):
     try:
@@ -69,7 +69,6 @@ async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depend
             status_code=400,
             detail="Email already subscribed to this or different zone",
         )
-
 
 # POST endpoint: Insert data directly into the electricity_prices table
 @router.post("/price-data/")
@@ -182,19 +181,6 @@ async def get_price_levels(zone: str, db: Session = Depends(get_db)):
     high_price = float(percentile(prices, 75))
     low_price = float(percentile(prices, 25))
     print(f"Calculated high price: {high_price}, low price: {low_price}")
-
-@router.get("/get-price-levels/{zone}")
-async def get_price_levels(zone: str):
-    levels = price_levels_by_zone.get(zone, price_levels_by_zone['default'])
-
-    return {
-        "zone": zone,
-        "priceLevels": {
-            "high" : high_price,
-            "low" : low_price
-        }
-    }
-
 
 # GET endpoint: Get the BiddingZone given coordinates
 @router.get("/get-zone-by-location/")
