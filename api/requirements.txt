@@ -5,4 +5,5 @@ SQLAlchemy
 psycopg2-binary
 sqlmodel
 uvicorn
-
+numpy
+pydantic
