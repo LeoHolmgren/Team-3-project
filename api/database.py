@@ -1,16 +1,19 @@
+import os
 from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# Database connection URL
-DATABASE_URL = "postgresql://ElectricityPricesDatabase_owner:Sf54EaVzqjeP@ep-lingering-queen-a2q4uvi7.eu-central-1.aws.neon.tech/ElectricityPricesDatabase?sslmode=require"
+# Fetch the database URL from environment variables
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL is None:
+    raise ValueError("No DATABASE_URL found in environment variables")
 
 # interface: connection to db
 engine = create_engine(DATABASE_URL)
 
 #session factory: creates new session objects for database transactions
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 
 # Function to fetch all data from the table
 def fetch_all_data():

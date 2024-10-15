@@ -13,7 +13,7 @@ export default function CurrentPrice({
   label: ReactElement;
 }) {
   return (
-    <div className="flex flex-col items-center gap-0" {...objs}>
+    <div suppressHydrationWarning className="flex flex-col items-center gap-0" {...objs}>
       <h1 className="inline-block text-[1.7em] font-[100] leading-[1.1] text-[#737373]">{property}</h1>
       {label}
       {value !== null ? (

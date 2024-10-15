@@ -30,7 +30,7 @@ export function Chart({
   priceLevels: PriceLevels | null;
 }) {
   const chart = (
-    <ChartContainer config={chartConfig} className="min-h-[200px] p-0">
+    <ChartContainer config={chartConfig} className="min-h-[200px]">
       <LineChart data={formatData(data)}>
         <XAxis
           height={15}
@@ -84,7 +84,7 @@ export function Chart({
   );
 
   return (
-    <Card className="border-0">
+    <Card className="border-0 shadow-none">
       <CardContent className="p-0">{chart}</CardContent>
     </Card>
   );
