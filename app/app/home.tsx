@@ -37,11 +37,9 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   );
 
   const {
-    status: fetchStatus,
     data: fetchData,
     dataUpdatedAt,
     error: fetchError,
-    errorUpdatedAt,
     refetch,
   } = useQuery({
     queryKey: ['GetPrice'],
@@ -104,12 +102,14 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   useEffect(() => {
     if (fetchData && dataUpdatedAt && zone) {
       const price = fetchData.data[new Date(dataUpdatedAt).getHours()].price;
+      const time = new Date(dataUpdatedAt);
       setSelectZoneState({
         status: SelectZoneStatus.SUCCESS,
         zone: zone,
-        time: new Date(dataUpdatedAt),
+        time: time,
       });
       setData(fetchData.data);
+      setUpdatedAt(time);
       if (price) setPrice(price);
     }
   }, [fetchData]);

@@ -125,6 +125,7 @@ export function SelectZone({
         result={locationResult}
         onLocation={setZoneFromLocation}
         setStatus={setLocationStatus}
+        setResult={setLocationResult}
         onError={onError}
       />
       <SelectZonesDropdown onSelectZone={setZoneFromDropdown}>{dropdown_btn}</SelectZonesDropdown>

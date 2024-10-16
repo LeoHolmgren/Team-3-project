@@ -18,17 +18,20 @@ export function LocationButton({
   result,
   status,
   setStatus,
+  setResult,
   onLocation,
   onError,
 }: {
   result: LocationResult;
   status: LocationStatus;
-  setStatus: (state: LocationStatus) => void;
+  setStatus: (status: LocationStatus) => void;
+  setResult: (result: LocationResult) => void;
   onLocation: (location: Location) => void;
   onError: (error: Error) => void;
 }) {
   function locationEnable() {
     setStatus(LocationStatus.ENABLED);
+    setResult(LocationResult.DEFAULT);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => onLocation({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
