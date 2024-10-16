@@ -4,16 +4,10 @@ import { BiddingZone, PriceData, Location } from '@/app/types';
 export async function fetchPrice(zone: BiddingZone): Promise<PriceData> {
   
   const currTime = Date.now() - 0 * 1000 * 60 * 60 * 24 * 1;
-  const start = new Date(currTime).setHours(0, 0, 0);
-  const end = new Date(currTime).setHours(23, 59, 59);
+  const start = Math.floor(new Date(currTime).setHours(0, 0, 0) / 1000);
+  const end = Math.floor(new Date(currTime).setHours(23, 59, 59) / 1000) + 1;
 
-  const URL =
-    'http://127.0.0.1:8000/price-data?zone=' +
-    zone.value +
-    "&start=" +
-    Math.floor(start / 1000) +
-    "&end=" +
-    (Math.floor(end / 1000) + 1);
+  const URL = `${process.env.NEXT_PUBLIC_API_URL}/price-data?zone=${zone.value}&start=${start}&end=${end}`;
     
   return fetch(URL).then(async (response) => {
     if (!response.ok) {
@@ -31,9 +25,9 @@ export async function fetchPrice(zone: BiddingZone): Promise<PriceData> {
 }
 
 export async function getZoneFromLocation(location: Location): Promise<BiddingZone> {
-  const response = await fetch(
-    'http://127.0.0.1:8000/get-zone-by-location?lat=' + location.lat + '&lon=' + location.lon
-  );
-  const text = (await response.text()).replaceAll('"', '').split('-').reverse()[0];
-  return { value: text, label: "Unknown Name" }; // Remove the [SE-]SE3
+  return await fetch(`${process.env.NEXT_PUBLIC_API_URL}/get-zone-by-location?lat=${location.lat}&lon=${location.lon}`).then(response => {
+    return response.text();
+  }).then(text => {
+    return {value: text.replaceAll('"', '').split('-').reverse()[0], label: "Unknown Name"}; 
+  })
 }

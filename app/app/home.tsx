@@ -91,7 +91,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
       });
       setStatus(HomeStatus.NOZONE);
     }
-  }, [zone]);
+  }, [zone, refetch, setCookie]);
 
   // Query set error
   useEffect(() => {
