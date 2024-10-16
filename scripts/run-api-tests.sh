@@ -3,13 +3,15 @@
 OLDDIR=$(pwd)
 ROOTDIR=$(cd "$( dirname "$0" )"/../ && pwd)
 
-# Go to aggregator directory
-cd $ROOTDIR/aggregator
+# Go to api directory
+cd $ROOTDIR/tests
 
-# Run aggregator
+# Run API
 source .venv/bin/activate
-source $ROOTDIR/scripts/set-env.sh
+set -a
+source $ROOTDIR/config.env
+set +a
 export PYTHONPATH=$ROOTDIR
-python3 api.py
+python3 ./test-api.py
 deactivate
 cd $OLDDIR

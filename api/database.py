@@ -3,7 +3,11 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from SECRETS.secrets import DATABASE_URL
+# Fetch the database URL from environment variables
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL is None:
+    raise ValueError("No DATABASE_URL found in environment variables")
 
 # interface: connection to db
 engine = create_engine(DATABASE_URL)

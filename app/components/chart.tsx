@@ -43,6 +43,7 @@ export function Chart({
           tickFormatter={(num) => (num == 24 ? '23:59' : num + ':00')}
         ></XAxis>
         <YAxis
+          dataKey="price"
           scale="linear"
           hide={true}
           domain={[
@@ -72,7 +73,7 @@ export function Chart({
         <Line
           dataKey="price"
           type="stepAfter"
-          stroke="var(--color-price)"
+          stroke="hsl(var(--chart-1))"
           strokeWidth={1}
           dot={false}
           activeDot={{

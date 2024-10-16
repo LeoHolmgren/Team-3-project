@@ -1,7 +1,7 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { PriceLevels } from '@/app/types';
 
-const PRICE_LABEL = {
+export const PRICE_LABEL = {
   HIGH: (
     <h2
       style={{ opacity: '0.85', fontSize: '5em', lineHeight: 1.1, fontWeight: 800 }}
@@ -28,11 +28,9 @@ const PRICE_LABEL = {
   ),
 };
 
-function getPriceLabel(priceLevels: PriceLevels | null, price: number | null) {
+export function PriceLabel({ price, priceLevels }: { price: number | null; priceLevels: PriceLevels | null }) {
   if (price === null || !priceLevels) {
     return <Skeleton className="h-[5.5em] w-[15em]" />;
   }
   return price > priceLevels.high ? PRICE_LABEL.HIGH : price < priceLevels.low ? PRICE_LABEL.LOW : PRICE_LABEL.NORM;
 }
-
-export default getPriceLabel;

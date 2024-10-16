@@ -1,13 +1,12 @@
 @echo off
 
-:: Go to aggregator directory
+:: Go to api directory
 set OLDDIR=%CD%
-cd %~dp0..\aggregator
+cd %~dp0..\tests
 
 :: Run API
 call .\.venv\Scripts\activate
-call %~dp0\set-env
 set PYTHONPATH=%~dp0..\
-python api.py
+python test-api.py
 call deactivate
 cd %OLDDIR%
