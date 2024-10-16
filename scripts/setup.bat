@@ -2,6 +2,10 @@
 
 set OLDDIR=%CD%
 
+:: Setup configuration file
+echo Setting up configuration file...
+echo No|copy /-Y %~dp0\TEMPLATE.env %~dp0..\config.env
+
 :: Install aggregator environment
 echo Setting up aggregator environment...
 cd %~dp0..\aggregator
@@ -29,3 +33,5 @@ cd %~dp0..\app
 npm install
 
 cd %OLDDIR%
+
+

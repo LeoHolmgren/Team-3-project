@@ -8,6 +8,9 @@ cd $ROOTDIR/tests
 
 # Run API
 source .venv/bin/activate
+set -a
+source $ROOTDIR/config.env
+set +a
 export PYTHONPATH=$ROOTDIR
 python3 ./test-api.py
 deactivate

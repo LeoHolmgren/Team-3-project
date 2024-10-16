@@ -1,6 +1,6 @@
 import os
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 import psycopg2
 import sys
 import traceback
@@ -10,8 +10,8 @@ from dateutil import tz
 
 # Insert API key and database URL here
 # These imports will be used to establish database connections and make API calls.
-from SECRETS.secrets import DATABASE_URL
-from SECRETS.secrets import ENTSOE_API_KEY
+DATABASE_URL = os.getenv("DATABASE_URL")
+ENTSOE_API_KEY = os.getenv("ENTSOE_API_KEY")
 
 # Establish a connection to the PostgreSQL database using the DATABASE_URL.
 # If the connection fails, it raises an exception and exits the script.
@@ -145,7 +145,7 @@ def get_eur_to_sek_exchange_rate():
 # Fetches energy prices by zone and converts the price from EUR/MWh to SEK/kWh using the previous exchange rate function.
 # The previous functions like get_energy_prices and get_eur_to_sek_exchange_rate are used here.
 def fetch_external_price_by_zone(zone, time):
-    date = datetime.utcfromtimestamp(time)
+    date = datetime.fromtimestamp(time, UTC)
     start_date = date.replace(hour=0, minute=0, second=0, microsecond=0)
     end_date = start_date + timedelta(days=1)
 
@@ -211,7 +211,7 @@ if __name__ == '__main__':
             print(f"Fetching prices for {z}")
             external_data = fetch_external_price_by_zone(
                 z,
-                datetime.utcnow().timestamp())  # Current timestamp is passed here.
+                datetime.now(UTC).timestamp())  # Current timestamp is passed here.
             
             # For each energy price entry retrieved, insert it into the database.
             for e in external_data:
