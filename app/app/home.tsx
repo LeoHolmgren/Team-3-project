@@ -101,8 +101,8 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   // Query set data
   useEffect(() => {
     if (fetchData && dataUpdatedAt && zone) {
-      const price = fetchData[new Date(dataUpdatedAt).getHours()].price;
       const time = new Date(dataUpdatedAt);
+      const price = fetchData[time.getHours()].price;
       setSelectZoneState({
         status: SelectZoneStatus.SUCCESS,
         zone: zone,
@@ -110,7 +110,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
       });
       setData(fetchData);
       setUpdatedAt(time);
-      if (price) setPrice(price);
+      if (price !== null) setPrice(price);
     }
   }, [fetchData, dataUpdatedAt, zone]);
 

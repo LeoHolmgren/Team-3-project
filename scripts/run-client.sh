@@ -5,6 +5,6 @@ ROOTDIR=$(cd "$( dirname "$0" )"/../ && pwd)
 
 # Go to app directory
 cd $ROOTDIR/app
-yes | \cp -rf $ROOTDIR/config.env $ROOTDIR/app/.env.local
+source $ROOTDIR/scripts/set-env.sh
 npm run dev
 cd $OLDDIR

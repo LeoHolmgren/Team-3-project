@@ -21,6 +21,5 @@ export const metadata: Metadata = {
 export const REACT_APP_API_URL = process.env.API_URL;
 
 export default function Home() {
-  console.log(REACT_APP_API_URL)
   return <HomeComponent loadZone={getZoneCookie()} />;
 }
