@@ -19,6 +19,7 @@ type ErrorState = {
   status: SelectZoneStatus.ERROR;
   error: Error;
   zone?: BiddingZone;
+  time?: Date;
 };
 
 type SuccessState = {
@@ -88,6 +89,9 @@ export function SelectZone({
     containerStyle = ' !border-[hsl(var(--error))]';
     zoneText = state.zone ? state.zone.value : 'ERROR';
     zoneName = state.error.message;
+    if (state.time) {
+      time = BIDIGIT.format(state.time.getHours()) + ':' + BIDIGIT.format(state.time.getMinutes());
+    }
   } else if (state.status == SelectZoneStatus.LOADING) {
     zoneText = state.zone.value;
     zoneName = state.zone.label;

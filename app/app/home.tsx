@@ -1,6 +1,6 @@
 'use client';
 
-import { BiddingZone } from '@/app/types';
+import { BiddingZone, PriceData } from '@/app/types';
 import { SelectZone, SelectZoneState, SelectZoneStatus } from '@/components/select-zone';
 import Header from '@/app/header';
 import Footer from '@/app/footer';
@@ -29,6 +29,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   const [status, setStatus] = useState<HomeStatus>(loadZone ? HomeStatus.LOADING : HomeStatus.NOZONE);
   const [zone, setZone] = useState<BiddingZone | null>(loadZone);
   const [price, setPrice] = useState<number | null>(null);
+  const [data, setData] = useState<PriceData | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
   const [selectZoneState, setSelectZoneState] = useState<SelectZoneState>(
@@ -37,9 +38,10 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
 
   const {
     status: fetchStatus,
-    data,
+    data: fetchData,
     dataUpdatedAt,
     error: fetchError,
+    errorUpdatedAt,
     refetch,
   } = useQuery({
     queryKey: ['GetPrice'],
@@ -69,6 +71,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
       setSelectZoneState({
         status: SelectZoneStatus.ERROR,
         error: error,
+        time: new Date(),
       });
       setStatus(HomeStatus.ERROR);
     }
@@ -92,52 +95,49 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
     }
   }, [zone]);
 
-  // Query change
+  // Query set error
   useEffect(() => {
-    if (fetchStatus == 'error') {
-      setError(fetchError);
-    } else if (fetchStatus == 'success' && zone) {
+    if (fetchError) setError(fetchError);
+  }, [fetchError]);
+
+  // Query set data
+  useEffect(() => {
+    if (fetchData && dataUpdatedAt && zone) {
+      const price = fetchData.data[new Date(dataUpdatedAt).getHours()].price;
       setSelectZoneState({
         status: SelectZoneStatus.SUCCESS,
         zone: zone,
         time: new Date(dataUpdatedAt),
       });
-      setUpdatedAt(new Date(dataUpdatedAt));
-      setStatus(HomeStatus.SUCCESS);
-    }
-  }, [data, fetchError, dataUpdatedAt]);
-
-  useEffect(() => {
-    if (data && updatedAt) {
-      const price = data.data[new Date(updatedAt).getHours()].price;
+      setData(fetchData.data);
       if (price) setPrice(price);
     }
-  }, [data, updatedAt]);
+  }, [fetchData]);
 
   let content: ReactElement = <></>;
 
-  if (status == HomeStatus.NOZONE) {
-    content = <Banner image={noZoneSrc} label="Zone not specified" />;
-  } else if (status == HomeStatus.ERROR) {
+  if (status == HomeStatus.ERROR) {
     content = <Banner image={errorSrc} label={`Error ${error ? error.message : 'Error'}`} />;
+  } else if (status == HomeStatus.SUCCESS || status == HomeStatus.LOADING) {
+    content = (
+      <>
+        <CurrentPrice
+          property="Price"
+          label={<PriceLabel price={price} priceLevels={MOCK_PRICE_LEVELS} />}
+          value={price}
+        />
+        <Chart data={data} timestamp={updatedAt} priceLevels={MOCK_PRICE_LEVELS} />
+      </>
+    );
+  } else {
+    content = <Banner image={noZoneSrc} label="Zone not specified" />;
   }
 
   return (
     <AppProvider resetAppState={resetState}>
       <Header />
       <div className="flex flex-col items-center justify-center gap-6 pt-24">
-        {status == HomeStatus.SUCCESS || status == HomeStatus.LOADING ? (
-          <>
-            <CurrentPrice
-              property="Price"
-              label={<PriceLabel price={price} priceLevels={MOCK_PRICE_LEVELS} />}
-              value={price}
-            />
-            <Chart data={data ? data.data : null} timestamp={updatedAt} priceLevels={MOCK_PRICE_LEVELS} />
-          </>
-        ) : (
-          content
-        )}
+        {content}
         <SelectZone state={selectZoneState} onError={onError} onSelectZone={onSelectZone} />
         <Footer timestamp={updatedAt} />
       </div>

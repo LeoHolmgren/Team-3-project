@@ -33,6 +33,7 @@ export function LocationButton({
       navigator.geolocation.getCurrentPosition(
         (pos) => onLocation({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
         (err) => {
+          setStatus(LocationStatus.ERROR);
           onError(Error(err.message));
         }
       );
