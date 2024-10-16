@@ -1,4 +1,3 @@
-from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -47,7 +46,7 @@ class Subscriber(BaseModel):
     email: EmailStr
     name: str
 
-# Function to subscribe
+# POST endpoint: Function to subscribe
 @router.post("/{zone}/subscribe")
 async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depends(get_db)):
     try:
@@ -70,41 +69,6 @@ async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depend
             detail="Email already subscribed to this or different zone",
         )
 
-# POST endpoint: Insert data directly into the electricity_prices table
-@router.post("/price-data/")
-async def create_price_data(zone: str, price_sek: Decimal, time_start: datetime, time_end: datetime,
-                             db: Session = Depends(get_db)):
-
-# Inserts a new price data entry into the electricity_prices table (SQL)
-
-    query = text("""
-            INSERT INTO price_data (zone, price_sek, time_start, time_end)
-            VALUES (:zone, :price_sek, :time_start, :time_end)
-            RETURNING id, zone, price_sek, time_start, time_end, created_at
-        """)
-
-
-    result = db.execute(query, {
-    "zone": zone,
-    "price_sek": price_sek,  # Ensure case matches the DB
-    "time_start": time_start,
-    "time_end": time_end
-    })
-    db.commit()
-
-    # Fetch the inserted data (including the generated id)
-    new_price_data = result.fetchone()
-
-
-    return {
-    "id": new_price_data.id,
-    "zone": new_price_data.zone,
-    "price_sek": new_price_data.price_sek,
-    "time_start": new_price_data.time_start,
-    "time_end": new_price_data.time_end,
-    "created_at": new_price_data.created_at
-    }
-
 # GET endpoint: Fetch data by Zone
 @router.get("/price-data/{price_data_zone}")
 async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_db)):
@@ -126,10 +90,7 @@ async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_d
         "time_end": price_data.time_end
     }
 
-# Function to convert datetime to UNIX timestamp
-def datetime_to_unix(dt):
-    return int(dt.timestamp())
-
+# GET endpoint: Function to get price levels by zone
 @router.get("/getPriceLevels/{zone}")
 async def get_price_levels(zone: str, db: Session = Depends(get_db)):
     print(f"Fetching latest price entry for zone: {zone}")
@@ -156,12 +117,12 @@ async def get_price_levels(zone: str, db: Session = Depends(get_db)):
 
     # Current time as UNIX timestamp
     current_time_unix = latest_time_result[0]
-    current_time = datetime.utcfromtimestamp(current_time_unix)
+    current_time = datetime.fromtimestamp(current_time_unix)
     print(f"Current time: {current_time}")
 
     # Back one month as UNIX timestamp
     past_month = current_time - timedelta(days=30)
-    past_month_unix = datetime_to_unix(past_month)
+    past_month_unix = int(past_month.timestamp())
     print(f"Past month time: {past_month} (Unix: {past_month_unix})")
 
     # All prices within the last month
