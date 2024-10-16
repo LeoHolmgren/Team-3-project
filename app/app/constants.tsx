@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { PriceLevels, BiddingZone } from '@/app/types';
 
 export const STORE_HISTORY_COOKIE = 'BiddingZone';
@@ -28,6 +27,3 @@ export const ZONES: BiddingZone[] = [
 ];
 
 export const BIDIGIT: Intl.NumberFormat = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
-=======
-export const STORE_HISTORY_COOKIE = 'BiddingZone';
->>>>>>> main
