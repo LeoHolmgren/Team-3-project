@@ -24,10 +24,10 @@ export function SelectZonesDropdown({
         <CommandGroup>
           {ZONES.map((zone) => (
             <CommandItem
-              key={zone.value}
-              value={zone.label}
-              onSelect={(value) => {
-                onSelectZone(ZONES.find((priority) => priority.label === value) || ZONES[0]);
+              key={zone.value + ' ' + zone.label}
+              value={zone.value + ' ' + zone.label}
+              onSelect={() => {
+                onSelectZone(zone);
                 setOpen(false);
               }}
             >
