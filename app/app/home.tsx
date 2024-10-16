@@ -1,142 +1,145 @@
 'use client';
 
-import { PriceData, PriceLevels, BiddingZone } from '@/app/types';
-import ContentPanel from '@/components/content-panel';
-import { RegionSelect, RegionSelectController } from '@/components/region-select';
-import { useState, useRef } from 'react';
-import Header from './header';
-import Footer from './footer';
-import fetchPrice from '@/app/api';
-import { AppProvider } from './appContext';
+import { BiddingZone, PriceData } from '@/app/types';
+import { SelectZone, SelectZoneState, SelectZoneStatus } from '@/components/select-zone';
+import Header from '@/app/header';
+import Footer from '@/app/footer';
+import { AppProvider } from '@/app/appContext';
+import { ReactElement, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getPrice } from '@/app/api';
+import Banner from '@/components/banner';
+import noZoneSrc from '@/app/public/no-zone.png';
+import errorSrc from '@/app/public/error.png';
+import CurrentPrice from '@/components/current-price';
+import { PriceLabel } from '@/components/labels';
+import { MOCK_PRICE_LEVELS, STORE_HISTORY_COOKIE } from './constants';
+import { Chart } from '@/components/chart';
 import useCookie from '@/hooks/use-cookie';
-import { STORE_HISTORY_COOKIE } from '@/app/constants';
 
-export type HomeState = {
-  zone: BiddingZone | null;
-  isFetchingPrice: boolean;
-  timeOfFetch: Date | null;
-  fetchData: PriceData | null;
-  price: number | null;
-  priceLevels: PriceLevels | null;
-  error: Error | null;
-};
-
-export interface HomeController {
-  state: HomeState;
-  setErrorState: (error: Error) => void;
-  loadBiddingZone: (zone: BiddingZone) => void;
+export enum HomeStatus {
+  ERROR = 'error',
+  NOZONE = 'no-zone',
+  LOADING = 'loading',
+  SUCCESS = 'success',
 }
 
-const MOCK_PRICE_LEVELS: PriceLevels = {
-  high: 0.2,
-  low: 0.1,
-};
-
 export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
-  const loaded = useRef<boolean>(false);
-  const regionSelectControllerRef = useRef<RegionSelectController>(null);
-  const [, setZoneCookie, deleteZoneCookie] = useCookie<BiddingZone | null>(STORE_HISTORY_COOKIE, null);
+  const [, setCookie, deleteCookie] = useCookie<BiddingZone | null>(STORE_HISTORY_COOKIE, null);
+  const [status, setStatus] = useState<HomeStatus>(loadZone ? HomeStatus.LOADING : HomeStatus.NOZONE);
+  const [zone, setZone] = useState<BiddingZone | null>(loadZone);
+  const [price, setPrice] = useState<number | null>(null);
+  const [data, setData] = useState<PriceData | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
+  const [selectZoneState, setSelectZoneState] = useState<SelectZoneState>(
+    loadZone ? { status: SelectZoneStatus.LOADING, zone: loadZone } : { status: SelectZoneStatus.DEFAULT }
+  );
 
-  const [homeState, setHomeState] = useState<HomeState>({
-    zone: loadZone,
-    isFetchingPrice: false,
-    timeOfFetch: null,
-    fetchData: null,
-    price: null,
-    priceLevels: null,
-    error: null,
+  const {
+    data: fetchData,
+    dataUpdatedAt,
+    error: fetchError,
+    refetch,
+  } = useQuery({
+    queryKey: ['GetPrice'],
+    queryFn: () => {
+      if (zone) return getPrice(zone);
+      else throw Error('No Zone Selected');
+    },
+    enabled: loadZone ? true : false,
   });
 
-  // Reset app state when the logo is clicked
-  const resetAppState = () => {
-    // TODO: if location is used and we to reset it is still highlighted
-    // as being used
-    regionSelectControllerRef.current?.setRegionLoaded(false);
-    setHomeState({
-      zone: null,
-      isFetchingPrice: false,
-      timeOfFetch: null,
-      fetchData: null,
-      price: null,
-      priceLevels: null,
-      error: null,
-    });
-    deleteZoneCookie(); // Clear stored zone from cookies
-  };
+  function onError(err: Error) {
+    setError(err);
+  }
 
-  // The controller is how other components interract with this component
-  const homeController = useRef<HomeController>({
-    state: homeState,
-    setErrorState: (error: Error) => {
-      homeController.current.state = {
-        ...homeController.current.state,
+  function onSelectZone(zone: BiddingZone) {
+    setZone(zone);
+  }
+
+  function resetState() {
+    setZone(null);
+    deleteCookie();
+  }
+
+  // Error set
+  useEffect(() => {
+    if (error) {
+      setSelectZoneState({
+        status: SelectZoneStatus.ERROR,
         error: error,
-      };
-      setHomeState(homeController.current.state);
-    },
-    loadBiddingZone: async (zone: BiddingZone) => {
-      // Set zone in both localStorage and state
-      homeController.current.state = {
-        ...homeController.current.state,
+        time: new Date(),
+      });
+      setStatus(HomeStatus.ERROR);
+    }
+  }, [error]);
+
+  // Zone Changed
+  useEffect(() => {
+    if (zone) {
+      setSelectZoneState({
+        status: SelectZoneStatus.LOADING,
         zone: zone,
-        price: null,
-        priceLevels: null,
-        isFetchingPrice: true,
-        error: null,
-      };
+      });
+      setStatus(HomeStatus.LOADING);
+      refetch();
+      setCookie(zone);
+    } else {
+      setSelectZoneState({
+        status: SelectZoneStatus.DEFAULT,
+      });
+      setStatus(HomeStatus.NOZONE);
+    }
+  }, [zone]);
 
-      // Price starts loading, update state
-      regionSelectControllerRef.current?.setRegionLoaded(false);
-      setHomeState(homeController.current.state);
-      setZoneCookie(zone, { expires: 30 }); // Cookie expires in 30 days
+  // Query set error
+  useEffect(() => {
+    if (fetchError) setError(fetchError);
+  }, [fetchError]);
 
-      let response;
+  // Query set data
+  useEffect(() => {
+    if (fetchData && dataUpdatedAt && zone) {
+      const price = fetchData.data[new Date(dataUpdatedAt).getHours()].price;
+      const time = new Date(dataUpdatedAt);
+      setSelectZoneState({
+        status: SelectZoneStatus.SUCCESS,
+        zone: zone,
+        time: time,
+      });
+      setData(fetchData.data);
+      setUpdatedAt(time);
+      if (price) setPrice(price);
+    }
+  }, [fetchData]);
 
-      try {
-        response = await fetchPrice(zone);
-        // throw error here to test error banner
-      } catch (e) {
-        if (e instanceof Error) {
-          homeController.current.setErrorState(e);
-          return;
-        }
-        homeController.current.setErrorState(
-          new Error('Could not load current price for bidding zone ' + homeController.current.state.zone?.value)
-        );
-        return;
-      }
+  let content: ReactElement = <></>;
 
-      // Price is loaded, update state
-      homeController.current.state = {
-        ...homeController.current.state,
-        isFetchingPrice: false,
-        timeOfFetch: response.arrived,
-        fetchData: response.data,
-        price: response.data[response.arrived.getHours()].price,
-        priceLevels: MOCK_PRICE_LEVELS,
-      };
-      setHomeState(homeController.current.state);
-      regionSelectControllerRef.current?.setRegionLoaded(true);
-    },
-  });
-
-  // On first load, if there is a loadZone, load it
-  if (!loaded.current) {
-    if (loadZone) homeController.current.loadBiddingZone(loadZone);
-    loaded.current = true;
+  if (status == HomeStatus.ERROR) {
+    content = <Banner image={errorSrc} label={`Error ${error ? error.message : 'Error'}`} />;
+  } else if (status == HomeStatus.SUCCESS || status == HomeStatus.LOADING) {
+    content = (
+      <>
+        <CurrentPrice
+          property="Price"
+          label={<PriceLabel price={price} priceLevels={MOCK_PRICE_LEVELS} />}
+          value={price}
+        />
+        <Chart data={data} timestamp={updatedAt} priceLevels={MOCK_PRICE_LEVELS} />
+      </>
+    );
+  } else {
+    content = <Banner image={noZoneSrc} label="Zone not specified" />;
   }
 
   return (
-    <AppProvider resetAppState={resetAppState}>
+    <AppProvider resetAppState={resetState}>
       <Header />
       <div className="flex flex-col items-center justify-center gap-6 pt-24">
-        <ContentPanel state={homeState}></ContentPanel>
-        <RegionSelect
-          state={homeState}
-          homeController={homeController.current}
-          controllerRef={regionSelectControllerRef}
-        />
-        <Footer timestamp={homeState.timeOfFetch} />
+        {content}
+        <SelectZone state={selectZoneState} onError={onError} onSelectZone={onSelectZone} />
+        <Footer timestamp={updatedAt} />
       </div>
     </AppProvider>
   );
