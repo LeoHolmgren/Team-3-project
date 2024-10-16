@@ -10,8 +10,8 @@ from dateutil import tz
 
 # Insert API key and database URL here
 # These imports will be used to establish database connections and make API calls.
-from SECRETS.secrets import DATABASE_URL
-from SECRETS.secrets import ENTSOE_API_KEY
+DATABASE_URL = os.getenv("DATABASE_URL")
+ENTSOE_API_KEY = os.getenv("ENTSOE_API_KEY")
 
 # Establish a connection to the PostgreSQL database using the DATABASE_URL.
 # If the connection fails, it raises an exception and exits the script.
@@ -180,8 +180,8 @@ def fetch_external_price_by_zone(zone, time):
 # Insert data into the database. This function uses the previously fetched price data.
 def add_item(cursor, zone, price_SEK, time_start, time_end):
     # Convert datetime objects to Unix timestamps
-    time_start_unix = int(time_start.timestamp())  # Convert to Unix timestamp (as an integer)
-    time_end_unix = int(time_end.timestamp())      # Convert to Unix timestamp (as an integer)
+    #time_start_unix = int(time_start.timestamp())  # Convert to Unix timestamp (as an integer) # ??? Not working trying to pass unix timestamp into db
+    #time_end_unix = int(time_end.timestamp())      # Convert to Unix timestamp (as an integer) # ??? Not working trying to pass unix timestamp into db
     
     sql_query = """INSERT INTO price_data(zone, price_SEK, time_start, time_end)
     VALUES(%s, %s, %s, %s)
@@ -189,7 +189,7 @@ def add_item(cursor, zone, price_SEK, time_start, time_end):
     """
     try:
         # Use the Unix timestamps for time_start and time_end
-        cursor.execute(sql_query, (zone, price_SEK, time_start_unix, time_end_unix))
+        cursor.execute(sql_query, (zone, price_SEK, time_start, time_end))
     except Exception as e:
         print(f"Failed to insert data for zone {zone}: {e}")
 
