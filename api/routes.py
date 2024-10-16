@@ -1,12 +1,10 @@
-from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from datetime import datetime, date
+from datetime import datetime
 
 import requests
 import json
-import os
 
 from database import SessionLocal  # Absolute import for SessionLocal
 
@@ -39,27 +37,6 @@ async def get_price_levels(zone: str):
         "priceLevels": levels
     }
 
-
-
-# Mocked data
-price_levels_by_zone = {
-    'SE1': {'high': 0.500, 'low': 0.300},
-    'SE2': {'high': 0.700, 'low': 0.400},
-    'SE3': {'high': 0.600, 'low': 0.350},
-    'default': {'high': 0.1000, 'low': 0.500}
-}
-
-# GET endpoint: Get price levels by zone
-@router.get("/getPriceLevels/{zone}")
-async def get_price_levels(zone: str):
-    levels = price_levels_by_zone.get(zone, price_levels_by_zone['default'])
-
-    return {
-        "zone": zone,
-        "priceLevels": levels
-    }
-
-
 # GET endpoint: Get the BiddingZone given coordinates
 @router.get("/get-zone-by-location/")
 def get_zone_from_location(lat: float, lon: float):
@@ -68,19 +45,16 @@ def get_zone_from_location(lat: float, lon: float):
 
 
 # GET endpoint: Fetch data by Zone And time interval (Seconds since epoch)
-@router.get("/price-data/")
+@router.get("/price-data")
 async def read_price_data_zone(zone: str, start: int, end: int, db: Session = Depends(get_db)):
-
-    startstr = datetime.fromtimestamp(start).strftime('%Y-%m-%d %H:%M:%S')
-    endstr = datetime.fromtimestamp(end).strftime('%Y-%m-%d %H:%M:%S')
 
     # Fetches a specific price data entry by zone from the price_data table (SQL)
     query = text("SELECT * FROM price_data WHERE zone = :zone AND time_start >= :start and time_end <= :end")
     
     result = db.execute(query, {
         "zone": zone,
-        "start": startstr,
-        "end": endstr
+        "start": start,
+        "end": end
     })
 
     price_data = result.fetchall()
@@ -93,7 +67,7 @@ async def read_price_data_zone(zone: str, start: int, end: int, db: Session = De
     for entry in price_data:
         ret.append({
             "price": entry[1],
-            "time": int(entry[2].timestamp())
+            "time": int(entry[2])
         })
 
     return ret

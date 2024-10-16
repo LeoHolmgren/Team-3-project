@@ -68,9 +68,7 @@ export function Chart({ state }: { state: ChartState }) {
 
   return (
     <div className="flex aspect-[1.4] h-[22em] max-w-[100%] flex-col text-[0.9em]">
-      <div className="text-center text-[1.7em] text-[hsl(var(--text))]">
-        <h2 className="pb-[1em] font-[300] leading-[0.5em]">{state.property}</h2>
-      </div>
+      
       <div ref={refs.labelContainer} className="text-[0.9em]">
         {label}
       </div>

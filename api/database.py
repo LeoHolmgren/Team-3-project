@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from SECRETS.secrets import DATABASE_URL
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # interface: connection to db
 engine = create_engine(DATABASE_URL)

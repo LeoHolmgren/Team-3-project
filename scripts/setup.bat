@@ -2,6 +2,10 @@
 
 set OLDDIR=%CD%
 
+:: Setup configuration file
+echo Setting up configuration file...
+echo No|copy /-Y %~dp0\TEMPLATE.env %~dp0..\config.env
+
 :: Install aggregator environment
 echo Setting up aggregator environment...
 cd %~dp0..\aggregator
@@ -16,9 +20,18 @@ py -3 -m venv .venv
 echo Installing API dependencies...
 .\.venv\Scripts\pip3.exe install -r ./requirements.txt
 
+:: Install test environment
+echo Setting up the testing environment...
+cd %~dp0..\tests
+py -3 -m venv .venv
+echo Installing test dependencies...
+.\.venv\Scripts\pip3.exe install -r ./requirements.txt
+
 :: Install app npm dependecies
 echo Installing app dependencies... 
 cd %~dp0..\app
 npm install
 
 cd %OLDDIR%
+
+
