@@ -21,33 +21,12 @@ def get_db():
     finally:
         db.close()
 
-# GET endpoint: Fetch data by ID
-@router.get("/price-data/{price_data_id}")
-async def read_price_data(price_data_id: int, db: Session = Depends(get_db)):
-
-# Fetches a specific price data entry from the electricity_prices table (SQL)
-
-    query = text("SELECT * FROM price_data WHERE id = :id")
-    result = db.execute(query, {"id": price_data_id})
-    price_data = result.fetchone()
-
-    if price_data is None:
-        raise HTTPException(status_code=404, detail="PriceData not found")
-
-    return {
-    "id": price_data.id,
-    "zone": price_data.zone,
-    "price_sek": price_data.price_sek,  # Ensure case matches the DB
-    "time_start": price_data.time_start,
-    "time_end": price_data.time_end,
-    "created_at": price_data.created_at } # Include created_at for completeness
-        
 class Subscriber(BaseModel):
     email: EmailStr
     name: str
 
 # POST endpoint: Function to subscribe
-@router.post("/{zone}/subscribe")
+@router.post("/subscribe/{zone}")
 async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depends(get_db)):
     try:
         # TODO: check if zone exists   
@@ -91,7 +70,7 @@ async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_d
     }
 
 # GET endpoint: Function to get price levels by zone
-@router.get("/getPriceLevels/{zone}")
+@router.get("/price-levels/{zone}")
 async def get_price_levels(zone: str, db: Session = Depends(get_db)):
     print(f"Fetching latest price entry for zone: {zone}")
 
