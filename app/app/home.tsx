@@ -125,8 +125,12 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   return (
     <AppProvider resetAppState={resetState}>
       <Header zone={zone?.value} />
-      <div className="flex flex-col items-center justify-center gap-6 pt-24">
-        {content}
+      <div className="flex flex-col items-center justify-center gap-6">
+        
+        <div className="h-[20em] mt-[5em] mb-[2em]">
+          {content}
+        </div>
+
         <SelectZone state={selectZoneState} onError={onError} onSelectZone={onSelectZone} />
         <Footer timestamp={updatedAt} />
       </div>

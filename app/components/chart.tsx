@@ -6,7 +6,7 @@ export interface ChartLabelProps {
   time: Date;
 }
 
-const containerCn = "aspect-[1.8] h-[18em] max-w-[100%] text-[hsl(var(--text))]";
+const containerCn = "aspect-[1.8] h-full text-[hsl(var(--text))]";
 
 export function Chart({ data, Label }: { data: Array<number> | null, Label: (props: ChartLabelProps) => ReactElement }) {
 
@@ -24,8 +24,6 @@ export function Chart({ data, Label }: { data: Array<number> | null, Label: (pro
   const yMax = Math.max(...data);
   const yMin = Math.min(...data);
   const yMinPadded = yMin - (yMax - yMin) * 0.15;
-
-  const x = timestamp.getHours() / 24;
 
   const current_value: number | undefined | null = data[timestamp.getHours()];
 

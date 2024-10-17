@@ -7,11 +7,11 @@ interface BannerProps {
 
 export default function Banner({ image, label }: BannerProps) {
   return (
-    <div className="relative h-[23.5em] max-w-[600px]">
+    <div className="relative h-full w-auto">
       <Image
         src={image}
         alt={label}
-        className="h-full w-auto max-w-[100%] opacity-35"
+        className="h-full w-auto opacity-35"
         sizes="(max-width: 600px) 100vw, 600px"
       />
       <div className="absolute inset-0 flex items-center justify-center">
