@@ -135,7 +135,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
 
   return (
     <AppProvider resetAppState={resetState}>
-      <Header />
+      <Header zone={zone?.value} />
       <div className="flex flex-col items-center justify-center gap-6 pt-24">
         {content}
         <SelectZone state={selectZoneState} onError={onError} onSelectZone={onSelectZone} />

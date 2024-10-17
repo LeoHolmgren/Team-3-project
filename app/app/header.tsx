@@ -9,8 +9,9 @@ import React from 'react';
 import { Button } from '../components/ui/button';
 import { ModeToggle } from '@/components/theme-toggle';
 import { useAppContext } from './appContext';
+import SubscribeDialog from '@/components/subscribe-dialog';
 
-export default function Header() {
+export default function Header({ zone }: { zone: string | undefined }) {
   const { resetAppState } = useAppContext();
 
   return (
@@ -33,7 +34,7 @@ export default function Header() {
       </div>
 
       <div className="flex items-center space-x-4">
-        <SubscribeDialog />
+        <SubscribeDialog zone={zone} />
         <Button className="w-9 px-0" variant="outline" asChild>
           <Link href="https://github.com/LeoHolmgren/Team-3-project" target="_blank" rel="noreferrer">
             <GitHubLogoIcon className="h-5 w-5" />

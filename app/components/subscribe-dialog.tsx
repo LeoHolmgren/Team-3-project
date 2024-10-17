@@ -26,8 +26,7 @@ const formSchema = z.object({
   }),
 });
 
-export default function SubscribeDialog() {
-  const zone = 'SE1';
+export default function SubscribeDialog({ zone }: { zone: string | undefined }) {
   const isMounted = useMounted();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +43,7 @@ export default function SubscribeDialog() {
     setError(null);
 
     try {
-      const response = await fetch(`https://team-3-project-api.vercel.app/${zone}/subscribe`, {
+      const response = await fetch(`https://team-3-project-api.vercel.app/subscribe/${zone}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +66,7 @@ export default function SubscribeDialog() {
   return (
     <Dialog>
       <DialogTrigger>
-        <Button>Subscribe</Button>
+        <Button disabled={!zone}>Subscribe</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -75,7 +74,7 @@ export default function SubscribeDialog() {
           <DialogDescription>
             {isSubmitted
               ? 'You`ve successfully subscribed to our notifications.'
-              : 'Get notified when electricity prices are low in SE1.'}
+              : `Get notified when electricity prices are low in ${zone}.`}
           </DialogDescription>
         </DialogHeader>
         {!isSubmitted && (
