@@ -101,15 +101,20 @@ export function SelectZone({
     zoneName = 'Select Zone';
   }
 
-  const ddButton = <Button className={"h-[3.5em] w-full flex items-center justify-between whitespace-nowrap p-[0.5em] leading-[1]" + containerStyle} variant="outline" >
-    <div className="basis-[3em] text-left font-[600] text-[hsl(var(--text))] opacity-85 dark:opacity-45">
-      {zoneText}
-    </div>
-    {zoneName}
-    <div className="basis-[3em] text-right font-[600] text-[hsl(var(--text))] opacity-85 dark:opacity-45">
-      {time}
-    </div>
-  </Button>;
+  const ddButton = (
+    <Button
+      className={
+        'flex h-[3.5em] w-full items-center justify-between whitespace-nowrap p-[0.5em] leading-[1]' + containerStyle
+      }
+      variant="outline"
+    >
+      <div className="basis-[3em] text-left font-[600] text-[hsl(var(--text))] opacity-85 dark:opacity-45">
+        {zoneText}
+      </div>
+      {zoneName}
+      <div className="basis-[3em] text-right font-[600] text-[hsl(var(--text))] opacity-85 dark:opacity-45">{time}</div>
+    </Button>
+  );
 
   return (
     <div className="flex w-[100%] max-w-[406px] gap-[5px] text-[14px]">

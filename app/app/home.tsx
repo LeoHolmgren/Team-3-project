@@ -11,7 +11,7 @@ import { fetchPrice } from '@/app/api';
 import Banner from '@/components/banner';
 import noZoneSrc from '@/app/public/no-zone.png';
 import errorSrc from '@/app/public/error.png';
-import {  MOCK_PRICE_LEVELS, STORE_HISTORY_COOKIE } from './constants';
+import { MOCK_PRICE_LEVELS, STORE_HISTORY_COOKIE } from './constants';
 import { Chart, ChartLabelProps } from '@/components/chart';
 import useCookie from '@/hooks/use-cookie';
 import PriceLabel from '@/components/price-label';
@@ -115,9 +115,14 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   if (status == HomeStatus.ERROR) {
     content = <Banner image={errorSrc} label={`Error ${error ? error.message : 'Error'}`} />;
   } else if (status == HomeStatus.SUCCESS || status == HomeStatus.LOADING) {
-      content = (
-        <Chart data={data ? data.map(({price}) => price) : null} Label={(props: ChartLabelProps) => <PriceLabel priceLevels={MOCK_PRICE_LEVELS} price={props.value} time={props.time}/>} />
-      );
+    content = (
+      <Chart
+        data={data ? data.map(({ price }) => price) : null}
+        Label={(props: ChartLabelProps) => (
+          <PriceLabel priceLevels={MOCK_PRICE_LEVELS} price={props.value} time={props.time} />
+        )}
+      />
+    );
   } else {
     content = <Banner image={noZoneSrc} label="Zone not specified" />;
   }
@@ -126,10 +131,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
     <AppProvider resetAppState={resetState}>
       <Header zone={zone?.value} />
       <div className="flex flex-col items-center justify-center gap-6">
-        
-        <div className="h-[20em] max-w-[100%] mt-[5em] mb-[2em]">
-          {content}
-        </div>
+        <div className="mb-[2em] mt-[5em] h-[20em] max-w-[100%]">{content}</div>
 
         <SelectZone state={selectZoneState} onError={onError} onSelectZone={onSelectZone} />
         <Footer timestamp={updatedAt} />

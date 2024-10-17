@@ -5,16 +5,21 @@ export interface ChartLabelProps {
   time: Date;
 }
 
-const containerCn = "aspect-[1.8] h-full text-[hsl(var(--text))] max-w-[100%]";
+const containerCn = 'aspect-[1.8] h-full text-[hsl(var(--text))] max-w-[100%]';
 
-export function Chart({ data, Label }: { data: Array<number> | null, Label: (props: ChartLabelProps) => ReactElement }) {
-
+export function Chart({
+  data,
+  Label,
+}: {
+  data: Array<number> | null;
+  Label: (props: ChartLabelProps) => ReactElement;
+}) {
   const refs = {
     label: useRef<HTMLDivElement>(null),
     container: useRef<HTMLDivElement>(null),
-  }
+  };
 
-  const [hour, setHour] = useState((new Date()).getHours());
+  const [hour, setHour] = useState(new Date().getHours());
   setHour;
 
   useEffect(() => {
@@ -23,7 +28,7 @@ export function Chart({ data, Label }: { data: Array<number> | null, Label: (pro
       const hlw = refs.label.current.offsetWidth / 2;
       const cw = refs.container.current.offsetWidth;
       const cx = cw * ((hour + 0.5) / 24);
-      const tx = Math.min(Math.max(cx, hlw), cw - hlw); 
+      const tx = Math.min(Math.max(cx, hlw), cw - hlw);
       l.style.transform = `translate(-50%) translate(${tx}px)`;
     }
   });
@@ -32,7 +37,6 @@ export function Chart({ data, Label }: { data: Array<number> | null, Label: (pro
   let label: ReactNode;
 
   if (data) {
-
     const timestamp = new Date();
     const yMax = Math.max(...data);
     const yMin = Math.min(...data);
@@ -41,35 +45,56 @@ export function Chart({ data, Label }: { data: Array<number> | null, Label: (pro
     const bars: Array<ReactElement> = data.map((value, idx) => {
       const percentage: number = (value - yMinPadded) / (yMax - yMinPadded);
       return (
-        <div style={{transition: "filter .1s"}} className={"flex grow flex-col " + (idx == hour ? " brightness-[1.30]" : "")} onMouseEnter={() => setHour(idx)} key={idx}>
-          <div style={{ transition: "flex-grow .1s", flexGrow: 1 - percentage }} className="basis-[1px]"></div>
+        <div
+          style={{ transition: 'filter .1s' }}
+          className={'flex grow flex-col ' + (idx == hour ? ' brightness-[1.30]' : '')}
+          onMouseEnter={() => setHour(idx)}
+          key={idx}
+        >
+          <div style={{ transition: 'flex-grow .1s', flexGrow: 1 - percentage }} className="basis-[1px]"></div>
           <div
-            style={{ transition: "flex-grow .1s", backgroundColor: 'hsla(var(--chart-1), 0.5)', flexGrow: percentage }}
+            style={{ transition: 'flex-grow .1s', backgroundColor: 'hsla(var(--chart-1), 0.5)', flexGrow: percentage }}
             className="grow basis-[1px]"
           ></div>
         </div>
       );
     });
 
-    label = Label({value: data[hour], time: new Date(timestamp.setHours(hour, 0))});
-    chartContent = <div className="flex grow pt-[2.5em] cursor-pointer" onMouseLeave={() => setHour((new Date()).getHours())}>{bars}</div>;
-
+    label = Label({ value: data[hour], time: new Date(timestamp.setHours(hour, 0)) });
+    chartContent = (
+      <div className="flex grow cursor-pointer pt-[2.5em]" onMouseLeave={() => setHour(new Date().getHours())}>
+        {bars}
+      </div>
+    );
   } else {
-    chartContent = <div className="flex grow items-center justify-center">
-      <h3>No Data</h3>
-    </div>
-  } 
+    chartContent = (
+      <div className="flex grow items-center justify-center">
+        <h3>No Data</h3>
+      </div>
+    );
+  }
 
   // =============================================================================================
 
   return (
-    <div className={containerCn + " flex flex-col text-[0.9em]"}>
+    <div className={containerCn + ' flex flex-col text-[0.9em]'}>
       <div>
-        <div ref={refs.label} style={{transition: "all 0.2s"}} className="inline-block">
+        <div ref={refs.label} style={{ transition: 'all 0.2s' }} className="inline-block">
           {label}
         </div>
       </div>
-      <div ref={refs.container} className="relative flex grow">
+      <div
+        ref={refs.container}
+        className="relative flex grow touch-pan-y"
+        onTouchMove={(e) => {
+          if (refs.container.current) {
+            const rect = refs.container.current.getBoundingClientRect();
+            const p = (e.touches[0].pageX - rect.left) / (rect.right - rect.left);
+            const h = Math.floor(p * 24);
+            if (h != hour) setHour(h);
+          }
+        }}
+      >
         {chartContent}
       </div>
       <div className="flex flex-col">
@@ -80,7 +105,7 @@ export function Chart({ data, Label }: { data: Array<number> | null, Label: (pro
           <div style={{ borderLeft: '1px solid hsl(var(--text))' }}></div>
           <div style={{ borderLeft: '1px solid hsl(var(--text))' }}></div>
         </div>
-        <div style={{fontSize: "calc(max(0.7em, 11px))"}} className="flex justify-between text-[hsl(var(--text))]">
+        <div style={{ fontSize: 'calc(max(0.7em, 11px))' }} className="flex justify-between text-[hsl(var(--text))]">
           <div className="w-0">
             <p>0:00</p>
           </div>
