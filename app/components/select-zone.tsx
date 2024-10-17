@@ -1,12 +1,14 @@
 'use client';
 
+import { useState } from 'react';
+
 import { BiddingZone, Location } from '@/app/types';
 import { LocationButton, LocationStatus } from '@/components/location-button';
 import { SelectZonesDropdown } from '@/components/select-zone-dropdown';
 import { BIDIGIT } from '@/app/constants';
-import { useState } from 'react';
 import { getZoneFromLocation } from '@/app/api';
-import { LocationResult } from './location-button';
+import { LocationResult } from '@/components/location-button';
+import { Button } from '@/components/ui/button';
 
 export enum SelectZoneStatus {
   ERROR = 'error',
@@ -99,24 +101,15 @@ export function SelectZone({
     zoneName = 'Select Zone';
   }
 
-  const dropdown_btn = (
-    <div className="h-[3.5em] w-full">
-      <div
-        className={
-          'flex h-full w-full cursor-pointer items-center justify-between whitespace-nowrap rounded-md border border-input bg-background p-[0.5em] text-[1em] text-sm font-medium leading-[1] text-[hsl(var(--text))] shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50' +
-          containerStyle
-        }
-      >
-        <div className="basis-[3em] text-left font-[600] text-[hsl(var(--text))] opacity-85 dark:opacity-45">
-          {zoneText}
-        </div>
-        {zoneName}
-        <div className="basis-[3em] text-right font-[600] text-[hsl(var(--text))] opacity-85 dark:opacity-45">
-          {time}
-        </div>
-      </div>
+  const ddButton = <Button className={"h-[3.5em] w-full flex items-center justify-between whitespace-nowrap p-[0.5em] leading-[1]" + containerStyle} variant="outline" >
+    <div className="basis-[3em] text-left font-[600] text-[hsl(var(--text))] opacity-85 dark:opacity-45">
+      {zoneText}
     </div>
-  );
+    {zoneName}
+    <div className="basis-[3em] text-right font-[600] text-[hsl(var(--text))] opacity-85 dark:opacity-45">
+      {time}
+    </div>
+  </Button>;
 
   return (
     <div className="flex w-[100%] max-w-[406px] gap-[5px] text-[14px]">
@@ -128,7 +121,7 @@ export function SelectZone({
         setResult={setLocationResult}
         onError={onError}
       />
-      <SelectZonesDropdown onSelectZone={setZoneFromDropdown}>{dropdown_btn}</SelectZonesDropdown>
+      <SelectZonesDropdown onSelectZone={setZoneFromDropdown}>{ddButton}</SelectZonesDropdown>
     </div>
   );
 }

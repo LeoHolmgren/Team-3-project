@@ -3,7 +3,7 @@ import { BiddingZone, PriceData, Location } from '@/app/types';
 // Call our api
 export async function fetchPrice(zone: BiddingZone): Promise<PriceData> {
   
-  const currTime = Date.now() - 0 * 1000 * 60 * 60 * 24 * 1;
+  const currTime = Date.now() - 1 * 1000 * 60 * 60 * 24 * 1;
   const start = Math.floor(new Date(currTime).setHours(0, 0, 0) / 1000);
   const end = Math.floor(new Date(currTime).setHours(23, 59, 59) / 1000) + 1;
 

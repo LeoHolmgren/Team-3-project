@@ -6,18 +6,9 @@ export interface ChartLabelProps {
   time: Date;
 }
 
-export function Chart({ data, Label }: { data: Array<number>, Label: (props: ChartLabelProps) => ReactElement }) {
+const containerCn = "aspect-[1.8] h-[18em] max-w-[100%] text-[hsl(var(--text))]";
 
-  const timestamp = new Date();
-
-  const yMin = Math.min(...data);
-  const yMax = Math.max(...data);
-
-  const x = timestamp.getHours() / 24;
-
-  const current_value: number | undefined | null = data[timestamp.getHours()];
-
-  console.log(data, current_value, timestamp.getHours());
+export function Chart({ data, Label }: { data: Array<number> | null, Label: (props: ChartLabelProps) => ReactElement }) {
 
   const refs = {
     line: useRef(null),
@@ -25,8 +16,21 @@ export function Chart({ data, Label }: { data: Array<number>, Label: (props: Cha
     container: useRef(null),
   }
 
+  if (!data) return <div className={containerCn + " flex items-center justify-center"}>
+    <h3>No Data</h3>
+  </div>
+
+  const timestamp = new Date();
+  const yMax = Math.max(...data);
+  const yMin = Math.min(...data);
+  const yMinPadded = yMin - (yMax - yMin) * 0.15;
+
+  const x = timestamp.getHours() / 24;
+
+  const current_value: number | undefined | null = data[timestamp.getHours()];
+
   const divs: Array<ReactElement> = data.map((value, idx) => {
-    const percentage: number = (value - yMin) / (yMax - yMin);
+    const percentage: number = (value - yMinPadded) / (yMax - yMinPadded);
     return (
       <div className="flex grow flex-col" key={idx}>
         <div style={{ flexGrow: 1 - percentage }} className="basis-[1px]"></div>
@@ -38,27 +42,15 @@ export function Chart({ data, Label }: { data: Array<number>, Label: (props: Cha
     );
   });
 
-  const reference: ReactElement = (
-    <div
-      ref={refs.line}
-      style={{
-        borderLeft: '1px dotted hsl(var(--text))',
-        left: x * 100 + '%',
-      }}
-      className="t-0 absolute h-full"
-    ></div>
-  );
-
   // =============================================================================================
 
   return (
-    <div className="flex aspect-[1.4] h-[22em] max-w-[100%] flex-col text-[0.9em]">
+    <div className={containerCn + " flex flex-col text-[0.9em]"}>
       <div ref={refs.label} className="text-[0.9em]">
         {Label({value: current_value, time: timestamp})}
       </div>
       <div ref={refs.container} className="relative flex grow">
         <div className="flex grow pt-[1.5em]">{divs}</div>
-        {reference}
       </div>
       <div className="flex flex-col">
         <div style={{ borderTop: '1px solid hsl(var(--text))' }} className="flex h-[0.25em] justify-between opacity-55">
@@ -68,7 +60,7 @@ export function Chart({ data, Label }: { data: Array<number>, Label: (props: Cha
           <div style={{ borderLeft: '1px solid hsl(var(--text))' }}></div>
           <div style={{ borderLeft: '1px solid hsl(var(--text))' }}></div>
         </div>
-        <div className="flex justify-between text-[0.7em] text-[hsl(var(--text))]">
+        <div style={{fontSize: "calc(max(0.7em, 11px))"}} className="flex justify-between text-[hsl(var(--text))]">
           <div className="w-0">
             <p>0:00</p>
           </div>

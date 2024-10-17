@@ -115,13 +115,9 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   if (status == HomeStatus.ERROR) {
     content = <Banner image={errorSrc} label={`Error ${error ? error.message : 'Error'}`} />;
   } else if (status == HomeStatus.SUCCESS || status == HomeStatus.LOADING) {
-    if (data) {
-    content = (
-      <Chart data={data.map(({price}) => price )} Label={(props: ChartLabelProps) => <PriceLabel priceLevels={MOCK_PRICE_LEVELS} price={props.value} time={props.time}/>} />
-    );
-    } else {
-      return "WHAT THE SIGMA?";
-    }
+      content = (
+        <Chart data={data ? data.map(({price}) => price) : null} Label={(props: ChartLabelProps) => <PriceLabel priceLevels={MOCK_PRICE_LEVELS} price={props.value} time={props.time}/>} />
+      );
   } else {
     content = <Banner image={noZoneSrc} label="Zone not specified" />;
   }

@@ -11,10 +11,12 @@
 @layer base {
   :root {
     --text: 0 0% 35%;
+    --shade: 0 0% 70%;
     --highlight: 231, 55%, 56%;
     --error: 0, 55%, 56%;
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
+
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
@@ -41,10 +43,12 @@
   }
   .dark {
     --text: 0 0% 64%;
+    --shade: 0 0% 15%;
     --highlight: 231, 55%, 56%;
     --error: 0, 55%, 56%;
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
+    
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
