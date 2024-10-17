@@ -1,7 +1,9 @@
 import { Levels } from '@/app/types';
 import { BIDIGIT } from '@/app/constants';
 
-const PRICE_FORMAT = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 });
+//const PRICE_FORMAT = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 }).format;
+const NF = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 }).format;
+const PRICE_FORMAT = (x: number) => { return NF(Math.floor(x*100)/100) }
 
 export default function PriceLabel({
   price,
@@ -33,15 +35,16 @@ export default function PriceLabel({
   }
 
   return (
-    <div className="flex flex-col items-center gap-0 text-[0.8em]">
-      <h1 className="inline-block text-[1.7em] font-[400] leading-[1] text-[hsl(var(--text))]">{BIDIGIT.format(time.getHours()) + ":" + BIDIGIT.format(time.getMinutes())}</h1>
+    <div className="flex flex-col items-center gap-0 text-[.75em]">
+      <h1 className="inline-block text-[2em] font-[400] leading-[1] text-[hsl(var(--text))]">{BIDIGIT.format(time.getHours()) + ":" + BIDIGIT.format(time.getMinutes())}</h1>
       <h2
+      style={{transition: "width 0.2s"}}
       className={'inline-block bg-gradient-to-r text-[3.8em] font-[800] bg-clip-text leading-[1] text-transparent ' + gradientCn}
       >
         {labelWord}
       </h2>
-      <h3 className="inline-block text-center text-[1.8em] font-[400] leading-[1] tracking-[-.4px] text-[hsl(var(--text))]">
-        {price !== null ? PRICE_FORMAT.format(price) : "???"}
+      <h3 className="inline-block text-center text-[2em] font-[400] leading-[1] tracking-[-.4px] text-[hsl(var(--text))]">
+        {price !== null ? PRICE_FORMAT(price) : "???"}
         &nbsp;
         <span className="text-[0.75em] dark:font-[100] font-[400]">SEK / kWh</span>
       </h3>

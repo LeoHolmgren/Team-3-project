@@ -127,7 +127,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
       <Header zone={zone?.value} />
       <div className="flex flex-col items-center justify-center gap-6">
         
-        <div className="h-[20em] mt-[5em] mb-[2em]">
+        <div className="h-[20em] max-w-[100%] mt-[5em] mb-[2em]">
           {content}
         </div>
 

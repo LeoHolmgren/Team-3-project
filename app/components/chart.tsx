@@ -1,54 +1,76 @@
-import { ReactElement } from 'react';
-import { useRef } from 'react';
+import { ReactElement, ReactNode, useEffect, useRef, useState } from 'react';
 
 export interface ChartLabelProps {
   value: number;
   time: Date;
 }
 
-const containerCn = "aspect-[1.8] h-full text-[hsl(var(--text))]";
+const containerCn = "aspect-[1.8] h-full text-[hsl(var(--text))] max-w-[100%]";
 
 export function Chart({ data, Label }: { data: Array<number> | null, Label: (props: ChartLabelProps) => ReactElement }) {
 
   const refs = {
-    line: useRef(null),
-    label: useRef(null),
-    container: useRef(null),
+    label: useRef<HTMLDivElement>(null),
+    container: useRef<HTMLDivElement>(null),
   }
 
-  if (!data) return <div className={containerCn + " flex items-center justify-center"}>
-    <h3>No Data</h3>
-  </div>
+  const [hour, setHour] = useState((new Date()).getHours());
+  setHour;
 
-  const timestamp = new Date();
-  const yMax = Math.max(...data);
-  const yMin = Math.min(...data);
-  const yMinPadded = yMin - (yMax - yMin) * 0.15;
-
-  const current_value: number | undefined | null = data[timestamp.getHours()];
-
-  const divs: Array<ReactElement> = data.map((value, idx) => {
-    const percentage: number = (value - yMinPadded) / (yMax - yMinPadded);
-    return (
-      <div className="flex grow flex-col" key={idx}>
-        <div style={{ flexGrow: 1 - percentage }} className="basis-[1px]"></div>
-        <div
-          style={{ backgroundColor: 'hsla(var(--chart-1), 0.5)', flexGrow: percentage }}
-          className="grow basis-[1px]"
-        ></div>
-      </div>
-    );
+  useEffect(() => {
+    if (refs.label.current && refs.container.current) {
+      const l = refs.label.current;
+      const hlw = refs.label.current.offsetWidth / 2;
+      const cw = refs.container.current.offsetWidth;
+      const cx = cw * ((hour + 0.5) / 24);
+      const tx = Math.min(Math.max(cx, hlw), cw - hlw); 
+      l.style.transform = `translate(-50%) translate(${tx}px)`;
+    }
   });
+
+  let chartContent: ReactNode;
+  let label: ReactNode;
+
+  if (data) {
+
+    const timestamp = new Date();
+    const yMax = Math.max(...data);
+    const yMin = Math.min(...data);
+    const yMinPadded = yMin - (yMax - yMin) * 0.15;
+
+    const bars: Array<ReactElement> = data.map((value, idx) => {
+      const percentage: number = (value - yMinPadded) / (yMax - yMinPadded);
+      return (
+        <div style={{transition: "filter .1s"}} className={"flex grow flex-col " + (idx == hour ? " brightness-[1.30]" : "")} onMouseEnter={() => setHour(idx)} key={idx}>
+          <div style={{ transition: "flex-grow .1s", flexGrow: 1 - percentage }} className="basis-[1px]"></div>
+          <div
+            style={{ transition: "flex-grow .1s", backgroundColor: 'hsla(var(--chart-1), 0.5)', flexGrow: percentage }}
+            className="grow basis-[1px]"
+          ></div>
+        </div>
+      );
+    });
+
+    label = Label({value: data[hour], time: new Date(timestamp.setHours(hour, 0))});
+    chartContent = <div className="flex grow pt-[2.5em] cursor-pointer" onMouseLeave={() => setHour((new Date()).getHours())}>{bars}</div>;
+
+  } else {
+    chartContent = <div className="flex grow items-center justify-center">
+      <h3>No Data</h3>
+    </div>
+  } 
 
   // =============================================================================================
 
   return (
     <div className={containerCn + " flex flex-col text-[0.9em]"}>
-      <div ref={refs.label} className="text-[0.9em]">
-        {Label({value: current_value, time: timestamp})}
+      <div>
+        <div ref={refs.label} style={{transition: "all 0.2s"}} className="inline-block">
+          {label}
+        </div>
       </div>
       <div ref={refs.container} className="relative flex grow">
-        <div className="flex grow pt-[1.5em]">{divs}</div>
+        {chartContent}
       </div>
       <div className="flex flex-col">
         <div style={{ borderTop: '1px solid hsl(var(--text))' }} className="flex h-[0.25em] justify-between opacity-55">
