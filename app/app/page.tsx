@@ -17,9 +17,6 @@ export const metadata: Metadata = {
   description: 'Detect electricity price live.',
 };
 
-// Apparantly this a react way of passing process.env to client??
-export const REACT_APP_API_URL = process.env.API_URL;
-
 export default function Home() {
   return <HomeComponent loadZone={getZoneCookie()} />;
 }
