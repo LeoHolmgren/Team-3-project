@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 import HomeComponent from '@/app/home';
 import { cookies } from 'next/headers';
 import { BiddingZone } from '@/app/types';
-import { BIDDING_ZONE_KEY } from '@/app/constants';
+import { STORE_HISTORY_COOKIE } from '@/app/constants';
 
 function getZoneCookie(): BiddingZone | null {
-  const cookie = cookies().get(BIDDING_ZONE_KEY);
+  const cookie = cookies().get(STORE_HISTORY_COOKIE);
   if (cookie) {
     return JSON.parse(cookie.value) as BiddingZone;
   }
@@ -18,5 +18,5 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  return <HomeComponent initialZone={getZoneCookie()} />;
+  return <HomeComponent loadZone={getZoneCookie()} />;
 }

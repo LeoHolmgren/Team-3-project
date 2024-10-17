@@ -1,36 +1,34 @@
 import { ReactElement } from 'react';
-import { ChartLabel } from '@/components/chart-label';
-import { useChartState } from '@/components/chart-state';
-import { ChartState } from '@/components/chart-state';
+import { useRef } from 'react';
 
-export function Chart({ state }: { state: ChartState }) {
-  const xarr = state.data ? state.data.map(({ time }) => time) : [];
-  const xMin = Math.min(...xarr);
-  const xMax = Math.max(...xarr) + 1000 * 60 * 60;
-  const yarr = state.data ? state.data.map(({ price }) => price) : [];
-  const yMin = Math.min(...yarr);
-  const yMax = Math.max(...yarr);
+export interface ChartLabelProps {
+  value: number;
+  time: Date;
+}
 
-  const x = state.timestamp ? (state.timestamp.getTime() - 0 * 1000 * 60 * 60 - xMin) / (xMax - xMin) : xMin;
+export function Chart({ data, Label }: { data: Array<number>, Label: (props: ChartLabelProps) => ReactElement }) {
 
-  const props = {
-    data: state.data,
-    xMin: xMin,
-    xMax: xMax,
-  };
+  const timestamp = new Date();
 
-  const [refs] = useChartState(props);
+  const yMin = Math.min(...data);
+  const yMax = Math.max(...data);
 
-  refs.props.current = props;
+  const x = timestamp.getHours() / 24;
 
-  if (!state.data || !state.data.length) {
-    return <div className="flex aspect-[1.4] h-[22em] items-center justify-center text-[0.9em]">No Data</div>;
+  const current_value: number | undefined | null = data[timestamp.getHours()];
+
+  console.log(data, current_value, timestamp.getHours());
+
+  const refs = {
+    line: useRef(null),
+    label: useRef(null),
+    container: useRef(null),
   }
 
-  const divs: Array<ReactElement> = state.data.map(({ price, time }) => {
-    const percentage: number = Math.max((price - yMin) / (yMax - yMin), 0);
+  const divs: Array<ReactElement> = data.map((value, idx) => {
+    const percentage: number = (value - yMin) / (yMax - yMin);
     return (
-      <div className="flex grow flex-col" key={time}>
+      <div className="flex grow flex-col" key={idx}>
         <div style={{ flexGrow: 1 - percentage }} className="basis-[1px]"></div>
         <div
           style={{ backgroundColor: 'hsla(var(--chart-1), 0.5)', flexGrow: percentage }}
@@ -42,7 +40,7 @@ export function Chart({ state }: { state: ChartState }) {
 
   const reference: ReactElement = (
     <div
-      ref={refs.chartLine}
+      ref={refs.line}
       style={{
         borderLeft: '1px dotted hsl(var(--text))',
         left: x * 100 + '%',
@@ -51,28 +49,14 @@ export function Chart({ state }: { state: ChartState }) {
     ></div>
   );
 
-  const label: ReactElement = (
-    <div ref={refs.label} className="inline-block pb-[1em]">
-      <ChartLabel
-        initialState={{
-          value: 0.1,
-          unit: state.unit,
-          time: state.timestamp ?? new Date(),
-        }}
-        setStateRef={refs.setLabelState}
-      />
-    </div>
-  );
-
   // =============================================================================================
 
   return (
     <div className="flex aspect-[1.4] h-[22em] max-w-[100%] flex-col text-[0.9em]">
-      
-      <div ref={refs.labelContainer} className="text-[0.9em]">
-        {label}
+      <div ref={refs.label} className="text-[0.9em]">
+        {Label({value: current_value, time: timestamp})}
       </div>
-      <div ref={refs.chartContainer} onMouseMove={refs.onChartMouseMove} className="relative flex grow">
+      <div ref={refs.container} className="relative flex grow">
         <div className="flex grow pt-[1.5em]">{divs}</div>
         {reference}
       </div>

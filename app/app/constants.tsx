@@ -1,6 +1,11 @@
-import { BiddingZone } from '@/app/types';
+import { Levels, BiddingZone } from '@/app/types';
 
-export const BIDDING_ZONE_KEY = 'BiddingZone';
+export const STORE_HISTORY_COOKIE = 'BiddingZone';
+
+export const MOCK_PRICE_LEVELS: Levels = {
+  high: 0.2,
+  low: 0.1,
+};
 
 export const ZONES: BiddingZone[] = [
   {
@@ -20,3 +25,5 @@ export const ZONES: BiddingZone[] = [
     label: 'South Sweden',
   },
 ];
+
+export const BIDIGIT: Intl.NumberFormat = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2 });
