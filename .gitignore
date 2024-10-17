@@ -7,3 +7,4 @@ bun.lockb
 venv
 .DATABASE_URL_SECRET_DO_NOT_SHARE
 SECRETS/*
+config.env

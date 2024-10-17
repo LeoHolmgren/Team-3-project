@@ -7,8 +7,7 @@ import { GitHubLogoIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 import React from 'react';
 import { Button } from '../components/ui/button';
-import { ModeToggle } from '@/components/mode-toggle';
-import SubscribeDialog from '@/components/subscribe-dialog';
+import { ModeToggle } from '@/components/theme-toggle';
 import { useAppContext } from './appContext';
 
 export default function Header() {
