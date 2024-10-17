@@ -14,9 +14,10 @@
     --shade: 0 0% 70%;
     --highlight: 231, 55%, 56%;
     --error: 0, 55%, 56%;
+    --chart: 220, 70%, 60%, 0.6;
     --background: 0 0% 96%;
     --foreground: 240 10% 3.9%;
-
+    
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
@@ -43,11 +44,13 @@
   }
   .dark {
     --text: 0 0% 64%;
-    --shade: 0 0% 15%;
+    --shade: 0 0% 18%;
     --highlight: 231, 55%, 56%;
     --error: 0, 55%, 56%;
+    --chart: 220, 70%, 60%, 0.5;
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
+
 
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;

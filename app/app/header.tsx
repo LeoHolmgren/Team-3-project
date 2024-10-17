@@ -11,9 +11,10 @@ import { useMediaQuery } from '@/hooks/use-media-query';
 
 export default function Header({ zone }: { zone: string | undefined }) {
   const { resetAppState } = useAppContext();
+  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   return (
-    <header className={'flex items-center justify-between bg-transparent ' + (true ? 'p-4' : 'py-4')}>
+    <header className={'flex items-center justify-between bg-transparent ' + (isDesktop ? 'p-4' : 'py-4')}>
       <div onClick={resetAppState} className="cursor-pointer">
         <Image
           src={logoLight}

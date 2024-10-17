@@ -47,13 +47,12 @@ export function Chart({
       return (
         <div
           style={{ transition: 'filter .1s' }}
-          className={'flex grow flex-col ' + (idx == hour ? ' brightness-[1.30]' : '')}
+          className={'grow flex items-end' + (idx == hour ? ' brightness-[1.30]' : '')}
           onMouseEnter={() => setHour(idx)}
           key={idx}
         >
-          <div style={{ transition: 'flex-grow .1s', flexGrow: 1 - percentage }} className="basis-[1px]"></div>
           <div
-            style={{ transition: 'flex-grow .1s', backgroundColor: 'hsla(var(--chart-1), 0.5)', flexGrow: percentage }}
+            style={{ transition: 'height .2s', backgroundColor: 'hsla(var(--chart))', height: (percentage * 100) + "%" }}
             className="grow basis-[1px]"
           ></div>
         </div>
@@ -62,7 +61,7 @@ export function Chart({
 
     label = Label({ value: data[hour], time: new Date(timestamp.setHours(hour, 0)) });
     chartContent = (
-      <div className="flex grow cursor-pointer pt-[2.5em]" onMouseLeave={() => setHour(new Date().getHours())}>
+      <div className="flex grow items-stretch cursor-pointer pt-[2.5em]" onMouseLeave={() => setHour(new Date().getHours())}>
         {bars}
       </div>
     );

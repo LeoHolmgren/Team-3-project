@@ -10,6 +10,6 @@ cd $ROOTDIR/api
 source .venv/bin/activate
 source $ROOTDIR/scripts/set-env.sh
 export PYTHONPATH=$ROOTDIR
-fastapi dev main.py
+fastapi dev main.py --host $FASTAPI_HOST
 deactivate
 cd $OLDDIR
