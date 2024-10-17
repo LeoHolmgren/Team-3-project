@@ -1,6 +1,6 @@
 import os
 import requests
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, timezone
 import psycopg2
 import sys
 import traceback
@@ -145,7 +145,7 @@ def get_eur_to_sek_exchange_rate():
 # Fetches energy prices by zone and converts the price from EUR/MWh to SEK/kWh using the previous exchange rate function.
 # The previous functions like get_energy_prices and get_eur_to_sek_exchange_rate are used here.
 def fetch_external_price_by_zone(zone, time):
-    date = datetime.fromtimestamp(time, UTC)
+    date = datetime.fromtimestamp(time, timezone.utc)
     start_date = date.replace(hour=0, minute=0, second=0, microsecond=0)
     end_date = start_date + timedelta(days=1)
 
@@ -211,7 +211,7 @@ if __name__ == '__main__':
             print(f"Fetching prices for {z}")
             external_data = fetch_external_price_by_zone(
                 z,
-                datetime.now(UTC).timestamp())  # Current timestamp is passed here.
+                datetime.now(timezone.utc).timestamp())  # Current timestamp is passed here.
             
             # For each energy price entry retrieved, insert it into the database.
             for e in external_data:
