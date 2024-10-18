@@ -5,7 +5,7 @@ ROOTDIR=$(cd "$( dirname "$0" )"/../ && pwd)
 
 # Setup configuration file
 echo Setting up configuration file...
-cp --update=none $ROOTDIR/scripts/TEMPLATE.env $ROOTDIR/config.env
+cp -n $ROOTDIR/scripts/TEMPLATE.env $ROOTDIR/config.env
 
 # Install aggregator environment
 echo Setting up aggregator environment...

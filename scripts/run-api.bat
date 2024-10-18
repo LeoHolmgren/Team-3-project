@@ -8,6 +8,6 @@ cd %~dp0..\api
 call .\.venv\Scripts\activate
 call %~dp0\set-env
 set PYTHONPATH=%~dp0..\
-fastapi dev main.py
+fastapi dev main.py --host %FASTAPI_HOST%
 call deactivate
 cd %OLDDIR%

@@ -1,92 +1,146 @@
-'use client';
+import { ReactElement, ReactNode, TouchEvent, useEffect, useRef, useState } from 'react';
 
-import * as React from 'react';
-
-import { PriceData, PriceLevels } from '@/app/types';
-
-import { XAxis, YAxis, Line, LineChart, ReferenceLine } from 'recharts';
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { Card, CardContent } from '@/components/ui/card';
-
-const chartConfig = {
-  price: {
-    label: 'Price',
-    color: 'hsl(var(--chart-1))',
-  },
-} satisfies ChartConfig;
-
-// Format data so that the ending is extended one stair step (price is valid that whole hour) (array ++ array[last])
-function formatData(data: PriceData | null) {
-  return data ? [...data, { price: data[data.length - 1].price, time: data[data.length - 1].time + 1 }] : [];
+export interface ChartLabelProps {
+  value: number;
+  time: Date;
 }
+
+const containerCn = 'aspect-[1.8] h-full text-[hsl(var(--text))] max-w-[100%]';
 
 export function Chart({
   data,
-  timestamp,
-  priceLevels,
+  Label,
 }: {
-  data: PriceData | null;
-  timestamp: Date | null;
-  priceLevels: PriceLevels | null;
+  data: Array<number> | null;
+  Label: (props: ChartLabelProps) => ReactElement;
 }) {
-  const chart = (
-    <ChartContainer config={chartConfig} className="min-h-[200px]">
-      <LineChart data={formatData(data)}>
-        <XAxis
-          height={15}
-          type="number"
-          dataKey="time"
-          domain={[0, 24]}
-          interval="preserveStartEnd"
-          scale="linear"
-          ticks={[0, 6, 12, 18, 24]}
-          tickFormatter={(num) => (num == 24 ? '23:59' : num + ':00')}
-        ></XAxis>
-        <YAxis
-          dataKey="price"
-          scale="linear"
-          hide={true}
-          domain={[
-            (dataMin: number) => Math.min(Math.floor(dataMin * 100) / 100, 0),
-            (dataMax: number) => Math.floor(dataMax * 100 + 1) / 100,
-          ]}
-        ></YAxis>
-        <ReferenceLine
-          x={timestamp ? timestamp.getHours() + timestamp.getMinutes() / 60 : 0}
-          stroke="#a3a3a3"
-          strokeDasharray="1 3"
-          strokeWidth={1}
-        />
-        <ReferenceLine y={priceLevels?.low ?? 0} stroke="#51cd87" strokeDasharray="1 3" opacity={0.6} strokeWidth={1} />
-        <ReferenceLine
-          y={priceLevels?.high ?? 0}
-          stroke="#cd5181"
-          strokeDasharray="1 4"
-          opacity={0.8}
-          strokeWidth={1}
-        />
-        <ChartTooltip
-          cursor={false}
-          labelFormatter={(_, payload) => `${payload[0].payload.time}:00`}
-          content={<ChartTooltipContent />}
-        />
-        <Line
-          dataKey="price"
-          type="stepAfter"
-          stroke="hsl(var(--chart-1))"
-          strokeWidth={1}
-          dot={false}
-          activeDot={{
-            r: 3,
-          }}
-        ></Line>
-      </LineChart>
-    </ChartContainer>
-  );
+  const refs = {
+    label: useRef<HTMLDivElement>(null),
+    container: useRef<HTMLDivElement>(null),
+  };
+
+  const [hour, setHour] = useState(new Date().getHours());
+  setHour;
+
+  useEffect(() => {
+    if (refs.label.current && refs.container.current) {
+      const l = refs.label.current;
+      const hlw = refs.label.current.offsetWidth / 2;
+      const cw = refs.container.current.offsetWidth;
+      const cx = cw * ((hour + 0.5) / 24);
+      const tx = Math.min(Math.max(cx, hlw), cw - hlw);
+      l.style.transform = `translate(-50%) translate(${tx}px)`;
+    }
+  });
+
+  let chartContent: ReactNode;
+  let label: ReactNode;
+
+  if (data) {
+    const timestamp = new Date();
+    const yMax = Math.max(...data);
+    const yMin = Math.min(...data);
+    const yMinPadded = yMin - (yMax - yMin) * 0.15;
+
+    const bars: Array<ReactElement> = [];
+
+    for (let idx = 0; idx < 24; idx++) {
+      const isNumber = typeof data[idx] === 'number';
+      const value = data[idx] ?? yMin;
+      const percentage: number = (value - yMinPadded) / (yMax - yMinPadded);
+      bars[idx] = (
+        <div
+          style={{ transition: 'all .2s' }}
+          className={'flex grow items-end' + (idx == hour ? ' brightness-[1.30]' : '')}
+          onMouseEnter={() => setHour(idx)}
+          key={idx}
+        >
+          <div
+            style={{
+              transition: 'all .2s',
+              backgroundColor: 'hsla(var(--chart))',
+              height: percentage * 100 + '%',
+              filter: isNumber ? '' : 'saturate(0%)',
+            }}
+            className="grow basis-[1px]"
+          ></div>
+        </div>
+      );
+    }
+
+    label = Label({ value: data[hour], time: new Date(timestamp.setHours(hour, 0)) });
+    chartContent = (
+      <div
+        className="flex grow cursor-pointer items-stretch pt-[2.5em]"
+        onMouseLeave={() => setHour(new Date().getHours())}
+      >
+        {bars}
+      </div>
+    );
+  } else {
+    chartContent = (
+      <div className="flex grow items-center justify-center">
+        <h3 className="text-[2em]">No Data</h3>
+      </div>
+    );
+  }
+
+  // =============================================================================================
+
+  const touchSetHour = (e: TouchEvent) => {
+    if (refs.container.current) {
+      const rect = refs.container.current.getBoundingClientRect();
+      const p = (e.touches[0].pageX - rect.left) / (rect.right - rect.left);
+      const h = Math.floor(Math.min(Math.max(p, 0), 0.99) * 24);
+      if (h != hour) setHour(h);
+    }
+  };
+
+  const touchResetHour = () => setHour(new Date().getHours());
 
   return (
-    <Card className="border-0 shadow-none">
-      <CardContent className="p-0">{chart}</CardContent>
-    </Card>
+    <div className={containerCn + ' flex flex-col text-[0.9em]'}>
+      <div>
+        <div ref={refs.label} style={{ transition: 'all 0.2s' }} className="inline-block">
+          {label}
+        </div>
+      </div>
+      <div
+        ref={refs.container}
+        className="relative flex grow touch-pan-y"
+        onTouchMove={touchSetHour}
+        onTouchStart={touchSetHour}
+        onTouchEnd={touchResetHour}
+        onMouseUp={touchResetHour}
+      >
+        {chartContent}
+      </div>
+      <div className="flex flex-col">
+        <div style={{ borderTop: '1px solid hsl(var(--text))' }} className="flex h-[0.25em] justify-between opacity-55">
+          <div style={{ borderLeft: '1px solid hsl(var(--text))' }}></div>
+          <div style={{ borderLeft: '1px solid hsl(var(--text))' }}></div>
+          <div style={{ borderLeft: '1px solid hsl(var(--text))' }}></div>
+          <div style={{ borderLeft: '1px solid hsl(var(--text))' }}></div>
+          <div style={{ borderLeft: '1px solid hsl(var(--text))' }}></div>
+        </div>
+        <div style={{ fontSize: 'calc(max(0.7em, 11px))' }} className="flex justify-between text-[hsl(var(--text))]">
+          <div className="w-0">
+            <p>0:00</p>
+          </div>
+          <div className="w-0">
+            <p style={{ transform: 'translate(-50%)', width: 'fit-content' }}>6:00</p>
+          </div>
+          <div className="w-0">
+            <p style={{ transform: 'translate(-50%)', width: 'fit-content' }}>12:00</p>
+          </div>
+          <div className="w-0">
+            <p style={{ transform: 'translate(-50%)', width: 'fit-content' }}>18:00</p>
+          </div>
+          <div className="w-0">
+            <p style={{ transform: 'translate(-100%)', width: 'fit-content' }}>23:59</p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
