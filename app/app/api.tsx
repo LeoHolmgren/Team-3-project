@@ -29,9 +29,9 @@ export async function fetchPrice(zone: BiddingZone): Promise<PriceData> {
     { price: 0.0076, time: 23 },
   ];*/
 
-  const currTime = Date.now() - 2 * 1000 * 60 * 60 * 24 * 1;
+  const currTime = Date.now() - 0 * 1000 * 60 * 60 * 24 * 1;
   const start = Math.floor(new Date(currTime).setHours(0, 0, 0) / 1000);
-  const end = Math.floor(new Date(currTime).setHours(23, 59, 59) / 1000) + 1;
+  const end = Math.floor(new Date(currTime).setHours(23, 59, 59) / 1000) + 2;
 
   const URL = `${process.env.NEXT_PUBLIC_API_URL}/price-data?zone=${zone.value}&start=${start}&end=${end}`;
 
@@ -46,7 +46,6 @@ export async function fetchPrice(zone: BiddingZone): Promise<PriceData> {
       return { ...obj, time: new Date(obj.time * 1000).getHours() };
     });
 
-    console.log(json);
     return json;
   });
 }

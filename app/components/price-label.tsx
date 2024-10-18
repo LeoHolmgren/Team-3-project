@@ -2,10 +2,7 @@ import { Levels } from '@/app/types';
 import { BIDIGIT } from '@/app/constants';
 
 //const PRICE_FORMAT = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 }).format;
-const NF = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 }).format;
-const PRICE_FORMAT = (x: number) => {
-  return NF(Math.floor(x * 100) / 100);
-};
+const PRICE_FORMAT = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format;
 
 export default function PriceLabel({
   price,

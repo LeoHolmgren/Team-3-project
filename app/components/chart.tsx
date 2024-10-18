@@ -37,14 +37,18 @@ export function Chart({
   let label: ReactNode;
 
   if (data) {
+    
     const timestamp = new Date();
     const yMax = Math.max(...data);
     const yMin = Math.min(...data);
     const yMinPadded = yMin - (yMax - yMin) * 0.15;
 
-    const bars: Array<ReactElement> = data.map((value, idx) => {
+    const bars: Array<ReactElement> = [];
+
+    for (let idx = 0; idx < 24; idx++) {
+      const value = data[idx];
       const percentage: number = (value - yMinPadded) / (yMax - yMinPadded);
-      return (
+      bars[idx] = (
         <div
           style={{ transition: 'filter .1s' }}
           className={'grow flex items-end' + (idx == hour ? ' brightness-[1.30]' : '')}
@@ -57,7 +61,7 @@ export function Chart({
           ></div>
         </div>
       );
-    });
+    }
 
     label = Label({ value: data[hour], time: new Date(timestamp.setHours(hour, 0)) });
     chartContent = (
