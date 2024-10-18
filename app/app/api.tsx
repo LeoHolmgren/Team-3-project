@@ -53,9 +53,11 @@ export async function fetchPrice(zone: BiddingZone): Promise<PriceData> {
 export async function getZoneFromLocation(location: Location): Promise<BiddingZone> {
   return await fetch(`${process.env.NEXT_PUBLIC_API_URL}/get-zone-by-location?lat=${location.lat}&lon=${location.lon}`)
     .then((response) => {
+      console.log(response);
       return response.text();
     })
     .then((text) => {
+      console.log(text);
       return { value: text.replaceAll('"', '').split('-').reverse()[0], label: 'Unknown Name' };
     });
 }
