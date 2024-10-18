@@ -7,7 +7,7 @@ import Footer from '@/app/footer';
 import { AppProvider } from '@/app/appContext';
 import { ReactElement, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getPrice } from '@/app/api';
+import { fetchPrice } from '@/app/api';
 import Banner from '@/components/banner';
 import noZoneSrc from '@/app/public/no-zone.png';
 import errorSrc from '@/app/public/error.png';
@@ -44,7 +44,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   } = useQuery({
     queryKey: ['GetPrice'],
     queryFn: () => {
-      if (zone) return getPrice(zone);
+      if (zone) return fetchPrice(zone);
       else throw Error('No Zone Selected');
     },
     enabled: loadZone ? true : false,
@@ -91,7 +91,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
       });
       setStatus(HomeStatus.NOZONE);
     }
-  }, [zone]);
+  }, [zone, refetch, setCookie]);
 
   // Query set error
   useEffect(() => {
@@ -101,18 +101,18 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   // Query set data
   useEffect(() => {
     if (fetchData && dataUpdatedAt && zone) {
-      const price = fetchData.data[new Date(dataUpdatedAt).getHours()].price;
       const time = new Date(dataUpdatedAt);
+      const price = fetchData[time.getHours()].price;
       setSelectZoneState({
         status: SelectZoneStatus.SUCCESS,
         zone: zone,
         time: time,
       });
-      setData(fetchData.data);
+      setData(fetchData);
       setUpdatedAt(time);
-      if (price) setPrice(price);
+      if (price !== null) setPrice(price);
     }
-  }, [fetchData]);
+  }, [fetchData, dataUpdatedAt, zone]);
 
   let content: ReactElement = <></>;
 
@@ -135,7 +135,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
 
   return (
     <AppProvider resetAppState={resetState}>
-      <Header />
+      <Header zone={zone?.value} />
       <div className="flex flex-col items-center justify-center gap-6 pt-24">
         {content}
         <SelectZone state={selectZoneState} onError={onError} onSelectZone={onSelectZone} />

@@ -1,47 +1,33 @@
-import { BiddingZone, PriceData } from '@/app/types';
-import { ZONES, BIDIGIT } from './constants';
-import { Location } from '@/app/types';
+import { BiddingZone, PriceData, Location } from '@/app/types';
 
-// Call external api to get price for zone
-export async function getPrice(zone: BiddingZone): Promise<{ arrived: Date; data: PriceData }> {
-  const currTime = new Date(Date.now() - 0 * 1000 * 60 * 60 * 24 * 1);
-  const year = currTime.getFullYear();
-  const month = currTime.getMonth() + 1;
-  const day = currTime.getDate();
+// Call our api
+export async function fetchPrice(zone: BiddingZone): Promise<PriceData> {
+  
+  const currTime = Date.now() - 0 * 1000 * 60 * 60 * 24 * 1;
+  const start = Math.floor(new Date(currTime).setHours(0, 0, 0) / 1000);
+  const end = Math.floor(new Date(currTime).setHours(23, 59, 59) / 1000) + 1;
 
-  const URL =
-    'https://www.elprisetjustnu.se/api/v1/prices/' +
-    year +
-    '/' +
-    BIDIGIT.format(month) +
-    '-' +
-    BIDIGIT.format(day) +
-    '_' +
-    zone.value +
-    '.json';
-
+  const URL = `${process.env.NEXT_PUBLIC_API_URL}/price-data?zone=${zone.value}&start=${start}&end=${end}`;
+    
   return fetch(URL).then(async (response) => {
     if (!response.ok) {
       Promise.reject(Error('Bad response (' + response.status + ') - ' + response.statusText));
     }
 
-    const timeOfData = new Date();
-    const json: Array<{ SEK_per_kWh: number }> = await response.json();
+    const json_in: PriceData = await response.json();
 
-    return {
-      arrived: timeOfData,
-      // Reformat data to be of type { price: number, time: number }
-      data: json.map((data: { SEK_per_kWh: number }, idx: number) => {
-        return { price: data['SEK_per_kWh'], time: idx };
-      }),
-    };
+    const json: PriceData = json_in.map(obj => {
+      return {...obj, time: new Date(obj.time * 1000).getHours()}
+    })
+
+    return json;
   });
 }
 
-// TODO: ask our api for zone given location
 export async function getZoneFromLocation(location: Location): Promise<BiddingZone> {
-  location;
-  return new Promise<BiddingZone>((resolve) => {
-    return resolve(ZONES[0]);
-  });
+  return await fetch(`${process.env.NEXT_PUBLIC_API_URL}/get-zone-by-location?lat=${location.lat}&lon=${location.lon}`).then(response => {
+    return response.text();
+  }).then(text => {
+    return {value: text.replaceAll('"', '').split('-').reverse()[0], label: "Unknown Name"}; 
+  })
 }
