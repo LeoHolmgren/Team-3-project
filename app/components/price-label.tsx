@@ -16,7 +16,9 @@ export default function PriceLabel({
   let gradientCn = '';
   let labelWord = '';
 
-  if (price !== null) {
+  const isDefined = typeof price === "number";
+
+  if (isDefined) {
     if (price > priceLevels.high) {
       gradientCn = 'from-[#cd7a51] to-[#cd5181]';
       labelWord = 'HIGH';
@@ -29,7 +31,7 @@ export default function PriceLabel({
     }
   } else {
     gradientCn = 'from-[#8f8f8f] to-[#a8a8a8]';
-    labelWord = 'UNKNOWN';
+    labelWord = 'NO DATA';
   }
 
   return (
@@ -47,7 +49,7 @@ export default function PriceLabel({
         {labelWord}
       </h2>
       <h3 className="inline-block text-center text-[2em] font-[400] leading-[1] tracking-[-.4px] text-[hsl(var(--text))]">
-        {price !== null ? PRICE_FORMAT(price) : '???'}
+        {isDefined ? PRICE_FORMAT(price) : '???'}
         &nbsp;
         <span className="text-[0.75em] font-[400] dark:font-[100]">SEK / kWh</span>
       </h3>

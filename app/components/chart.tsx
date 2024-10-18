@@ -50,13 +50,13 @@ export function Chart({
       const percentage: number = (value - yMinPadded) / (yMax - yMinPadded);
       bars[idx] = (
         <div
-          style={{ transition: 'filter .1s' }}
+          style={{ transition: 'all .2s' }}
           className={'grow flex items-end' + (idx == hour ? ' brightness-[1.30]' : '')}
           onMouseEnter={() => setHour(idx)}
           key={idx}
         >
           <div
-            style={{ transition: 'height .2s', backgroundColor: 'hsla(var(--chart))', height: (percentage * 100) + "%" }}
+            style={{ transition: 'all .2s', backgroundColor: 'hsla(var(--chart))', height: (percentage * 100) + "%" }}
             className="grow basis-[1px]"
           ></div>
         </div>
@@ -97,6 +97,7 @@ export function Chart({
             if (h != hour) setHour(h);
           }
         }}
+        onTouchEnd={() => setHour((new Date().getHours()))}
       >
         {chartContent}
       </div>
