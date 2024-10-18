@@ -30,7 +30,7 @@ export async function fetchPrice(zone: BiddingZone): Promise<PriceData> {
   ];*/
 
   const currTime = Date.now() - 0 * 1000 * 60 * 60 * 24 * 1;
-  const start = Math.floor(new Date(currTime).setHours(0, 0, 0) / 1000);
+  const start = Math.floor(new Date(currTime).setHours(0, 0, 0) / 1000) - 2;
   const end = Math.floor(new Date(currTime).setHours(23, 59, 59) / 1000) + 2;
 
   const URL = `${process.env.NEXT_PUBLIC_API_URL}/price-data?zone=${zone.value}&start=${start}&end=${end}`;

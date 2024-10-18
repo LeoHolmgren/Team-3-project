@@ -116,12 +116,14 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
     content = <Banner image={errorSrc} label={`Error ${error ? error.message : 'Error'}`} />;
   } else if (status == HomeStatus.SUCCESS || status == HomeStatus.LOADING) {
     content = (
-      <Chart
-        data={data ? data.map(({ price }) => price) : null}
-        Label={(props: ChartLabelProps) => (
-          <PriceLabel priceLevels={MOCK_PRICE_LEVELS} price={props.value} time={props.time} />
-        )}
-      />
+      <div className="h-full max-w-[100%] aspect-[1.8] text-[0.8em]">
+        <Chart
+          data={data ? data.map(({ price }) => price) : null}
+          Label={(props: ChartLabelProps) => (
+            <PriceLabel priceLevels={MOCK_PRICE_LEVELS} price={props.value} time={props.time} />
+          )}
+        />
+      </div>
     );
   } else {
     content = <Banner image={noZoneSrc} label="Zone not specified" />;
@@ -130,12 +132,13 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   return (
     <AppProvider resetAppState={resetState}>
       <Header zone={zone?.value} />
-      <div className="flex flex-col items-center justify-center gap-6">
-        <div className="mb-[2em] mt-[5em] h-[20em] max-w-[100%]">{content}</div>
-
+      <div className="flex grow flex-col items-center justify-center p-4">
+        <div className="grow-[1]"></div>
+        <div className="h-[20em] max-w-[100%] py-[1.6em]">{content}</div>
+        <div className="grow-[2]"></div>
         <SelectZone state={selectZoneState} onError={onError} onSelectZone={onSelectZone} />
-        <Footer timestamp={updatedAt} />
       </div>
+      <Footer timestamp={updatedAt} />
     </AppProvider>
   );
 }

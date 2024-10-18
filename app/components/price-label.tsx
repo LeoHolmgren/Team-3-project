@@ -40,7 +40,7 @@ export default function PriceLabel({
         {BIDIGIT.format(time.getHours()) + ':' + BIDIGIT.format(time.getMinutes())}
       </h1>
       <h2
-        style={{ transition: 'width 0.2s' }}
+        style={{ transition: 'all 0.2s' }}
         className={
           'inline-block bg-gradient-to-r bg-clip-text text-[3.8em] font-[800] leading-[1] text-transparent ' +
           gradientCn
@@ -51,7 +51,7 @@ export default function PriceLabel({
       <h3 className="inline-block text-center text-[2em] font-[400] leading-[1] tracking-[-.4px] text-[hsl(var(--text))]">
         {isDefined ? PRICE_FORMAT(price) : '???'}
         &nbsp;
-        <span className="text-[0.75em] font-[400] dark:font-[100]">SEK / kWh</span>
+        <span className="text-[0.75em] font-[400]">SEK / kWh</span>
       </h3>
     </div>
   );

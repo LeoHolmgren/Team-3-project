@@ -14,21 +14,21 @@ export default function Header({ zone }: { zone: string | undefined }) {
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
   return (
-    <header className={'flex items-center justify-between bg-transparent ' + (isDesktop ? 'p-4' : 'py-4')}>
-      <div onClick={resetAppState} className="cursor-pointer">
+    <header style={{transition: "all 0.2s"}} className={'flex items-center justify-between bg-transparent ' + (isDesktop ? 'py-4 px-8' : 'p-4')}>
+      <div onClick={resetAppState} className="cursor-pointer h-[2.2em]">
         <Image
           src={logoLight}
           alt="Company Logo"
           width={392}
           height={198}
-          className="block h-[3em] w-auto p-[0.4em] dark:hidden"
+          className="block h-full w-auto dark:hidden"
         />
         <Image
           src={logoDark}
           alt="Company Logo"
           width={392}
           height={198}
-          className="hidden h-[3em] w-auto p-[0.4em] dark:block"
+          className="hidden h-full w-auto dark:block"
         />
       </div>
 

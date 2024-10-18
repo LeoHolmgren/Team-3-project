@@ -46,7 +46,8 @@ export function Chart({
     const bars: Array<ReactElement> = [];
 
     for (let idx = 0; idx < 24; idx++) {
-      const value = data[idx];
+      const isNumber = typeof data[idx] === "number"; 
+      const value = data[idx] ?? yMin;
       const percentage: number = (value - yMinPadded) / (yMax - yMinPadded);
       bars[idx] = (
         <div
@@ -56,7 +57,7 @@ export function Chart({
           key={idx}
         >
           <div
-            style={{ transition: 'all .2s', backgroundColor: 'hsla(var(--chart))', height: (percentage * 100) + "%" }}
+            style={{ transition: 'all .2s', backgroundColor: 'hsla(var(--chart))', height: (percentage * 100) + "%", filter: isNumber ? "" : "saturate(0%)" }}
             className="grow basis-[1px]"
           ></div>
         </div>
@@ -72,12 +73,23 @@ export function Chart({
   } else {
     chartContent = (
       <div className="flex grow items-center justify-center">
-        <h3>No Data</h3>
+        <h3 className="text-[2em]">No Data</h3>
       </div>
     );
   }
 
   // =============================================================================================
+
+  const touchSetHour = (e) => {
+    if (refs.container.current) {
+      const rect = refs.container.current.getBoundingClientRect();
+      const p = (e.touches[0].pageX - rect.left) / (rect.right - rect.left);
+      const h = Math.floor(Math.min(Math.max(p, 0), 0.99) * 24);
+      if (h != hour) setHour(h);
+    }
+  }
+
+  const touchResetHour = () => setHour((new Date().getHours()));
 
   return (
     <div className={containerCn + ' flex flex-col text-[0.9em]'}>
@@ -89,15 +101,10 @@ export function Chart({
       <div
         ref={refs.container}
         className="relative flex grow touch-pan-y"
-        onTouchMove={(e) => {
-          if (refs.container.current) {
-            const rect = refs.container.current.getBoundingClientRect();
-            const p = (e.touches[0].pageX - rect.left) / (rect.right - rect.left);
-            const h = Math.floor(p * 24);
-            if (h != hour) setHour(h);
-          }
-        }}
-        onTouchEnd={() => setHour((new Date().getHours()))}
+        onTouchMove={touchSetHour}
+        onTouchStart={touchSetHour}
+        onTouchEnd={touchResetHour}
+        onMouseUp={touchResetHour}
       >
         {chartContent}
       </div>
