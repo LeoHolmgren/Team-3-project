@@ -116,7 +116,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
     content = <Banner image={errorSrc} label={`Error ${error ? error.message : 'Error'}`} />;
   } else if (status == HomeStatus.SUCCESS || status == HomeStatus.LOADING) {
     content = (
-      <div className="h-full max-w-[100%] aspect-[1.8] text-[0.8em]">
+      <div className="aspect-[1.8] h-full max-w-[100%] text-[0.8em]">
         <Chart
           data={data ? data.map(({ price }) => price) : null}
           Label={(props: ChartLabelProps) => (

@@ -16,7 +16,7 @@ export default function PriceLabel({
   let gradientCn = '';
   let labelWord = '';
 
-  const isDefined = typeof price === "number";
+  const isDefined = typeof price === 'number';
 
   if (isDefined) {
     if (price > priceLevels.high) {

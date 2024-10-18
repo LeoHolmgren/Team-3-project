@@ -1,4 +1,4 @@
-import { ReactElement, ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactElement, ReactNode, TouchEvent, useEffect, useRef, useState } from 'react';
 
 export interface ChartLabelProps {
   value: number;
@@ -37,7 +37,6 @@ export function Chart({
   let label: ReactNode;
 
   if (data) {
-    
     const timestamp = new Date();
     const yMax = Math.max(...data);
     const yMin = Math.min(...data);
@@ -46,18 +45,23 @@ export function Chart({
     const bars: Array<ReactElement> = [];
 
     for (let idx = 0; idx < 24; idx++) {
-      const isNumber = typeof data[idx] === "number"; 
+      const isNumber = typeof data[idx] === 'number';
       const value = data[idx] ?? yMin;
       const percentage: number = (value - yMinPadded) / (yMax - yMinPadded);
       bars[idx] = (
         <div
           style={{ transition: 'all .2s' }}
-          className={'grow flex items-end' + (idx == hour ? ' brightness-[1.30]' : '')}
+          className={'flex grow items-end' + (idx == hour ? ' brightness-[1.30]' : '')}
           onMouseEnter={() => setHour(idx)}
           key={idx}
         >
           <div
-            style={{ transition: 'all .2s', backgroundColor: 'hsla(var(--chart))', height: (percentage * 100) + "%", filter: isNumber ? "" : "saturate(0%)" }}
+            style={{
+              transition: 'all .2s',
+              backgroundColor: 'hsla(var(--chart))',
+              height: percentage * 100 + '%',
+              filter: isNumber ? '' : 'saturate(0%)',
+            }}
             className="grow basis-[1px]"
           ></div>
         </div>
@@ -66,7 +70,10 @@ export function Chart({
 
     label = Label({ value: data[hour], time: new Date(timestamp.setHours(hour, 0)) });
     chartContent = (
-      <div className="flex grow items-stretch cursor-pointer pt-[2.5em]" onMouseLeave={() => setHour(new Date().getHours())}>
+      <div
+        className="flex grow cursor-pointer items-stretch pt-[2.5em]"
+        onMouseLeave={() => setHour(new Date().getHours())}
+      >
         {bars}
       </div>
     );
@@ -80,16 +87,16 @@ export function Chart({
 
   // =============================================================================================
 
-  const touchSetHour = (e) => {
+  const touchSetHour = (e: TouchEvent) => {
     if (refs.container.current) {
       const rect = refs.container.current.getBoundingClientRect();
       const p = (e.touches[0].pageX - rect.left) / (rect.right - rect.left);
       const h = Math.floor(Math.min(Math.max(p, 0), 0.99) * 24);
       if (h != hour) setHour(h);
     }
-  }
+  };
 
-  const touchResetHour = () => setHour((new Date().getHours()));
+  const touchResetHour = () => setHour(new Date().getHours());
 
   return (
     <div className={containerCn + ' flex flex-col text-[0.9em]'}>
