@@ -11,13 +11,13 @@ def when_to_notify(zone: str, db: Session = Depends(get_db)):
         price_levels = get_price_levels(zone=zone, db=db)
         high_price_last_month = price_levels["priceLevels"]["high"]
         
-        current_time = datetime.utcnow()
+        current_time_unix = int(time.time())
         # this gets the prices for today
         query_daily_prices = text("""
             SELECT price_sek, time_start
             FROM price_data 
             WHERE zone = :zone 
-            AND time_start >= :current_time
+            AND time_start >= :current_time_unix
             ORDER BY time_start ASC 
         """)
        daily_prices_result = db.execute(query_daily_prices, {"zone": zone, "current_date": current_date}).fetchall()
