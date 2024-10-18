@@ -65,8 +65,8 @@ export default function SubscribeDialog({ zone }: { zone: string | undefined }) 
 
   return (
     <Dialog>
-      <DialogTrigger>
-        <Button disabled={!zone}>Subscribe</Button>
+      <DialogTrigger disabled={!zone}>
+        <Button>Subscribe</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
