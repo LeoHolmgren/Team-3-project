@@ -141,23 +141,4 @@ def get_zone_from_location(lat: float, lon: float):
     request = requests.get(f"https://api.electricitymap.org/v3/carbon-intensity/latest?lat={lat}&lon={lon}")
     return json.loads(request.content).get("zone")
 
-#GET test the return of the query
-@router.get("/test/{zone}")
-def get_daily_prices(zone: str):
-current_time = datetime.utcnow()
-        # this gets the prices for today
-        query_daily_prices = text("""
-            SELECT price_sek, time_start
-            FROM price_data 
-            WHERE zone = :zone 
-            AND time_start >= :current_time
-            ORDER BY time_start ASC 
-        """)
-       daily_prices_result = db.execute(query_daily_prices, {"zone": zone, "current_date": current_date}).fetchall()
-
-if not daily_prices_result:
-            raise HTTPException(status_code=404, detail="No prices found for the given zone and date")
-prices = [{"price_sek": row[0], "time_start": row[1]} for row in daily_prices_result]
-        
- return prices
 
