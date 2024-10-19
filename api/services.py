@@ -1,9 +1,14 @@
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 from api.routes import get_price_levels, get_db, get_emails_by_zone
 from datetime import datetime
+import time
+import smtplib
+from email.mime.text import MIMEText
+
 
 def when_to_notify(zone: str, db: Session = Depends(get_db)):
     try:
