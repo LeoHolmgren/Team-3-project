@@ -2,7 +2,7 @@ from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pydantic import EmailStr, BaseModel
 from sqlalchemy.exc import IntegrityError
 from database import SessionLocal
@@ -107,37 +107,10 @@ async def read_price_data_zone(zone: str, start: int, end: int, db: Session = De
 # GET endpoint: Function to get price levels by zone
 @router.get("/price-levels/{zone}")
 async def get_price_levels(zone: str, db: Session = Depends(get_db)):
-    print(f"Fetching latest price entry for zone: {zone}")
 
-    # Check if the zone exists in the database
-    count_query = text("SELECT COUNT(*) FROM price_data WHERE zone = :zone")
-    count_result = db.execute(count_query, {"zone": zone}).scalar()
-    print(f"Number of records for zone '{zone}': {count_result}")
-
-    if count_result == 0:
-        raise HTTPException(status_code=404, detail="No price data available for this zone")
-
-    # Get the latest price entry:
-    query_latest_time = text("""
-            SELECT time_start FROM price_data 
-            WHERE zone = :zone 
-            ORDER BY time_start DESC 
-            LIMIT 1
-        """)
-    latest_time_result = db.execute(query_latest_time, {"zone": zone}).fetchone()
-
-    if not latest_time_result:
-        raise HTTPException(status_code=404, detail="No price data available for this zone.")
-
-    # Current time as UNIX timestamp
-    current_time_unix = latest_time_result[0]
-    current_time = datetime.fromtimestamp(current_time_unix)
-    print(f"Current time: {current_time}")
-
-    # Back one month as UNIX timestamp
+    # Current time and time going back one month
+    current_time = datetime.now(timezone.utc)
     past_month = current_time - timedelta(days=30)
-    past_month_unix = int(past_month.timestamp())
-    print(f"Past month time: {past_month} (Unix: {past_month_unix})")
 
     # All prices within the last month
     query_prices = text("""
@@ -147,29 +120,21 @@ async def get_price_levels(zone: str, db: Session = Depends(get_db)):
         """)
     result = db.execute(query_prices, {
         "zone": zone,
-        "past_month_unix": past_month_unix,
-        "current_time_unix": current_time_unix
-    })
+        "past_month_unix": int(past_month.timestamp()),
+        "current_time_unix": int(current_time.timestamp())
+    }).fetchall()
 
-    # Fetch all the prices and convert to floats
-    prices = [float(row[0]) for row in result.fetchall()]
-    print(f"Prices for the last month: {prices}")
-
-    if not prices:
+    if not result:
         raise HTTPException(status_code=404, detail="No price data for the last month in this zone.")
 
-    # Calculating the top (75th percentile) and bottom (25th percentile) quartiles
-    high_price = float(np.percentile(prices, 75))  # 75th percentile (upper quartile)
-    low_price = float(np.percentile(prices, 25))   # 25th percentile (lower quartile)
-    print(f"Calculated high price: {high_price}, low price: {low_price}")
+    # Convert query to floats
+    prices = [float(row[0]) for row in result]
 
     # Return the prices, high and low quartiles
     return {
-        "prices": prices,
-        "high_price": high_price,
-        "low_price": low_price
+        "high": float(np.percentile(prices, 75)),
+        "low": float(np.percentile(prices, 25))
     }
-
 # GET endpoint: Get the BiddingZone given coordinates
 @router.get("/get-zone-by-location")
 def get_zone_from_location(lat: float, lon: float):
