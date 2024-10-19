@@ -29,7 +29,7 @@ def when_to_notify(zone: str, db: Session = Depends(get_db)):
 
             # Check if today's high price exceeds last month's high price
             if high_price_today > high_price_last_month:
-                send_email(high_price_today, high_price_time)  # Replace with the actual email address
+                
 
         else:
             logger.warning(f"No price data found for zone {zone} on {current_date}.")
@@ -45,3 +45,43 @@ def when_to_notify(zone: str, db: Session = Depends(get_db)):
         args=[zone, db]
     )
     scheduler.start()
+
+
+# Function to send the email
+def send_email(to_address: str, subject: str, body: str, price: float):
+    smtp_server = "smtp.gmail.com"
+    smtp_port = 587
+    sender_email = "team3.projectagile@gmail.com" 
+    sender_password = "Team3project"  
+
+    # Include the electricity price in the email message
+    body_with_price = f"{body}\n\n CURRENT PRICE HIGH!!! \n The current electricity price is: {price} €/kWh"
+
+    # Prepare the email content
+    msg = MIMEText(body_with_price)
+    msg["Subject"] = subject
+    msg["From"] = sender_email
+    msg["To"] = to_address
+
+    # Connect and send the email
+    try:
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()  # Start TLS connection
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, [to_address], msg.as_string())
+        server.quit()
+        print(f"Email sent to {to_address}")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+
+# Route to schedule an email with the electricity price
+@app.post("/schedule_email_once/")
+async def schedule_email_once(to_address: str, subject: str, body: str, price: float, schedule_time: datetime):
+    # Ensure the scheduled time is in the future
+    if schedule_time <= datetime.now():
+        raise HTTPException(status_code=400, detail="Scheduled time must be in the future")
+
+    # Schedule the email to be sent at the specified time with the electricity price
+    scheduler.add_job(send_email, 'date', run_date=schedule_time, args=[to_address, subject, body, price])
+
+    return {"message": "Email scheduled", "time": schedule_time, "price": price}
