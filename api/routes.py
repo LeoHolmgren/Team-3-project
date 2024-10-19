@@ -1,3 +1,4 @@
+from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -80,7 +81,7 @@ async def read_price_data_zone(zone: str, start: int, end: int, db: Session = De
 
     # Fetches a specific price data entry by zone from the price_data table (SQL)
     query = text("SELECT * FROM price_data WHERE zone = :zone AND time_start >= :start and time_end <= :end")
-    
+
     result = db.execute(query, {
         "zone": zone,
         "start": start,
@@ -176,3 +177,16 @@ def get_zone_from_location(lat: float, lon: float):
     return json.loads(request.content).get("zone")
 
 
+# GET endpoint: get available zones
+@router.get("/zones")
+async def get_available_zones(db: Session = Depends(get_db)):
+    query = text("SELECT DISTINCT zone FROM price_data")
+    result = db.execute(query)
+
+    # Fetch all the unique zones
+    zones = [row[0] for row in result.fetchall()]
+
+    if not zones:
+        raise HTTPException(status_code=404, detail="No zones available")
+
+    return {"zones": zones}
