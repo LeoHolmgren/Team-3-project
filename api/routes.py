@@ -1,9 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
+from jwt import jwt
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from pydantic import EmailStr, BaseModel
 from sqlalchemy.exc import IntegrityError
+
+from api.services import send_confirmation_email, ALGORITHM, SECRET_KEY
 from database import SessionLocal
 from models import Subscriber as EmailSubscriber
 
@@ -29,7 +32,9 @@ class Subscriber(BaseModel):
 @router.post("/subscribe/{zone}")
 async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depends(get_db)):
     try:
-        # TODO: check if zone exists   
+
+
+        # TODO: check if zone exists
         new_subscriber = EmailSubscriber(
             email=subscriber.email,
             name=subscriber.name,
@@ -40,12 +45,37 @@ async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depend
         session.commit()
         session.refresh(new_subscriber)
         return new_subscriber
-    
+
     except IntegrityError:
         session.rollback()
         raise HTTPException(
             status_code=400,
             detail="Email already subscribed to this or different zone",
+        )
+
+
+# POST endpoint: Function to subscribe with confirmation
+@router.post("/confirmation/{zone}")
+async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depends(get_db)):
+    try:
+        # Check if the email is already subscribed to any zone
+        existing_subscriber = session.query(EmailSubscriber).filter_by(email=subscriber.email).first()
+        if existing_subscriber:
+            raise HTTPException(
+                status_code=400,
+                detail="Email already subscribed to this or a different zone.",
+            )
+
+        # Send confirmation email
+        send_confirmation_email(email=subscriber.email, zone=zone)
+
+        return {"message": "Confirmation email sent."}
+
+    except IntegrityError:
+        session.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail="Error occurred while processing the subscription.",
         )
 
 #GET endpoint: function to get subscribers email by zone
