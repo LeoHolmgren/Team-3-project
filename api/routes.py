@@ -55,7 +55,7 @@ async def get_emails_by_zone(zone: str, db: Session = Depends(get_db)):
             SELECT email FROM email_subscribers 
             WHERE zone = :zone ;
         """)
-    emails = session.exec(query, {{"zone": zone}).fetchall()
+    emails = db.execute(query, {"zone": zone}).fetchall()
 
     # If no emails are found, raise a 404 error
     if not emails:
