@@ -2,7 +2,7 @@ from fastapi import Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from apscheduler.schedulers.background import BackgroundScheduler
-from api.routes import get_price_levels, get_db
+from api.routes import get_price_levels, get_db, get_emails_by_zone
 from datetime import datetime
 
 def when_to_notify(zone: str, db: Session = Depends(get_db)):
@@ -29,23 +29,20 @@ def when_to_notify(zone: str, db: Session = Depends(get_db)):
 
             # Check if today's high price exceeds last month's high price
             if high_price_today > high_price_last_month:
+                # Get emails of subscribers in the specified zone
+                emails = get_emails_by_zone(zone=zone, db=db)
                 
+                # Prepare email details
+                subject = f"High Electricity Price Alert for {zone}"
+                body = "The electricity price has exceeded last month's high price."
+
+                 # Schedule email sending for the time of the peak price
+                schedule_email_once(emails, subject, body, high_price_today, high_price_time)
 
         else:
             logger.warning(f"No price data found for zone {zone} on {current_date}.")
     except Exception as e:
         logger.error(f"Error en when_to_notify: {str(e)}")
-
-    # Schedule the price check every day at 8:00 AM UTC
-    def start_scheduler(zone: str, db: Session = Depends(get_db)):
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(
-        func=when_to_notify,
-        trigger=CronTrigger(hour=8, minute=0),
-        args=[zone, db]
-    )
-    scheduler.start()
-
 
 # Function to send the email
 def send_email(to_address: str, subject: str, body: str, price: float):
@@ -74,14 +71,21 @@ def send_email(to_address: str, subject: str, body: str, price: float):
     except Exception as e:
         print(f"Failed to send email: {e}")
 
-# Route to schedule an email with the electricity price
-@app.post("/schedule_email_once/")
-async def schedule_email_once(to_address: str, subject: str, body: str, price: float, schedule_time: datetime):
-    # Ensure the scheduled time is in the future
-    if schedule_time <= datetime.now():
-        raise HTTPException(status_code=400, detail="Scheduled time must be in the future")
+# Schedule the price check every day at 8:00 AM UTC
+    def start_scheduler(zone: str, db: Session = Depends(get_db)):
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(
+        func=when_to_notify,
+        trigger=CronTrigger(hour=8, minute=0),
+        args=[zone, db]
+    )
+    scheduler.start()
 
-    # Schedule the email to be sent at the specified time with the electricity price
-    scheduler.add_job(send_email, 'date', run_date=schedule_time, args=[to_address, subject, body, price])
+# Function to schedule an email at a specific time
+def schedule_email_once(to_addresses: list, subject: str, body: str, price: float, schedule_time: datetime):
+    scheduler = BackgroundScheduler()  # Make sure to use the same scheduler instance as above
+    for to_address in to_addresses:
+        scheduler.add_job(send_email, 'date', run_date=schedule_time, args=[to_address, subject, body, price])
+        logger.info(f"Email scheduled for {to_address} at {schedule_time}")
 
-    return {"message": "Email scheduled", "time": schedule_time, "price": price}
+    return {"message": "Emails scheduled", "time": schedule_time, "price": price}
