@@ -74,40 +74,6 @@ async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_d
 async def get_price_levels(zone: str, db: Session = Depends(get_db)):
     print(f"Fetching latest price entry for zone: {zone}")
 
-# GET endpoint: Fetch data by Zone And time interval (Seconds since epoch)
-@router.get("/price-data")
-async def read_price_data_zone(zone: str, start: int, end: int, db: Session = Depends(get_db)):
-
-    # Fetches a specific price data entry by zone from the price_data table (SQL)
-    query = text("SELECT * FROM price_data WHERE zone = :zone AND time_start >= :start and time_end <= :end")
-    
-    result = db.execute(query, {
-        "zone": zone,
-        "start": start,
-        "end": end
-    })
-
-    price_data = result.fetchall()
-
-    if price_data is None:
-        raise HTTPException(status_code=404, detail="No Price Data For Given Zone And Time Interval Was Found")
-
-    ret = []
-
-    for entry in price_data:
-        ret.append({
-            "price": entry[1],
-            "time": int(entry[2])
-        })
-
-    return ret
-
-
-# GET endpoint: Function to get price levels by zone
-@router.get("/price-levels/{zone}")
-async def get_price_levels(zone: str, db: Session = Depends(get_db)):
-    print(f"Fetching latest price entry for zone: {zone}")
-
     # Check if the zone exists in the database
     count_query = text("SELECT COUNT(*) FROM price_data WHERE zone = :zone")
     count_result = db.execute(count_query, {"zone": zone}).scalar()
