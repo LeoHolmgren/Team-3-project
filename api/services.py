@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, logger
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -7,6 +7,7 @@ from api.routes import get_price_levels, get_db, get_emails_by_zone
 from datetime import datetime
 import time
 import smtplib
+import logging
 from email.mime.text import MIMEText
 
 
@@ -24,14 +25,14 @@ def when_to_notify(zone: str, db: Session = Depends(get_db)):
             WHERE zone = :zone 
             AND time_start >= :current_time_unix
             ORDER BY time_start ASC 
-        """)
-       daily_prices_result = db.execute(query_daily_prices, {"zone": zone, "current_date": current_date}).fetchall()
+    """)
+        daily_prices_result = db.execute(query_daily_prices, {"zone": zone, "current_date": current_time_unix}).fetchall()
         if daily_prices_result:
             # Extract prices and their corresponding timestamps
             daily_prices = [(float(price[0]), price[1]) for price in daily_prices_result]  # Assuming price[1] is the timestamp
             high_price_today, high_price_time = max(daily_prices, key=lambda x: x[0])  # Get the highest price and its time
             logger.info(f"High price in zone {zone} for today: {high_price_today} SEK at {high_price_time}")
-
+    
             # Check if today's high price exceeds last month's high price
             if high_price_today > high_price_last_month:
                 # Get emails of subscribers in the specified zone
@@ -40,10 +41,10 @@ def when_to_notify(zone: str, db: Session = Depends(get_db)):
                 # Prepare email details
                 subject = f"High Electricity Price Alert for {zone}"
                 body = "The electricity price has exceeded last month's high price."
-
-                 # Schedule email sending for the time of the peak price
+    
+                # Schedule email sending for the time of the peak price
                 schedule_email_once(emails, subject, body, high_price_today, high_price_time)
-
+    
         else:
             logger.warning(f"No price data found for zone {zone} on {current_date}.")
     except Exception as e:
@@ -77,14 +78,14 @@ def send_email(to_address: str, subject: str, body: str, price: float):
         print(f"Failed to send email: {e}")
 
 # Schedule the price check every day at 8:00 AM UTC
-    def start_scheduler(zone: str, db: Session = Depends(get_db)):
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(
+def start_scheduler(zone: str, db: Session = Depends(get_db)):
+    scheduler_check = BackgroundScheduler()
+    scheduler_check.add_job(
         func=when_to_notify,
         trigger=CronTrigger(hour=8, minute=0),
         args=[zone, db]
     )
-    scheduler.start()
+    scheduler_check.start()
 
 # Function to schedule an email at a specific time
 def schedule_email_once(to_addresses: list, subject: str, body: str, price: float, schedule_time: datetime):
