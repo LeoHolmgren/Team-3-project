@@ -48,6 +48,21 @@ async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depend
             detail="Email already subscribed to this or different zone",
         )
 
+#GET endpoint: function to get subscribers email by zone
+@router.get("/emails/zone/{zone}")
+async def get_emails_by_zone(zone: str, db: Session = Depends(get_db)):
+    query = text("""
+            SELECT email FROM email_subscribers 
+            WHERE zone = :zone ;
+        """)
+    emails = session.exec(query, {{"zone": zone}).fetchall()
+
+    # If no emails are found, raise a 404 error
+    if not emails:
+        raise HTTPException(status_code=404, detail="No subscribers found for this zone")
+    return emails
+
+
 # GET endpoint: Fetch data by Zone
 @router.get("/price-data/{price_data_zone}")
 async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_db)):
