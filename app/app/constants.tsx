@@ -1,8 +1,8 @@
-import { PriceLevels, BiddingZone } from '@/app/types';
+import { Levels, BiddingZone } from '@/app/types';
 
 export const STORE_HISTORY_COOKIE = 'BiddingZone';
 
-export const MOCK_PRICE_LEVELS: PriceLevels = {
+export const MOCK_PRICE_LEVELS: Levels = {
   high: 0.2,
   low: 0.1,
 };

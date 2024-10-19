@@ -1,6 +1,6 @@
 export type PriceData = Array<{ price: number; time: number }>;
 
-export type PriceLevels = {
+export type Levels = {
   high: number;
   low: number;
 };

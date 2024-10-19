@@ -7,15 +7,14 @@ import Footer from '@/app/footer';
 import { AppProvider } from '@/app/appContext';
 import { ReactElement, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getPrice } from '@/app/api';
+import { fetchPrice } from '@/app/api';
 import Banner from '@/components/banner';
 import noZoneSrc from '@/app/public/no-zone.png';
 import errorSrc from '@/app/public/error.png';
-import CurrentPrice from '@/components/current-price';
-import { PriceLabel } from '@/components/labels';
 import { MOCK_PRICE_LEVELS, STORE_HISTORY_COOKIE } from './constants';
-import { Chart } from '@/components/chart';
+import { Chart, ChartLabelProps } from '@/components/chart';
 import useCookie from '@/hooks/use-cookie';
+import PriceLabel from '@/components/price-label';
 
 export enum HomeStatus {
   ERROR = 'error',
@@ -28,7 +27,6 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   const [, setCookie, deleteCookie] = useCookie<BiddingZone | null>(STORE_HISTORY_COOKIE, null);
   const [status, setStatus] = useState<HomeStatus>(loadZone ? HomeStatus.LOADING : HomeStatus.NOZONE);
   const [zone, setZone] = useState<BiddingZone | null>(loadZone);
-  const [price, setPrice] = useState<number | null>(null);
   const [data, setData] = useState<PriceData | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
@@ -44,7 +42,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   } = useQuery({
     queryKey: ['GetPrice'],
     queryFn: () => {
-      if (zone) return getPrice(zone);
+      if (zone) return fetchPrice(zone);
       else throw Error('No Zone Selected');
     },
     enabled: loadZone ? true : false,
@@ -91,7 +89,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
       });
       setStatus(HomeStatus.NOZONE);
     }
-  }, [zone]);
+  }, [zone, refetch, setCookie]);
 
   // Query set error
   useEffect(() => {
@@ -101,18 +99,16 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   // Query set data
   useEffect(() => {
     if (fetchData && dataUpdatedAt && zone) {
-      const price = fetchData.data[new Date(dataUpdatedAt).getHours()].price;
       const time = new Date(dataUpdatedAt);
       setSelectZoneState({
         status: SelectZoneStatus.SUCCESS,
         zone: zone,
         time: time,
       });
-      setData(fetchData.data);
+      setData(fetchData);
       setUpdatedAt(time);
-      if (price) setPrice(price);
     }
-  }, [fetchData]);
+  }, [fetchData, dataUpdatedAt, zone]);
 
   let content: ReactElement = <></>;
 
@@ -120,14 +116,14 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
     content = <Banner image={errorSrc} label={`Error ${error ? error.message : 'Error'}`} />;
   } else if (status == HomeStatus.SUCCESS || status == HomeStatus.LOADING) {
     content = (
-      <>
-        <CurrentPrice
-          property="Price"
-          label={<PriceLabel price={price} priceLevels={MOCK_PRICE_LEVELS} />}
-          value={price}
+      <div className="aspect-[1.8] h-full max-w-[100%] text-[0.8em]">
+        <Chart
+          data={data ? data.map(({ price }) => price) : null}
+          Label={(props: ChartLabelProps) => (
+            <PriceLabel priceLevels={MOCK_PRICE_LEVELS} price={props.value} time={props.time} />
+          )}
         />
-        <Chart data={data} timestamp={updatedAt} priceLevels={MOCK_PRICE_LEVELS} />
-      </>
+      </div>
     );
   } else {
     content = <Banner image={noZoneSrc} label="Zone not specified" />;
@@ -135,12 +131,14 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
 
   return (
     <AppProvider resetAppState={resetState}>
-      <Header />
-      <div className="flex flex-col items-center justify-center gap-6 pt-24">
-        {content}
+      <Header zone={zone?.value} />
+      <div className="flex grow flex-col items-center justify-center p-4">
+        <div className="grow-[1]"></div>
+        <div className="h-[20em] max-w-[100%] py-[1.6em]">{content}</div>
+        <div className="grow-[2]"></div>
         <SelectZone state={selectZoneState} onError={onError} onSelectZone={onSelectZone} />
-        <Footer timestamp={updatedAt} />
       </div>
+      <Footer timestamp={updatedAt} />
     </AppProvider>
   );
 }

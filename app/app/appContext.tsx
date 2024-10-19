@@ -19,16 +19,6 @@ export const useAppContext = () => {
 };
 
 // Provider component
-export const AppProvider = ({
-  children,
-  resetAppState,
-}: {
-  children: ReactNode;
-  resetAppState: () => void;
-}) => {
-  return (
-    <AppContext.Provider value={{ resetAppState }}>
-      {children}
-    </AppContext.Provider>
-  );
+export const AppProvider = ({ children, resetAppState }: { children: ReactNode; resetAppState: () => void }) => {
+  return <AppContext.Provider value={{ resetAppState }}>{children}</AppContext.Provider>;
 };
