@@ -1,14 +1,15 @@
+import jwt
 from fastapi import Depends, HTTPException, logger
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from api.routes import get_price_levels, get_db, get_emails_by_zone
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import smtplib
-import logging
 from email.mime.text import MIMEText
+
 
 
 def when_to_notify(zone: str, db: Session = Depends(get_db)):
@@ -95,3 +96,27 @@ def schedule_email_once(to_addresses: list, subject: str, body: str, price: floa
         logger.info(f"Email scheduled for {to_address} at {schedule_time}")
 
     return {"message": "Emails scheduled", "time": schedule_time, "price": price}
+
+# Logic for confirmation mail
+# JWT Secret and Config
+SECRET_KEY = "your_jwt_secret_key"
+ALGORITHM = "HS256"
+CONFIRMATION_TOKEN_EXPIRE_MINUTES = 60 * 24  # Token valid for 24 hours
+
+
+# Function to generate confirmation token
+def generate_confirmation_token(email: str, zone: str) -> str:
+    expiration = datetime.utcnow() + timedelta(minutes=CONFIRMATION_TOKEN_EXPIRE_MINUTES)
+    to_encode = {"sub": email, "zone": zone, "exp": expiration}
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+# Function to send confirmation email
+def send_confirmation_email(email: str, zone: str):
+    token = generate_confirmation_token(email, zone)
+    confirmation_link = f"http://yourdomain.com/confirm?token={token}"
+
+    subject = "Please Confirm Your Subscription"
+    body = f"Click the following link to confirm your subscription for zone {zone}: {confirmation_link}"
+
+    send_email(to_address=email, subject=subject, body=body, price=None)
