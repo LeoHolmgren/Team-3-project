@@ -51,16 +51,17 @@ async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depend
 #GET endpoint: function to get subscribers email by zone
 @router.get("/emails/zone/{zone}")
 async def get_emails_by_zone(zone: str, db: Session = Depends(get_db)):
-    query = text("""
-            SELECT email FROM email_subscribers 
-            WHERE zone = :zone ;
-        """)
+    query = text("""SELECT email FROM email_subscribers WHERE zone = :zone;""")
     emails = db.execute(query, {"zone": zone}).fetchall()
 
-    # If no emails are found, raise a 404 error
+    # Si no se encuentran correos, lanzar un error 404
     if not emails:
         raise HTTPException(status_code=404, detail="No subscribers found for this zone")
-    return emails
+    
+    # Convertir los resultados a una lista de diccionarios
+    email_list = [{"email": email[0]} for email in emails]
+    
+    return email_list
 
 
 # GET endpoint: Fetch data by Zone
