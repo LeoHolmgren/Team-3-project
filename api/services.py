@@ -4,13 +4,24 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from api.routes import get_price_levels, get_db, get_emails_by_zone
+from api.routes import get_price_levels, get_db
 from datetime import datetime, timedelta
 import time
 import smtplib
 from email.mime.text import MIMEText
 
+def get_emails_by_zone(zone: str, db: Session = Depends(get_db)):
+    query = text("""SELECT email FROM email_subscribers WHERE zone = :zone;""")
+    emails = db.execute(query, {"zone": zone}).fetchall()
 
+    # Si no se encuentran correos, lanzar un error 404
+    if not emails:
+        raise HTTPException(status_code=404, detail="No subscribers found for this zone")
+    
+    # Convertir los resultados a una lista de diccionarios
+    email_list = [{"email": email[0]} for email in emails]
+    
+    return email_list
 
 def when_to_notify(zone: str, db: Session = Depends(get_db)):
     try:
