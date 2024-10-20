@@ -4,24 +4,21 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from api.routes import get_price_levels, get_db
+from routes import get_price_levels, get_db
 from datetime import datetime, timedelta
 import time
 import smtplib
 from email.mime.text import MIMEText
+import os
+
+EMAIL_SENDER_PASSWORD=os.getenv("DATABASE_URL")
 
 def get_emails_by_zone(zone: str, db: Session = Depends(get_db)):
     query = text("""SELECT email FROM email_subscribers WHERE zone = :zone;""")
     emails = db.execute(query, {"zone": zone}).fetchall()
-
-    # Si no se encuentran correos, lanzar un error 404
     if not emails:
         raise HTTPException(status_code=404, detail="No subscribers found for this zone")
-    
-    # Convertir los resultados a una lista de diccionarios
-    email_list = [{"email": email[0]} for email in emails]
-    
-    return email_list
+    return [email[0] for email in emails]
 
 def when_to_notify(zone: str, db: Session = Depends(get_db)):
     try:
@@ -55,10 +52,11 @@ def when_to_notify(zone: str, db: Session = Depends(get_db)):
                 body = "The electricity price has exceeded last month's high price."
     
                 # Schedule email sending for the time of the peak price
-                schedule_email_once(emails, subject, body, high_price_today, high_price_time)
+                #schedule_email_once(emails, subject, body, high_price_today, high_price_time)
+                print("SENDING EMAIL....")
     
         else:
-            logger.warning(f"No price data found for zone {zone} on {current_date}.")
+            logger.warning(f"No price data found for zone {zone} on {current_time_unix}.")
     except Exception as e:
         logger.error(f"Error en when_to_notify: {str(e)}")
 
@@ -67,10 +65,10 @@ def send_email(to_address: str, subject: str, body: str, price: float):
     smtp_server = "smtp.gmail.com"
     smtp_port = 587
     sender_email = "team3.projectagile@gmail.com" 
-    sender_password = "Team3project"  
+    sender_password = EMAIL_SENDER_PASSWORD
 
     # Include the electricity price in the email message
-    body_with_price = f"{body}\n\n CURRENT PRICE HIGH!!! \n The current electricity price is: {price} €/kWh"
+    body_with_price = f"{body}\n\n CURRENT PRICE HIGH!!! \n The current electricity price is: {price} SEK/kWh"
 
     # Prepare the email content
     msg = MIMEText(body_with_price)

@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from pydantic import EmailStr, BaseModel
 from sqlalchemy.exc import IntegrityError
 
-from api.services import send_confirmation_email, ALGORITHM, SECRET_KEY
+from services import send_confirmation_email, ALGORITHM, SECRET_KEY
 from database import SessionLocal
 from models import Subscriber as EmailSubscriber
 
