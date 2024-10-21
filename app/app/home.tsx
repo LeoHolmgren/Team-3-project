@@ -59,6 +59,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   function resetState() {
     setZone(null);
     setError(null);
+    setData(null);
     setStatus(HomeStatus.NOZONE);
     deleteCookie();
   }

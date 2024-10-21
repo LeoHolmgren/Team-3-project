@@ -79,7 +79,7 @@ export function Chart({
     }
   }, [hour, refs.container, refs.label]);
 
-  const [bars, setBars] = useState<Array<ReactElement>>(getBars(null));
+  const [bars, setBars] = useState<Array<ReactElement>>(getBars(null, true));
 
   // On Data change
   useEffect(() => {

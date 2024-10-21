@@ -104,7 +104,7 @@ export function SelectZone({
   const ddButton = (
     <Button
       className={
-        'flex h-[3.5em] w-full items-center justify-between overflow-scroll whitespace-nowrap p-[0.5em] leading-[1]' +
+        'flex h-[3.5em] w-full items-center justify-between overflow-auto whitespace-nowrap p-[0.5em] leading-[1]' +
         containerStyle
       }
       variant="outline"
