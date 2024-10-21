@@ -39,8 +39,6 @@ export default function SubscribeDialog({ zone }: { zone: string | undefined }) 
     },
   });
 
-  console.log(zone);
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setError(null);
 

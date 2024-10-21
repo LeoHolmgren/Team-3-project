@@ -58,6 +58,8 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
 
   function resetState() {
     setZone(null);
+    setError(null);
+    setStatus(HomeStatus.NOZONE);
     deleteCookie();
   }
 
@@ -113,10 +115,10 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
   let content: ReactElement = <></>;
 
   if (status == HomeStatus.ERROR) {
-    content = <Banner image={errorSrc} label={`Error ${error ? error.message : 'Error'}`} />;
+    content = <Banner image={errorSrc} label="ERROR" text={error ? error.message : undefined} />;
   } else if (status == HomeStatus.SUCCESS || status == HomeStatus.LOADING) {
     content = (
-      <div className="aspect-[1.8] h-full max-w-[100%] text-[0.8em]">
+      <div className="aspect-[1.77777] h-[30vh] max-w-[100%] text-[0.8em]">
         <Chart
           data={data ? data.map(({ price }) => price) : null}
           Label={(props: ChartLabelProps) => (
@@ -134,7 +136,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
       <Header zone={zone?.value} />
       <div className="flex grow flex-col items-center justify-center p-4">
         <div className="grow-[1]"></div>
-        <div className="h-[20em] max-w-[100%] py-[1.6em]">{content}</div>
+        {content}
         <div className="grow-[2]"></div>
         <SelectZone state={selectZoneState} onError={onError} onSelectZone={onSelectZone} />
       </div>

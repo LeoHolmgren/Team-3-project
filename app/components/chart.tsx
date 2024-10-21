@@ -68,15 +68,7 @@ export function Chart({
     [hour]
   );
 
-  const [bars, setBars] = useState<Array<ReactElement>>(getBars(null));
-
-  // On Data change
-  useEffect(() => {
-    setBars(getBars(data));
-  }, [data, getBars]);
-
-  // Time changes we must update label position
-  useEffect(() => {
+  const updateLabelState = useCallback(() => {
     if (refs.label.current && refs.container.current) {
       const l = refs.label.current;
       const hlw = refs.label.current.offsetWidth / 2;
@@ -86,6 +78,18 @@ export function Chart({
       l.style.transform = `translate(-50%) translate(${tx}px)`;
     }
   }, [hour, refs.container, refs.label]);
+
+  const [bars, setBars] = useState<Array<ReactElement>>(getBars(null));
+
+  // On Data change
+  useEffect(() => {
+    setBars(getBars(data));
+  }, [data, getBars]);
+
+  // Time changes we must update label position
+  useEffect(() => {
+    updateLabelState();
+  }, [data, Label, hour, refs.container, refs.label, updateLabelState]);
 
   // =============================================================================================
 
