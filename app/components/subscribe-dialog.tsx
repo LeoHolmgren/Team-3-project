@@ -39,6 +39,8 @@ export default function SubscribeDialog({ zone }: { zone: string | undefined }) 
     },
   });
 
+  console.log(zone);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setError(null);
 
@@ -61,12 +63,12 @@ export default function SubscribeDialog({ zone }: { zone: string | undefined }) 
     }
   }
 
-  if (!isMounted) return <Button>Subscribe</Button>;
+  if (!isMounted) return <Button disabled={!zone}>Subscribe</Button>;
 
   return (
     <Dialog>
       <DialogTrigger disabled={!zone}>
-        <Button>Subscribe</Button>
+        <Button disabled={!zone}>Subscribe</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
