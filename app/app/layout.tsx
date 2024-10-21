@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} style={{transition: "all .2s"}}>
         <div className="relative m-auto flex min-h-[100vh] max-w-5xl flex-col overflow-hidden">
           <Providers>
             <main className="flex flex-1 flex-col">{children}</main>
