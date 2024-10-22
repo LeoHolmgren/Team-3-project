@@ -46,7 +46,10 @@ export function LocationButton({
   }
 
   return (
-    <div className="aspect-square h-[3.5em]">
+    <div
+      className="aspect-square h-[3.5em]"
+      style={{ transition: 'color var(--ui-duration), border-color var(--duration)' }}
+    >
       <Button
         variant="outline"
         onClick={locationEnable}

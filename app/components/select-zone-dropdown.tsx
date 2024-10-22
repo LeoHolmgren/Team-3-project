@@ -18,7 +18,7 @@ export function SelectZonesDropdown({
 
   const region_list = (
     <Command>
-      <CommandInput placeholder="Filter zone..." />
+      <CommandInput placeholder="Filter Zones..." />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup>

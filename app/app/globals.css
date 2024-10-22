@@ -10,6 +10,9 @@
 
 @layer base {
   :root {
+    --ui-duration: 0.15s;
+    --duration: 0.25s;
+
     --text: 0 0% 35%;
     --shade: 0 0% 70%;
     --highlight: 231, 55%, 56%;

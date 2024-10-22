@@ -42,18 +42,18 @@ export function Chart({
       for (let idx = 0; idx < 24; idx++) {
         const isNumber = inData ? typeof inData[idx] === 'number' : false;
         const value = inData ? (inData[idx] ?? yMin) : yMin;
-        const percentage: number = yMax - yMinPadded ? (value - yMinPadded) / (yMax - yMinPadded) : padd;
+        const percentage: number = yMax - yMinPadded ? (value - yMinPadded) / (yMax - yMinPadded) : 0;
         //console.log(`ìdx-${idx} - isNumber-${isNumber} - value-${value} - percentage-${percentage} - hour${hour}`);
         bars[idx] = (
           <div
-            style={{ transition: noAnimate ? '' : 'all .2s' }}
+            style={{ transition: noAnimate ? '' : 'all var(--duration)' }}
             className={'flex grow items-end' + (idx == hour ? ' brightness-[1.30]' : '')}
             onMouseEnter={() => setHour(idx)}
             key={idx}
           >
             <div
               style={{
-                transition: noAnimate ? '' : 'all .2s',
+                transition: noAnimate ? '' : 'all var(--duration)',
                 backgroundColor: 'hsla(var(--chart))',
                 height: percentage * 100 + '%',
                 filter: isNumber ? '' : 'saturate(0%)',
@@ -109,7 +109,7 @@ export function Chart({
   return (
     <div className={containerCn + ' flex flex-col text-[0.9em]'}>
       <div>
-        <div ref={refs.label} style={{ transition: 'all 0.2s' }} className="inline-block">
+        <div ref={refs.label} style={{ transition: 'all var(--ui-duration)' }} className="inline-block">
           {data ? Label({ value: data[hour], time: new Date(timestamp.setHours(hour, 0)) }) : null}
         </div>
       </div>

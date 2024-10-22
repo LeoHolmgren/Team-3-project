@@ -129,7 +129,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
       </div>
     );
   } else {
-    content = <Banner image={noZoneSrc} label="Zone not specified" />;
+    content = <Banner image={noZoneSrc} label="No Zone Selected" />;
   }
 
   return (

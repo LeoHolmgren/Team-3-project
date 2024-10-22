@@ -108,6 +108,7 @@ export function SelectZone({
         containerStyle
       }
       variant="outline"
+      style={{ transition: 'all var(--duration)' }}
     >
       <div className="basis-[3em] text-left font-[600] text-[hsl(var(--text))] opacity-85 dark:opacity-45">
         {zoneText}
