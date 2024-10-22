@@ -1,4 +1,4 @@
-import Image, { StaticImageData } from 'next/image';
+import { StaticImageData } from 'next/image';
 
 interface BannerProps {
   image: StaticImageData;
@@ -19,7 +19,7 @@ export default function Banner({ image, label, text }: BannerProps) {
         }}
       ></div>
       <h2 className="text-[1.5em] font-[600] text-[hsl(var(--text))]">{label}</h2>
-      {text ? <p className="text-center">{text}</p> : null}
+      {text ? <p className="text-center text-[hsl(var(--text))]">{text}</p> : null}
     </>
   );
 }

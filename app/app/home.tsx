@@ -111,7 +111,7 @@ export default function Home({ loadZone }: { loadZone: BiddingZone | null }) {
       setData(fetchData);
       setUpdatedAt(time);
     }
-  }, [fetchData, dataUpdatedAt, zone]);
+  }, [fetchData, dataUpdatedAt]);
 
   let content: ReactElement = <></>;
 

@@ -56,19 +56,13 @@ export async function fetchPrice(zone: BiddingZone): Promise<PriceData> {
 }
 
 export async function getZoneFromLocation(location: Location): Promise<BiddingZone> {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/get-zone-by-location?lat=${location.lat}&lon=${location.lon}`
-    );
-    const text = await response.text();
-    console.log(text);
-    const zoneValue = text.replaceAll('"', '').split('-').reverse()[0];
-    const matchingZone = ZONES.find((zone) => zone.value === zoneValue);
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/get-zone-by-location?lat=${location.lat}&lon=${location.lon}`
+  );
+  const text = await response.text();
+  const zoneValue = text.replaceAll('"', '').split('-').reverse()[0];
+  const matchingZone = ZONES.find((zone) => zone.value === zoneValue);
 
-    // Return the matching zone name or a fallback if not found
-    return matchingZone || { value: zoneValue, label: 'Unknown Zone' };
-  } catch (error) {
-    console.error('Error fetching zone:', error);
-    throw error;
-  }
+  // Return the matching zone name or a fallback if not found
+  return matchingZone || { value: zoneValue, label: 'Unknown Zone' };
 }
