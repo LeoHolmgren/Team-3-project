@@ -28,6 +28,7 @@ class Subscriber(BaseModel):
     email: EmailStr
     name: str
 
+
 # POST endpoint: Function to subscribe
 @router.post("/subscribe/{zone}")
 async def subscribe_with_confirmation(zone: str, subscriber: Subscriber, session: Session = Depends(get_db)):
@@ -51,6 +52,7 @@ async def subscribe_with_confirmation(zone: str, subscriber: Subscriber, session
             status_code=400,
             detail="Error occurred while processing the subscription.",
         )
+
 
 # POST endpoint: Function to subscribe with confirmation
 @router.get("/confirm")
@@ -92,7 +94,7 @@ async def confirm_subscription(token: str, session: Session = Depends(get_db)):
 async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_db)):
     print(f"Received price_data_zone: '{price_data_zone}'")
 
-# Fetches a specific price data entry by zone from the price_data table (SQL)
+    # Fetches a specific price data entry by zone from the price_data table (SQL)
 
     query = text("SELECT * FROM price_data WHERE zone = :zone")
     result = db.execute(query, {"zone": price_data_zone})
@@ -102,16 +104,11 @@ async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_d
         raise HTTPException(status_code=404, detail="PriceData by zone not found")
 
     return {
-        "zone": price_data.zone,
-        "price_sek": price_data.price_sek,
+        "price": price_data.price_sek,
         "time_start": price_data.time_start,
         "time_end": price_data.time_end
     }
 
-# GET endpoint: Function to get price levels by zone
-@router.get("/price-levels/{zone}")
-async def get_price_levels(zone: str, db: Session = Depends(get_db)):
-    print(f"Fetching latest price entry for zone: {zone}")
 
 # GET endpoint: Fetch data by Zone And time interval (Seconds since epoch)
 @router.get("/price-data")
@@ -145,37 +142,10 @@ async def read_price_data_zone(zone: str, start: int, end: int, db: Session = De
 # GET endpoint: Function to get price levels by zone
 @router.get("/price-levels/{zone}")
 async def get_price_levels(zone: str, db: Session = Depends(get_db)):
-    print(f"Fetching latest price entry for zone: {zone}")
 
-    # Check if the zone exists in the database
-    count_query = text("SELECT COUNT(*) FROM price_data WHERE zone = :zone")
-    count_result = db.execute(count_query, {"zone": zone}).scalar()
-    print(f"Number of records for zone '{zone}': {count_result}")
-
-    if count_result == 0:
-        raise HTTPException(status_code=404, detail="No price data available for this zone")
-
-    # Get the latest price entry:
-    query_latest_time = text("""
-            SELECT time_start FROM price_data 
-            WHERE zone = :zone 
-            ORDER BY time_start DESC 
-            LIMIT 1
-        """)
-    latest_time_result = db.execute(query_latest_time, {"zone": zone}).fetchone()
-
-    if not latest_time_result:
-        raise HTTPException(status_code=404, detail="No price data available for this zone.")
-
-    # Current time as UNIX timestamp
-    current_time_unix = latest_time_result[0]
-    current_time = datetime.fromtimestamp(current_time_unix)
-    print(f"Current time: {current_time}")
-
-    # Back one month as UNIX timestamp
+    # Current time and time going back one month
+    current_time = datetime.now(timezone.utc)
     past_month = current_time - timedelta(days=30)
-    past_month_unix = int(past_month.timestamp())
-    print(f"Past month time: {past_month} (Unix: {past_month_unix})")
 
     # All prices within the last month
     query_prices = text("""
@@ -185,27 +155,20 @@ async def get_price_levels(zone: str, db: Session = Depends(get_db)):
         """)
     result = db.execute(query_prices, {
         "zone": zone,
-        "past_month_unix": past_month_unix,
-        "current_time_unix": current_time_unix
-    })
+        "past_month_unix": int(past_month.timestamp()),
+        "current_time_unix": int(current_time.timestamp())
+    }).fetchall()
 
-    # Fetch all the prices and convert to floats
-    prices = [float(row[0]) for row in result.fetchall()]
-    print(f"Prices for the last month: {prices}")
-
-    if not prices:
+    if not result:
         raise HTTPException(status_code=404, detail="No price data for the last month in this zone.")
 
-    # Calculating the top (75th percentile) and bottom (25th percentile) quartiles
-    high_price = float(np.percentile(prices, 75))  # 75th percentile (upper quartile)
-    low_price = float(np.percentile(prices, 25))   # 25th percentile (lower quartile)
-    print(f"Calculated high price: {high_price}, low price: {low_price}")
+    # Convert query to floats
+    prices = [float(row[0]) for row in result]
 
     # Return the prices, high and low quartiles
     return {
-        "prices": prices,
-        "high_price": high_price,
-        "low_price": low_price
+        "high": float(np.percentile(prices, 75)),
+        "low": float(np.percentile(prices, 25))
     }
 
 # GET endpoint: Get the BiddingZone given coordinates
