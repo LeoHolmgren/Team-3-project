@@ -104,9 +104,11 @@ export function SelectZone({
   const ddButton = (
     <Button
       className={
-        'flex h-[3.5em] w-full items-center justify-between whitespace-nowrap p-[0.5em] leading-[1]' + containerStyle
+        'flex h-[3.5em] w-full items-center justify-between overflow-auto whitespace-nowrap p-[0.5em] leading-[1]' +
+        containerStyle
       }
       variant="outline"
+      style={{ transition: 'all var(--duration)' }}
     >
       <div className="basis-[3em] text-left font-[600] text-[hsl(var(--text))] opacity-85 dark:opacity-45">
         {zoneText}

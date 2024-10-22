@@ -1,4 +1,4 @@
-import { ReactElement, ReactNode, TouchEvent, useEffect, useRef, useState } from 'react';
+import { ReactElement, TouchEvent, useCallback, useEffect, useRef, useState } from 'react';
 
 export interface ChartLabelProps {
   value: number;
@@ -20,9 +20,55 @@ export function Chart({
   };
 
   const [hour, setHour] = useState(new Date().getHours());
-  setHour;
 
-  useEffect(() => {
+  const getBars = useCallback(
+    (inData: Array<number> | null, noAnimate?: boolean) => {
+      const padd = 0.15;
+
+      let yMax, yMin, yMinPadded: number;
+
+      if (inData) {
+        yMax = Math.max(...inData);
+        yMin = Math.min(...inData);
+        yMinPadded = yMin - (yMax - yMin) * padd;
+      } else {
+        yMax = 0;
+        yMin = 0;
+        yMinPadded = 0;
+      }
+
+      const bars: Array<ReactElement> = [];
+
+      for (let idx = 0; idx < 24; idx++) {
+        const isNumber = inData ? typeof inData[idx] === 'number' : false;
+        const value = inData ? (inData[idx] ?? yMin) : yMin;
+        const percentage: number = yMax - yMinPadded ? (value - yMinPadded) / (yMax - yMinPadded) : 0;
+        //console.log(`ìdx-${idx} - isNumber-${isNumber} - value-${value} - percentage-${percentage} - hour${hour}`);
+        bars[idx] = (
+          <div
+            style={{ transition: noAnimate ? '' : 'all var(--duration)' }}
+            className={'flex grow items-end' + (idx == hour ? ' brightness-[1.30]' : '')}
+            onMouseEnter={() => setHour(idx)}
+            key={idx}
+          >
+            <div
+              style={{
+                transition: noAnimate ? '' : 'all var(--duration)',
+                backgroundColor: 'hsla(var(--chart))',
+                height: percentage * 100 + '%',
+                filter: isNumber ? '' : 'saturate(0%)',
+              }}
+              className="grow basis-[1px]"
+            ></div>
+          </div>
+        );
+      }
+      return bars;
+    },
+    [hour]
+  );
+
+  const updateLabelState = useCallback(() => {
     if (refs.label.current && refs.container.current) {
       const l = refs.label.current;
       const hlw = refs.label.current.offsetWidth / 2;
@@ -31,61 +77,23 @@ export function Chart({
       const tx = Math.min(Math.max(cx, hlw), cw - hlw);
       l.style.transform = `translate(-50%) translate(${tx}px)`;
     }
-  });
+  }, [hour, refs.container, refs.label]);
 
-  let chartContent: ReactNode;
-  let label: ReactNode;
+  const [bars, setBars] = useState<Array<ReactElement>>(getBars(null, true));
 
-  if (data) {
-    const timestamp = new Date();
-    const yMax = Math.max(...data);
-    const yMin = Math.min(...data);
-    const yMinPadded = yMin - (yMax - yMin) * 0.15;
+  // On Data change
+  useEffect(() => {
+    setBars(getBars(data));
+  }, [data, getBars]);
 
-    const bars: Array<ReactElement> = [];
-
-    for (let idx = 0; idx < 24; idx++) {
-      const isNumber = typeof data[idx] === 'number';
-      const value = data[idx] ?? yMin;
-      const percentage: number = (value - yMinPadded) / (yMax - yMinPadded);
-      bars[idx] = (
-        <div
-          style={{ transition: 'all .2s' }}
-          className={'flex grow items-end' + (idx == hour ? ' brightness-[1.30]' : '')}
-          onMouseEnter={() => setHour(idx)}
-          key={idx}
-        >
-          <div
-            style={{
-              transition: 'all .2s',
-              backgroundColor: 'hsla(var(--chart))',
-              height: percentage * 100 + '%',
-              filter: isNumber ? '' : 'saturate(0%)',
-            }}
-            className="grow basis-[1px]"
-          ></div>
-        </div>
-      );
-    }
-
-    label = Label({ value: data[hour], time: new Date(timestamp.setHours(hour, 0)) });
-    chartContent = (
-      <div
-        className="flex grow cursor-pointer items-stretch pt-[2.5em]"
-        onMouseLeave={() => setHour(new Date().getHours())}
-      >
-        {bars}
-      </div>
-    );
-  } else {
-    chartContent = (
-      <div className="flex grow items-center justify-center">
-        <h3 className="text-[2em]">No Data</h3>
-      </div>
-    );
-  }
+  // Time changes we must update label position
+  useEffect(() => {
+    updateLabelState();
+  }, [data, Label, hour, refs.container, refs.label, updateLabelState]);
 
   // =============================================================================================
+
+  const timestamp = new Date();
 
   const touchSetHour = (e: TouchEvent) => {
     if (refs.container.current) {
@@ -101,8 +109,8 @@ export function Chart({
   return (
     <div className={containerCn + ' flex flex-col text-[0.9em]'}>
       <div>
-        <div ref={refs.label} style={{ transition: 'all 0.2s' }} className="inline-block">
-          {label}
+        <div ref={refs.label} style={{ transition: 'all var(--ui-duration)' }} className="inline-block">
+          {data ? Label({ value: data[hour], time: new Date(timestamp.setHours(hour, 0)) }) : null}
         </div>
       </div>
       <div
@@ -113,7 +121,18 @@ export function Chart({
         onTouchEnd={touchResetHour}
         onMouseUp={touchResetHour}
       >
-        {chartContent}
+        {data ? (
+          <div
+            className="flex grow cursor-pointer items-stretch pt-[2.5em]"
+            onMouseLeave={() => setHour(new Date().getHours())}
+          >
+            {bars}
+          </div>
+        ) : (
+          <div className="flex grow items-center justify-center">
+            <h3 className="text-[2em]">No Data</h3>
+          </div>
+        )}
       </div>
       <div className="flex flex-col">
         <div style={{ borderTop: '1px solid hsl(var(--text))' }} className="flex h-[0.25em] justify-between opacity-55">
