@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from pydantic import EmailStr, BaseModel
 from sqlalchemy.exc import IntegrityError
 
-from services import send_confirmation_email, ALGORITHM, SECRET_KEY
+from services import send_confirmation_email, ALGORITHM, SECRET_KEY, send_email
 from database import SessionLocal
 from models import Subscriber as EmailSubscriber
 
@@ -30,40 +30,14 @@ class Subscriber(BaseModel):
 
 # POST endpoint: Function to subscribe
 @router.post("/subscribe/{zone}")
-async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depends(get_db)):
-    try:
-
-
-        # TODO: check if zone exists
-        new_subscriber = EmailSubscriber(
-            email=subscriber.email,
-            name=subscriber.name,
-            zone=zone,
-        )
-
-        session.add(new_subscriber)
-        session.commit()
-        session.refresh(new_subscriber)
-        return new_subscriber
-
-    except IntegrityError:
-        session.rollback()
-        raise HTTPException(
-            status_code=400,
-            detail="Email already subscribed to this or different zone",
-        )
-
-
-# POST endpoint: Function to subscribe with confirmation
-@router.post("/confirmation/{zone}")
-async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depends(get_db)):
+async def subscribe_with_confirmation(zone: str, subscriber: Subscriber, session: Session = Depends(get_db)):
     try:
         # Check if the email is already subscribed to any zone
         existing_subscriber = session.query(EmailSubscriber).filter_by(email=subscriber.email).first()
         if existing_subscriber:
             raise HTTPException(
                 status_code=400,
-                detail="Email already subscribed to this or a different zone.",
+                detail="Email already subscribed to this or a different zone."
             )
 
         # Send confirmation email
@@ -77,6 +51,41 @@ async def subscribe(zone: str, subscriber: Subscriber, session: Session = Depend
             status_code=400,
             detail="Error occurred while processing the subscription.",
         )
+
+# POST endpoint: Function to subscribe with confirmation
+@router.get("/confirm")
+async def confirm_subscription(token: str, session: Session = Depends(get_db)):
+    try:
+        # Decode and verify token
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+        zone = payload.get("zone")
+
+        # Check if already subscribed for the same zone
+        existing_subscriber = session.query(EmailSubscriber).filter_by(email=email, zone=zone).first()
+        if existing_subscriber:
+            raise HTTPException(status_code=400, detail="Email already confirmed for this zone.")
+
+        # Add the subscriber to the database for this zone
+        new_subscriber = EmailSubscriber(email=email, zone=zone)
+        session.add(new_subscriber)
+        session.commit()
+
+        # Send a welcome or subscription email after confirmation
+        send_email(
+            to_address=email,
+            subject="Welcome!",
+            body="Thank you for confirming your subscription to zone " + zone,
+            price=None
+        )
+
+        return {"message": "Subscription confirmed and welcome email sent."}
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=400, detail="Confirmation link expired.")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=400, detail="Invalid confirmation link.")
+
 
 # GET endpoint: Fetch data by Zone
 @router.get("/price-data/{price_data_zone}")
