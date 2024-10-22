@@ -58,8 +58,8 @@ async def subscribe_with_confirmation(zone: str, subscriber: Subscriber, session
 # POST endpoint: Function to subscribe with confirmation
 @router.get("/confirm")
 async def confirm_subscription(token: str, session: Session = Depends(get_db)):
-    return {"message": ""}
-    
+    return {"message": "Temporary requires circular import fix"}
+
     #try:
         # Decode and verify token
         #payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
