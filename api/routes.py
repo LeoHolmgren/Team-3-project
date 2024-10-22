@@ -1,14 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
-from jwt import jwt
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
 from pydantic import EmailStr, BaseModel
 from sqlalchemy.exc import IntegrityError
-
-from services import send_confirmation_email, ALGORITHM, SECRET_KEY, send_email
 from database import SessionLocal
 from models import Subscriber as EmailSubscriber
+#from jwt import jwt
+#from services import send_confirmation_email, ALGORITHM, SECRET_KEY, send_email
 
 import requests
 import json
@@ -28,63 +27,68 @@ class Subscriber(BaseModel):
     email: EmailStr
     name: str
 
+
 # POST endpoint: Function to subscribe
 @router.post("/subscribe/{zone}")
 async def subscribe_with_confirmation(zone: str, subscriber: Subscriber, session: Session = Depends(get_db)):
-    try:
+    return {"message": "Temporary requires circular import fix"}
+        
+    #try:
         # Check if the email is already subscribed to any zone
-        existing_subscriber = session.query(EmailSubscriber).filter_by(email=subscriber.email).first()
-        if existing_subscriber:
-            raise HTTPException(
-                status_code=400,
-                detail="Email already subscribed to this or a different zone."
-            )
+    #    existing_subscriber = session.query(EmailSubscriber).filter_by(email=subscriber.email).first()
+    #    if existing_subscriber:
+    #        raise HTTPException(
+    #            status_code=400,
+    #            detail="Email already subscribed to this or a different zone."
+    #        )
 
         # Send confirmation email
-        send_confirmation_email(email=subscriber.email, zone=zone)
+        #send_confirmation_email(email=subscriber.email, zone=zone)
+    #    return {"message": "Temporary requires circular import fix"}
+        #return {"message": "Confirmation email sent."}
 
-        return {"message": "Confirmation email sent."}
+    #except IntegrityError:
+    #    session.rollback()
+    #    raise HTTPException(
+    #        status_code=400,
+    #        detail="Error occurred while processing the subscription.",
+    #    )
 
-    except IntegrityError:
-        session.rollback()
-        raise HTTPException(
-            status_code=400,
-            detail="Error occurred while processing the subscription.",
-        )
 
 # POST endpoint: Function to subscribe with confirmation
 @router.get("/confirm")
 async def confirm_subscription(token: str, session: Session = Depends(get_db)):
-    try:
+    return {"message": "Temporary requires circular import fix"}
+
+    #try:
         # Decode and verify token
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload.get("sub")
-        zone = payload.get("zone")
+        #payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        #email = payload.get("sub")
+        #zone = payload.get("zone")
 
         # Check if already subscribed for the same zone
-        existing_subscriber = session.query(EmailSubscriber).filter_by(email=email, zone=zone).first()
-        if existing_subscriber:
-            raise HTTPException(status_code=400, detail="Email already confirmed for this zone.")
+        #existing_subscriber = session.query(EmailSubscriber).filter_by(email=email, zone=zone).first()
+        #if existing_subscriber:
+        #    raise HTTPException(status_code=400, detail="Email already confirmed for this zone.")
 
         # Add the subscriber to the database for this zone
-        new_subscriber = EmailSubscriber(email=email, zone=zone)
-        session.add(new_subscriber)
-        session.commit()
+        #new_subscriber = EmailSubscriber(email=email, zone=zone)
+        #session.add(new_subscriber)
+        #session.commit()
 
         # Send a welcome or subscription email after confirmation
-        send_email(
-            to_address=email,
-            subject="Welcome!",
-            body="Thank you for confirming your subscription to zone " + zone,
-            price=None
-        )
+        #send_email(
+        #    to_address=email,
+        #    subject="Welcome!",
+        #    body="Thank you for confirming your subscription to zone " + zone,
+        #    price=None
+        #)
+        #return {"message": "Subscription confirmed and welcome email sent."}
 
-        return {"message": "Subscription confirmed and welcome email sent."}
-
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=400, detail="Confirmation link expired.")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=400, detail="Invalid confirmation link.")
+    #except jwt.ExpiredSignatureError:
+    #    raise HTTPException(status_code=400, detail="Confirmation link expired.")
+    #except jwt.InvalidTokenError:
+    #    raise HTTPException(status_code=400, detail="Invalid confirmation link.")
 
 
 # GET endpoint: Fetch data by Zone
@@ -92,7 +96,7 @@ async def confirm_subscription(token: str, session: Session = Depends(get_db)):
 async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_db)):
     print(f"Received price_data_zone: '{price_data_zone}'")
 
-# Fetches a specific price data entry by zone from the price_data table (SQL)
+    # Fetches a specific price data entry by zone from the price_data table (SQL)
 
     query = text("SELECT * FROM price_data WHERE zone = :zone")
     result = db.execute(query, {"zone": price_data_zone})
@@ -102,16 +106,11 @@ async def read_price_data_zone(price_data_zone: str, db: Session = Depends(get_d
         raise HTTPException(status_code=404, detail="PriceData by zone not found")
 
     return {
-        "zone": price_data.zone,
-        "price_sek": price_data.price_sek,
+        "price": price_data.price_sek,
         "time_start": price_data.time_start,
         "time_end": price_data.time_end
     }
 
-# GET endpoint: Function to get price levels by zone
-@router.get("/price-levels/{zone}")
-async def get_price_levels(zone: str, db: Session = Depends(get_db)):
-    print(f"Fetching latest price entry for zone: {zone}")
 
 # GET endpoint: Fetch data by Zone And time interval (Seconds since epoch)
 @router.get("/price-data")
