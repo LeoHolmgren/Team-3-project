@@ -1,34 +1,32 @@
 'use client';
 
 import * as React from 'react';
-import { Moon, Sun } from 'lucide-react';
+import { LuSun, LuMoon } from 'react-icons/lu';
 import { useTheme } from 'next-themes';
 
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 export function ThemeToggle() {
   const { setTheme } = useTheme();
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <Button
+        onClick={() => setTheme('light')}
+        variant="outline"
+        size="icon"
+        className="hidden aspect-square h-[2.25rem] justify-center text-[1.2em] leading-[1] text-[hsl(var(--text))] dark:flex"
+      >
+        <LuSun />
+      </Button>
+      <Button
+        onClick={() => setTheme('dark')}
+        variant="outline"
+        size="icon"
+        className="flex aspect-square h-[2.25rem] justify-center text-[1.2em] leading-[1] text-[hsl(var(--text))] dark:hidden"
+      >
+        <LuMoon />
+      </Button>
+    </>
   );
 }

@@ -18,7 +18,7 @@ export function SelectZonesDropdown({
 
   const region_list = (
     <Command>
-      <CommandInput placeholder="Filter zone..." />
+      <CommandInput placeholder="Filter Zones..." />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup>
@@ -32,7 +32,7 @@ export function SelectZonesDropdown({
               }}
             >
               <div className="font-[400] text-[hsl(var(--text))]">
-                <span className="font-[600] opacity-85 dark:opacity-45">{zone.value}</span>
+                <span className="font-[600] opacity-65 dark:opacity-45">{zone.value}</span>
                 &nbsp;
                 {zone.label}
               </div>
@@ -57,7 +57,7 @@ export function SelectZonesDropdown({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="p-0" align="center">
+      <PopoverContent className="min-h-[120px] w-[352px] p-0" align="center">
         {region_list}
       </PopoverContent>
     </Popover>

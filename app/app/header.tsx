@@ -15,7 +15,7 @@ export default function Header({ zone }: { zone: string | undefined }) {
 
   return (
     <header
-      style={{ transition: 'all 0.2s' }}
+      style={{ transition: 'all var(--duration)' }}
       className={'flex items-center justify-between bg-transparent ' + (isDesktop ? 'px-8 py-4' : 'p-4')}
     >
       <div onClick={resetAppState} className="h-[2.2em] cursor-pointer">

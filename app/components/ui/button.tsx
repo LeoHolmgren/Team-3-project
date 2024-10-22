@@ -5,11 +5,12 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center duration-[var(--duration)] whitespace-nowrap rounded-md text-sm font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 'bg-[hsl(var(--text))] text-[hsl(var(--background))] shadow hover:bg-primary/90',
+        default:
+          'bg-[hsl(var(--text))] text-[hsl(var(--background))] shadow hover:bg-primary/90 disabled:bg-[hsl(var(--shade))]',
         destructive: 'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
         outline:
           'border border-[hsl(var(--shade))] shadow-sm hover:bg-[hsl(var(--shade))] hover:text-accent-foreground text-[hsl(var(--text))]',
@@ -40,7 +41,14 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button';
-    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        style={{ transition: 'all var(--duration)' }}
+        ref={ref}
+        {...props}
+      />
+    );
   }
 );
 Button.displayName = 'Button';
