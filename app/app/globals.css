@@ -10,8 +10,8 @@
 
 @layer base {
   :root {
-    --ui-duration: 0.15s;
-    --duration: 0.25s;
+    --ui-duration: 0.15s; /* Animations that are direct feedback to the user, such as the color of a button when you click it or when you follow the graph with the mouse/finger */
+    --duration: 0.25s; /* Transition animations such as theme changes */
 
     --text: 0 0% 35%;
     --shade: 0 0% 70%;
