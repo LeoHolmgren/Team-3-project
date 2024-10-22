@@ -7,3 +7,5 @@ sqlmodel
 uvicorn
 numpy
 pydantic
+jwt
+apscheduler
