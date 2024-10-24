@@ -13,6 +13,10 @@ from models import Subscriber as EmailSubscriber
 import requests
 import json
 import numpy as np
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -28,64 +32,73 @@ class Subscriber(BaseModel):
     email: EmailStr
     name: str
 
+
 # POST endpoint: Function to subscribe
 @router.post("/subscribe/{zone}")
 async def subscribe_with_confirmation(zone: str, subscriber: Subscriber, session: Session = Depends(get_db)):
     try:
-        # Check if the email is already subscribed to any zone
+        logger.info(f"Received subscription request for zone: {zone}, email: {subscriber.email}")
+
+        # Check if the email is already subscribed
         existing_subscriber = session.query(EmailSubscriber).filter_by(email=subscriber.email).first()
         if existing_subscriber:
-            raise HTTPException(
-                status_code=400,
-                detail="Email already subscribed to this or a different zone."
-            )
+            logger.warning(f"Email {subscriber.email} already subscribed.")
+            raise HTTPException(status_code=400, detail="Email already subscribed to this or a different zone.")
 
         # Send confirmation email
         send_confirmation_email(email=subscriber.email, zone=zone)
+        logger.info(f"Confirmation email sent to {subscriber.email} for zone {zone}")
 
         return {"message": "Confirmation email sent."}
 
     except IntegrityError:
+        logger.error(f"IntegrityError: Error occurred while subscribing {subscriber.email}. Rolling back.")
         session.rollback()
-        raise HTTPException(
-            status_code=400,
-            detail="Error occurred while processing the subscription.",
-        )
+        raise HTTPException(status_code=400, detail="Error occurred while processing the subscription.")
 
-# POST endpoint: Function to subscribe with confirmation
+
+# POST endpoint: Function to confirm subscription
 @router.get("/confirm")
 async def confirm_subscription(token: str, session: Session = Depends(get_db)):
     try:
+        logger.info(f"Received token for confirmation: {token}")
         # Decode and verify token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email = payload.get("sub")
         zone = payload.get("zone")
 
+        logger.info(f"Token decoded. Email: {email}, Zone: {zone}")
+
         # Check if already subscribed for the same zone
         existing_subscriber = session.query(EmailSubscriber).filter_by(email=email, zone=zone).first()
         if existing_subscriber:
+            logger.warning(f"Email {email} already confirmed for zone {zone}.")
             raise HTTPException(status_code=400, detail="Email already confirmed for this zone.")
 
         # Add the subscriber to the database for this zone
         new_subscriber = EmailSubscriber(email=email, zone=zone)
         session.add(new_subscriber)
         session.commit()
+        logger.info(f"New subscriber added: {email} for zone {zone}")
 
         # Send a welcome or subscription email after confirmation
         send_email(
             to_address=email,
             subject="Welcome!",
-            body="Thank you for confirming your subscription to zone " + zone,
+            body=f"Thank you for confirming your subscription to zone {zone}.",
             price=None
         )
+        logger.info(f"Welcome email sent to {email}.")
 
         return {"message": "Subscription confirmed and welcome email sent."}
 
     except jwt.ExpiredSignatureError:
+        logger.error(f"Expired token for email confirmation: {token}")
         raise HTTPException(status_code=400, detail="Confirmation link expired.")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=400, detail="Invalid confirmation link.")
 
+    except jwt.InvalidTokenError:
+        logger.error(f"Invalid token for email confirmation: {token}")
+        raise HTTPException(status_code=400, detail="Invalid confirmation link.")
 
 # GET endpoint: Fetch data by Zone
 @router.get("/price-data/{price_data_zone}")
